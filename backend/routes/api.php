@@ -4,5 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PoolController;
 
-// Định nghĩa các route cho API
-Route::get('/', [App\Http\Controllers\PoolController::class, 'index']);
+// Định nghĩa route API
+Route::get('/pools', [PoolController::class, 'getPools']);
+Route::get('/pools/{id}',[PoolController::class,'getPool']);
