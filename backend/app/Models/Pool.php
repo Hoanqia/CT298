@@ -24,8 +24,9 @@ class Pool extends Model
         'adult_price',
         'student_price',
     ];
-    public $primaryKey = 'id_pool';
-    public $incrementing = false ;
+    protected $primaryKey = 'id_pool';
+    public $timestamps = false ;
+    protected $keyType = 'int';
 
     public function street()
     {

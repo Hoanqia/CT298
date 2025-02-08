@@ -12,7 +12,7 @@ class Ward extends Model
         'id_district',
     ];
     public $primaryKey = 'id_ward';
-    public $incrementing = false;
+    public $timestamps = false ;
     public function streets()
     {
         return $this->hasMany(Street::class, 'id_ward');

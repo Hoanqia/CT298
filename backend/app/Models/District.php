@@ -11,7 +11,7 @@ class District extends Model
         'name',
     ];
     public $primaryKey = 'id_district';
-    public $incrementing = false;
+    public $timestamps = false ;
     public function wards(){
         return $this->hasMany(Ward::class, 'id_district');
     }

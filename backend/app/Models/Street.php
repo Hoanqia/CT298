@@ -12,7 +12,7 @@ class Street extends Model
         'id_ward'
     ];
     public $primaryKey = 'id_street';
-    public $incrementing = false;
+    public $timestamps = false ;
     public function pools()
     {
         return $this->hasMany(Pool::class, 'id_street');
