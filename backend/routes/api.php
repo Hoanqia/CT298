@@ -8,3 +8,5 @@ use App\Http\Controllers\PoolController;
 Route::get('/pools', [PoolController::class, 'getPools']);
 Route::get('/pools/{id}',[PoolController::class,'getPool']);
 Route::get('/searchPools',[PoolController::class,'searchPools']);
+Route::get('/NumberOfPools',[PoolController::class,'NumberOfPools']);
+Route::get('NumberOfPoolsByTypeInDistrict',[PoolController::class,'NumberOfPoolsByTypeInDistrict']);

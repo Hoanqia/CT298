@@ -61,5 +61,39 @@ class PoolController extends Controller
         }
         return response()->json($pools,200); 
     }
+    public function NumberOfPools()
+    {
+        $districts = District::with(['wards.streets.pools'])->get();
     
+        $result = $districts->map(function ($district) {
+            $totalPools = $district->wards->sum(function ($ward) {
+                return $ward->streets->sum(function ($street) {
+                    return $street->pools->count();
+                });
+            });
+    
+            return [
+                'id_district' => $district->id_district,
+                'pools' => $totalPools
+            ];
+        });
+    
+        return response()->json($result);
+    }
+    public function NumberOfPoolsByTypeInDistrict()
+    {
+        $poolsByDistrict = Pool::join('streets', 'pools.id_street', '=', 'streets.id_street')
+            ->join('wards', 'streets.id_ward', '=', 'wards.id_ward')
+            ->join('districts', 'wards.id_district', '=', 'districts.id_district')
+            ->select('districts.name as district', 'pools.type', \DB::raw('COUNT(*) as count'))
+            ->groupBy('districts.name', 'pools.type')
+            ->get();
+    
+        return response()->json($poolsByDistrict);
+    }
+    
+    
+    
+
+
 }
