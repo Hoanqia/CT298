@@ -10,8 +10,7 @@ use App\Models\Street;
 
 class PoolController extends Controller
 {
-    public function getPools()
-{
+    public function getPools(){
     $pools = Pool::with('street.ward.district')->get();
 
     $pools = $pools->map(function ($pool) {
@@ -20,12 +19,11 @@ class PoolController extends Controller
         $pool->student_price = (float) $pool->student_price;
         return $pool;
     });
-
-    return response()->json($pools, 200);
+  return response()->json($pools, 200);
 }
 
-    public function getPool($id){
-        $pool = Pool::with('street.ward.district')->find($id);
+    public function getPool($id_pool){
+        $pool = Pool::with('street.ward.district')->find($id_pool);
         if (!$pool) {
         return response()->json(['message' => 'Không tìm thấy hồ bơi'], 404);
     }
@@ -85,7 +83,15 @@ class PoolController extends Controller
     
         return response()->json($groupedData);
     }
-    
+    // public function getEventsOfPool($id_pool){
+    //     $events = Event::with('pool')->where('id_pool',$id_pool)->get();
+    //     if($events->isEmpty()){
+    //         return response()->json(['message' => 'Hồ bơi này chưa có sự kiện nào']);
+    //     }
+    //     return response()->json($events,200);
+    // }
+
+   
     
     
     

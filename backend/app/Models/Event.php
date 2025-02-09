@@ -8,6 +8,7 @@ class Event extends Model
 {
     protected $fillable =[
         'name',
+        'id_pool',
         'description',
         'type',
         'organization_date',

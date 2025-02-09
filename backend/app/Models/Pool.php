@@ -33,4 +33,7 @@ class Pool extends Model
     {
         return $this->belongsTo(Street::class, 'id_street');
     }
+    public function events(){
+        return $this->hasMany(Event::class,'id_pool');
+    }
 }
