@@ -25,6 +25,7 @@ class Pool extends Model
         'student_price',
     ];
     protected $primaryKey = 'id_pool';
+    protected $table = 'pools';
     public $timestamps = false ;
     protected $keyType = 'int';
 

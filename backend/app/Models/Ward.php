@@ -12,6 +12,7 @@ class Ward extends Model
         'id_district',
     ];
     public $primaryKey = 'id_ward';
+    protected $table = 'wards';
     public $timestamps = false ;
     public function streets()
     {

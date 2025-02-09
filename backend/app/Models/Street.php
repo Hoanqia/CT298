@@ -11,6 +11,7 @@ class Street extends Model
         'name',
         'id_ward'
     ];
+    protected $table = 'streets';
     public $primaryKey = 'id_street';
     public $timestamps = false ;
     public function pools()

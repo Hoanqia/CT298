@@ -14,7 +14,6 @@ class PoolController extends Controller
 {
     $pools = Pool::with('street.ward.district')->get();
 
-    // Chuyển đổi kiểu dữ liệu của giá vé
     $pools = $pools->map(function ($pool) {
         $pool->children_price = (float) $pool->children_price;
         $pool->adult_price = (float) $pool->adult_price;

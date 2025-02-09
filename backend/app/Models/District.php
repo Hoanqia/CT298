@@ -10,6 +10,7 @@ class District extends Model
         'id_district',
         'name',
     ];
+    protected $table = 'districts';
     public $primaryKey = 'id_district';
     public $timestamps = false ;
     public function wards(){
