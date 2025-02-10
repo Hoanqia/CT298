@@ -69,7 +69,8 @@ class PoolController extends Controller
             if ($pools->isEmpty()) {
                 return response()->json(['message' => 'Không tìm thấy hồ bơi nào trong khoảng cách này'], 404);
             }
-        
+            
+            
             return response()->json($pools, 200);
         }
         
@@ -81,7 +82,8 @@ class PoolController extends Controller
             ->select('districts.name as district', 'pools.type', \DB::raw('COUNT(*) as count'))
             ->groupBy('districts.name', 'pools.type')
             ->get();
-    
+            
+
         $groupedData = $poolsByDistrict->groupBy('district')->map(function ($items, $district) {
             return [
                 'district' => $district,
@@ -97,13 +99,7 @@ class PoolController extends Controller
     
         return response()->json($groupedData);
     }
-    // public function getEventsOfPool($id_pool){
-    //     $events = Event::with('pool')->where('id_pool',$id_pool)->get();
-    //     if($events->isEmpty()){
-    //         return response()->json(['message' => 'Hồ bơi này chưa có sự kiện nào']);
-    //     }
-    //     return response()->json($events,200);
-    // }
+  
 
    
     

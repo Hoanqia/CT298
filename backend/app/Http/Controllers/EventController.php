@@ -29,7 +29,7 @@ class EventController extends Controller
             return response()->json(['message' => 'Không tìm thấy hồ bơi'],404);
         }
         $event->map(function($event){
-            $event->price = (float) $event->price;
+            $event->price = (float) $event->price;  
             return $event;
         });
         return response()->json($event,200);

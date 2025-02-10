@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Pool extends Model
 {
     protected $fillable = [
-        'id_pool',
         'name',
         'hour_number',
         'id_street',
@@ -28,7 +27,7 @@ class Pool extends Model
     protected $table = 'pools';
     public $timestamps = false ;
     protected $keyType = 'int';
-
+    public $incrementing = true;
     public function street()
     {
         return $this->belongsTo(Street::class, 'id_street');
