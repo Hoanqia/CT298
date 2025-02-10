@@ -17,6 +17,8 @@ class Event extends Model
     ];
     protected $table = 'events';
     protected $primaryKey = 'id_event';
+    public $incrementing = true;
+    protected $keyType = 'int';
     public $timestamps = false; 
 
     public function pool(){

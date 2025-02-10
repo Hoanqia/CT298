@@ -27,4 +27,41 @@ class UserController extends Controller
         });
         return response()->json($event_registrations,200);
     }
+    public function EventRegistration($id_pool,$id_event,Request $request){
+        $event = Event::where('id_event',$id_event)->first();
+        if(!$event){
+            return response()->json([
+                'message' => 'Sự kiện không tồn tại'
+            ],404);
+        }
+        $user_exist = User::where('phone',$request->phone)->first();
+        if(!$user_exist){
+            $user = User::create([
+                'name' => $request->name,
+                'dob' => $request->dob,
+                'phone' => $request->phone,
+            ]);
+            EventRegistration::create([
+            'id_user' => $user->id_user,
+            'id_event' => $id_event,
+        ]);
+        } else {
+                $existing_eventregistration = EventRegistration::where('id_user',$user_exist->id_user)
+                ->where('id_event',$id_event)->first();
+                if($existing_eventregistration){
+                    return response()->json([
+                        'message' => 'Người dùng có số điện thoại này đã đăng ký sự kiện này rồi',
+                    ],409);
+                    } 
+                else {
+                        EventRegistration::create([
+                            'id_user' => $user_exist->id_user,
+                            'id_event' => $id_event,
+                        ]);
+                }
+            }
+    return response()->json([
+        'message' => 'Đăng ký sự kiện thành công',
+    ],201);
+    }
 }

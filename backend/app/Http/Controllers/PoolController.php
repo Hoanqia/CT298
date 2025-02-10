@@ -32,33 +32,47 @@ class PoolController extends Controller
     $pool->student_price = (float) $pool->student_price;
     return response()->json($pool, 200);
 }
-    public function searchPools(Request $request){
-        $pools = Pool::with('street.ward.district')
-        ->when($request->type,function($query,$type){
-            return $query->where('type',$type);
-        })
-        ->when($request->maxFee,function($query,$maxFee){
-            return $query->where('children_price','<=',$maxFee)
-                        ->orwhere('adult_price','<=',$maxFee)
-                        ->orwhere('student_price','<=',$maxFee);
-        })
-        ->when($request->lat && $request->lng && $request->distance, function($query) use ($request){
-            $lat = $request->lat;
-            $lng = $request->lng;
-            $distance = $request->distance; 
-            return $query->selectRaw("*,
-                (6371 * acos(cos(radians(?))* cos(radians(lat)) 
-                * cos(radians(lng) - radians(?)) + sin(radians(?)) 
-                * sin(radians(lat)))) as distance",[$lat,$lng,$lat])
-                ->having('distance','<=',$distance)
-                ->orderBy('distance','asc');
-        })->get();
-        if($pools->isEmpty()){
-            return response()->json(['message' => 'Không tìm thấy hồ bơi nào trong khoảng cách này']);
+     
+        public function searchPools(Request $request)
+        {
+            $pools = Pool::with('street.ward.district')
+                ->when($request->type, function ($query, $type) {
+                    return $query->where('type', $type);
+                })
+                ->when($request->lat && $request->lng && $request->distance, function ($query) use ($request) {
+                    $lat = $request->lat;
+                    $lng = $request->lng;
+                    $distance = $request->distance;
+        
+                    return $query->selectRaw(
+                        "*, (6371 * acos(cos(radians(?)) * cos(radians(lat)) 
+                        * cos(radians(lng) - radians(?)) + sin(radians(?)) 
+                        * sin(radians(lat)))) as distance",
+                        [$lat, $lng, $lat]
+                    )
+                    ->having('distance', '<=', $distance)
+                    ->orderBy('distance', 'asc');
+                });
+        
+            // Điều kiện maxFee phải được viết riêng để đảm bảo lọc đúng
+            if ($request->has('maxFee')) {
+                $maxFee = $request->maxFee;
+                $pools->where(function ($query) use ($maxFee) {
+                    $query->where('children_price', '<=', $maxFee)
+                        ->orWhere('adult_price', '<=', $maxFee)
+                        ->orWhere('student_price', '<=', $maxFee);
+                });
+            }
+        
+            $pools = $pools->get();
+        
+            if ($pools->isEmpty()) {
+                return response()->json(['message' => 'Không tìm thấy hồ bơi nào trong khoảng cách này'], 404);
+            }
+        
+            return response()->json($pools, 200);
         }
-        return response()->json($pools,200); 
-    }
-  
+        
     public function NumberOfPoolsByTypeInDistrict()
     {
         $poolsByDistrict = Pool::join('streets', 'pools.id_street', '=', 'streets.id_street')
