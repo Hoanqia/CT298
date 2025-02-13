@@ -98,6 +98,19 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function logout(Request $request){
+    // Kiểm tra nếu user đã đăng nhập
+    $user = auth('sanctum')->user();
+    
+    if (!$user) {
+        return response()->json(['message' => 'Bạn chưa đăng nhập!'], 401);
+    }
+
+    // Xóa token hiện tại
+    $request->user()->currentAccessToken()->delete();
+
+    return response()->json(['message' => 'Đăng xuất thành công!'], 200);
+}
 
     
     public function getEventsOfUser($phone){

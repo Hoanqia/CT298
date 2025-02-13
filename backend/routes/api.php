@@ -8,9 +8,14 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReviewController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    
     Route::post('/pools/{id_pool}/reviews/create',[ReviewController::class,'create']);
+    Route::post('/logout',[UserController::class,'logout']);
+});
+    
 
-    Route::get('/pools/statistics',[PoolController::class,'NumberOfPoolsByTypeInDistrict']); // tổng số lượng hồ bơi của quận - tổng số lượng hồ bơi của quận theo loại
+
+Route::get('/pools/statistics',[PoolController::class,'NumberOfPoolsByTypeInDistrict']); // tổng số lượng hồ bơi của quận - tổng số lượng hồ bơi của quận theo loại
 Route::get('/pools/search',[PoolController::class,'searchPools']); // tìm hồ bơi 
 // http://127.0.0.1:8000/api/pools/search?lat=10.029881370747768&lng=105.77074458200029&distance=1&maxFee=50000.00&type=Hồ bơi trẻ em
 Route::get('/pools/{id_pool}/events/filter',[EventController::class,'events_filter']); // lọc sự kiện của 1 hồ bơi
@@ -20,16 +25,10 @@ Route::get('/pools/{id_pool}/events/{id_event}',[EventController::class,'getEven
 Route::get('/pools/{id_pool}/events',[EventController::class,'getEventsOfPool']); // lấy danh sách sự kiện của 1 hồ bơi
 // http://127.0.0.1:8000/api/pools/4/events   
 Route::get('/pools/{id_pool}/reviews',[ReviewController::class,'getReviewsOfPool']); 
-Route::post('/pools/{id_pool}/events/{id_event}/register',[UserController::class,'EventRegistration']); // đăng ký sự kiện tại 1 hồ bơi
 
 Route::get('/user/{phone}/events',[UserController::class,'getEventsOfUser']); // lấy danh sách sự kiện mà người dùng đã đăng ký
 
 Route::get('/pools/{id_pool}',[PoolController::class,'getPool']); // lấy thông tin chi tiết của một hồ bơi
 Route::get('/pools', [PoolController::class, 'getPools']); // lấy danh sách tất cả hồ bơi
-
-});
-    
-
-
 Route::post('/register',[UserController::class,'register']);
 Route::post('/login',[UserController::class,'login']);

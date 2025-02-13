@@ -11,6 +11,8 @@ use App\Models\Event;
 use App\Models\User;
 use App\Models\EventRegistration;
 use App\Models\Review;
+use Illuminate\Support\Facades\Validator;
+
 class ReviewController extends Controller
 {
     public function getReviewsOfPool($id_pool){
@@ -60,7 +62,7 @@ class ReviewController extends Controller
         $review->id_pool = $id_pool;
         $review->rating = $request->rating;
         $review->comment = $request->comment;
-        $review->created_at = now();
+        $review->create_at = now();
     
         $review->save();
     
