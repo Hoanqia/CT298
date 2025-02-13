@@ -99,7 +99,7 @@ class PoolController extends Controller
     
         return response()->json($groupedData);
     }
-  
+    
 
    
     

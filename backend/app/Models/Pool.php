@@ -35,4 +35,7 @@ class Pool extends Model
     public function events(){
         return $this->hasMany(Event::class,'id_pool');
     }
+    public function reviews(){
+        return $this->hasMany(Review::class,'id_pool');
+    }
 }
