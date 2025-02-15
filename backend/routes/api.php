@@ -6,12 +6,14 @@ use App\Http\Controllers\PoolController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\EventRegistrationController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     
     Route::post('/pools/{id_pool}/reviews/create',[ReviewController::class,'createReview']);
     Route::post('/logout',[UserController::class,'logout']);
-    Route::get('/users/event-registrations',[EventController::class,'getEventRegistrationsOfUser']);
+    Route::get('/users/event-registrations',[EventRegistrationController::class,'getEventRegistrationsOfUser']);
+    Route::post('/pools/{id_pool}/events/{id_event}/event-registration/create',[EventRegistrationController::class,'createER']);
 });
     
 

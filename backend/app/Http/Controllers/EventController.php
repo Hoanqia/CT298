@@ -71,31 +71,5 @@ class EventController extends Controller
         ],200);
     }
 
-    public function getEventRegistrationsOfUser(){
-        $user = auth('sanctum')->user();
-        if(!$user){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Bạn phải đăng nhập để xem danh sách sự kiện',
-            ],401);
-        }
-        $event_registrations = EventRegistration::with('event')->where('id_user',$user->id_user)->get();
-        if($event_registrations->isEmpty()){
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Người dùng chưa đăng ký sự kiện nào',
-                'data' => [],
-            ],200);
-        }
-        $event_registrations = $event_registrations->map(function($event_registration){
-            $event_registration->event->price = (float) $event_registration->event->price;
-            return $event_registration;
-        });
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Lấy danh sách đăng ký sự kiện của người dùng thành công',
-            'data' => $event_registrations,
-        ],200);
-        }
-    
+   
 }
