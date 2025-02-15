@@ -7,39 +7,53 @@ use App\Models\Pool;
 use App\Models\District;
 use App\Models\Ward;
 use App\Models\Street;
-
+use Illuminate\Support\Facades\DB;
 class PoolController extends Controller
 {
     public function getPools(){
     $pools = Pool::with('street.ward.district')->get();
-
+    if($pools->isEmpty()){
+        return response()->json([
+            'status' => 'success',
+            'data' => [],
+            'message' => 'Không có hồ bơi nào',
+        ],200);
+    }
     $pools = $pools->map(function ($pool) {
         $pool->children_price = (float) $pool->children_price;
         $pool->adult_price = (float) $pool->adult_price;
         $pool->student_price = (float) $pool->student_price;
         return $pool;
     });
-  return response()->json($pools, 200);
+  return response()->json([
+    'status' => 'success',
+    'data' => $pools,
+    'message' => 'Lấy danh sách hồ bơi thành công',
+  ], 200);
 }
 
     public function getPool($id_pool){
         $pool = Pool::with('street.ward.district')->find($id_pool);
         if (!$pool) {
-        return response()->json(['message' => 'Không tìm thấy hồ bơi'], 404);
+        return response()->json(['message' => 'Không tìm thấy hồ bơi','status' => 'error','data' => null,], 404);
     }
     $pool->children_price = (float) $pool->children_price;
     $pool->adult_price = (float) $pool->adult_price;
     $pool->student_price = (float) $pool->student_price;
-    return response()->json($pool, 200);
+    return response()->json([
+        'data' => $pool,
+        'status' => 'success',
+        'message' => 'Lấy thông tin hồ bơi thành công',
+    ], 200);
 }
      
         public function searchPools(Request $request)
         {
             $pools = Pool::with('street.ward.district')
-                ->when($request->type, function ($query, $type) {
-                    return $query->where('type', $type);
+                ->when($request->filled('type'), function ($query) use ($request) {
+                    return $query->where('type', $request->type);
                 })
-                ->when($request->lat && $request->lng && $request->distance, function ($query) use ($request) {
+                ->when($request->has(['lat','lng','distance']), function ($query) use ($request) {
                     $lat = $request->lat;
                     $lng = $request->lng;
                     $distance = $request->distance;
@@ -55,7 +69,7 @@ class PoolController extends Controller
                 });
         
             // Điều kiện maxFee phải được viết riêng để đảm bảo lọc đúng
-            if ($request->has('maxFee')) {
+            if ($request->filled('maxFee') && is_numeric($request->maxFee)) {
                 $maxFee = $request->maxFee;
                 $pools->where(function ($query) use ($maxFee) {
                     $query->where('children_price', '<=', $maxFee)
@@ -67,11 +81,15 @@ class PoolController extends Controller
             $pools = $pools->get();
         
             if ($pools->isEmpty()) {
-                return response()->json(['message' => 'Không tìm thấy hồ bơi nào trong khoảng cách này'], 404);
+                return response()->json(['message' => 'Không tìm thấy hồ bơi nào trong khoảng cách này','data' => [],'status' => 'error'], 404);
             }
             
             
-            return response()->json($pools, 200);
+            return response()->json([
+                'message' => 'Tìm thấy hồ bơi',
+                'data' => $pools,
+                'status' => 'success',
+            ], 200);
         }
         
     public function NumberOfPoolsByTypeInDistrict()
@@ -83,7 +101,13 @@ class PoolController extends Controller
             ->groupBy('districts.name', 'pools.type')
             ->get();
             
-
+        if($poolsByDistrict->isEmpty()){
+            return response()->json([
+                'message' => 'Không có hồ bơi',
+                'status' => 'success',
+                'data' => [],
+            ],200);
+        }
         $groupedData = $poolsByDistrict->groupBy('district')->map(function ($items, $district) {
             return [
                 'district' => $district,
@@ -97,7 +121,11 @@ class PoolController extends Controller
             ];
         })->values();
     
-        return response()->json($groupedData);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Lấy dữ liệu hồ bơi theo tỉnh và loại hồ bơi thành công',
+            'data' => $groupedData,
+        ],200);
     }
     
 

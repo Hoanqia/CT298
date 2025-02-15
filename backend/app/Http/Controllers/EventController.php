@@ -8,31 +8,37 @@ use App\Models\District;
 use App\Models\Ward;
 use App\Models\Street;
 use App\Models\Event;
+use App\Models\EventRegistration;
 class EventController extends Controller
 {
     public function getEventsOfPool($id_pool){
         $events = Event::where('id_pool',$id_pool)->get();
         if ($events->isEmpty()) {
-            return response()->json(['message' => 'Hồ bơi này chưa có sự kiện nào'], 404);
+            return response()->json(['message' => 'Hồ bơi này chưa có sự kiện nào', 'data' => [],'status' => 'success',], 200);
         }
         $events = $events->map(function($event){
             $event->price = (float) $event->price;
             return $event;
         });
 
-        return response()->json($events,200);
+        return response()->json([
+            'data' => $events,
+            'status' => 'success',
+            'message' => 'Lấy danh sách sự kiện của hồ bơi thành công',
+        ],200);
     }
     
     public function getEvent($id_pool,$id_event){
-        $event = Event::where('id_event',$id_event)->get();
-        if($event->isEmpty()){
-            return response()->json(['message' => 'Không tìm thấy hồ bơi'],404);
+        $event = Event::where('id_pool',$id_pool)->where('id_event',$id_event)->first();
+        if(!$event){
+            return response()->json(['message' => 'Không tìm thấy sự kiện trong hồ bơi này', 'data' => null,'status' => 'error',],404);
         }
-        $event->map(function($event){
-            $event->price = (float) $event->price;  
-            return $event;
-        });
-        return response()->json($event,200);
+        $event->price = (float) $event->price;  
+        return response()->json([
+            'message' => 'Lấy thông tin sự kiện thành công',
+            'data' => $event,
+            'status' => 'success',
+        ],200);
     }
 
     public function events_filter($id_pool,Request $request){
@@ -41,15 +47,55 @@ class EventController extends Controller
             return $query->where('type','=',$type);
         })
         ->when($request->organization_date, function($query, $organization_date) {
-            return $query->where('organization_date', '>=', date('Y-m-d H:i:s', strtotime($organization_date)));
-        })->get();
+            $timestamp = strtotime($organization_date);
+            if(!empty($timestamp) && $timestamp !== false){
+                return $query->where('organization_date', '>=', date('Y-m-d H:i:s', $timestamp));
+            }
+            return $query;
+        })->orderBy('organization_date', 'asc')->get();
         if($events->isEmpty()){
-            return response()->json(['message' => 'Không có sự kiện nào'],404);
+            return response()->json([
+                'message' => 'Không có sự kiện nào',
+                'status' => 'error',
+                'data' => [],]
+                ,404);
         }
         $events = $events->map(function($event){
             $event->price = (float) $event->price;
             return $event;
         });
-        return response()->json($events,200);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Đã tìm thấy sự kiện', 
+            'data' => $events,
+        ],200);
     }
+
+    public function getEventRegistrationsOfUser(){
+        $user = auth('sanctum')->user();
+        if(!$user){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Bạn phải đăng nhập để xem danh sách sự kiện',
+            ],401);
+        }
+        $event_registrations = EventRegistration::with('event')->where('id_user',$user->id_user)->get();
+        if($event_registrations->isEmpty()){
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Người dùng chưa đăng ký sự kiện nào',
+                'data' => [],
+            ],200);
+        }
+        $event_registrations = $event_registrations->map(function($event_registration){
+            $event_registration->event->price = (float) $event_registration->event->price;
+            return $event_registration;
+        });
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Lấy danh sách đăng ký sự kiện của người dùng thành công',
+            'data' => $event_registrations,
+        ],200);
+        }
+    
 }

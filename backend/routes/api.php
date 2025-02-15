@@ -9,8 +9,9 @@ use App\Http\Controllers\ReviewController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     
-    Route::post('/pools/{id_pool}/reviews/create',[ReviewController::class,'create']);
+    Route::post('/pools/{id_pool}/reviews/create',[ReviewController::class,'createReview']);
     Route::post('/logout',[UserController::class,'logout']);
+    Route::get('/users/event-registrations',[EventController::class,'getEventRegistrationsOfUser']);
 });
     
 
@@ -26,7 +27,6 @@ Route::get('/pools/{id_pool}/events',[EventController::class,'getEventsOfPool'])
 // http://127.0.0.1:8000/api/pools/4/events   
 Route::get('/pools/{id_pool}/reviews',[ReviewController::class,'getReviewsOfPool']); 
 
-Route::get('/user/{phone}/events',[UserController::class,'getEventsOfUser']); // lấy danh sách sự kiện mà người dùng đã đăng ký
 
 Route::get('/pools/{id_pool}',[PoolController::class,'getPool']); // lấy thông tin chi tiết của một hồ bơi
 Route::get('/pools', [PoolController::class, 'getPools']); // lấy danh sách tất cả hồ bơi
