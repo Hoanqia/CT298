@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\Validator;
 class ReviewController extends Controller
 {
     public function getReviewsOfPool($id_pool){
-        $reviews = Review::with(['pool','user'])->where('id_pool',$id_pool)->get();
+        $reviews = Review::with('user')->where('id_pool',$id_pool)->get();
+        
         if($reviews->isEmpty()){
             return response()->json([
                 'status' => 'success',
@@ -24,12 +25,22 @@ class ReviewController extends Controller
                 'data' => [],
             ],200);
         }
+        $reviews->transform(function($review){
+            $review->user->makeHidden(['password','role']);
+            return $review;
+        });
         return response()->json([
             'status' => 'success',
             'message' => 'Lấy danh sách review của hồ bơi thành công',
             'data' => $reviews,
         ],200);
     }
+
+    public function getReviewsOfUser(){
+        
+    }
+
+
     public function createReview($id_pool, Request $request)
     {   
         if (!is_numeric($id_pool) || $id_pool <= 0) {
@@ -61,7 +72,7 @@ class ReviewController extends Controller
         $existingReview = Review::where('id_user', $user->id_user)
         ->where('id_pool', $id_pool)
         ->first();
-            if ($existingReview) {
+            if (!empty($existingReview)) {
                 return response()->json([
                     'message' => 'Bạn đã đánh giá hồ bơi này rồi!',
                     'status' => 'error',
@@ -77,6 +88,7 @@ class ReviewController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Dữ liệu không hợp lệ!',
+                'status' => 'error',
                 'errors'  => $validator->errors(),
             ], 422);
         }
@@ -98,6 +110,53 @@ class ReviewController extends Controller
             'data' => $review,
             'status' => 'success'
         ], 201);
+    }
+
+    public function updateReview($id_review,Request $request){
+        $user = auth('sanctum')->user();
+        if(!$user){
+            return response()->json([
+                'message' => 'Bạn cần đăng nhập',
+                'status' => 'error',
+            ],401);
+        }
+        if($id_review <= 0 || !filter_var($id_review,FILTER_VALIDATE_INT)){
+            return response()->json([
+                'message' => 'Dữ liệu không hợp lệ',
+                'status' => 'error',
+            ],422);
+        }
+        $review = Review::where('id_review',$id_review)->where('id_user',$user->id_user)->first();
+        if(!$review){
+            return response()->json([
+                'message' => 'Bạn không có quyền chỉnh sửa bản đánh giá này',
+                'status' => 'error',
+            ],403);           
+        }
+        $validator = Validator::make($request->all(),[
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|max:500|string',
+        ]);
+        if($validator->fails()){
+            return response()->json([
+                'message' => 'Dữ liệu không hợp lệ',
+                'status' => 'error',
+                'errors' => $validator->errors(),
+            ],422);
+        }
+
+        $updated = $review->update($validator->validated());
+        if(!$updated){
+            return response()->json([
+                'message' => 'Cập nhật đánh giá thất bại',
+                'status' => 'error',
+            ],500);     
+        }
+        return response()->json([
+            'message' => 'Cập nhật đánh giá thành công',
+            'status' => 'success',
+            'data' => $review,
+        ],200);
     }
    
 }

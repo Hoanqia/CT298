@@ -42,13 +42,13 @@ class EventController extends Controller
     }
 
     public function events_filter($id_pool,Request $request){
-        $events = Event::with('pool')->where('id_pool',$id_pool)
-        ->when($request->type,function($query,$type){
-            return $query->where('type','=',$type);
+        $events = Event::where('id_pool',$id_pool)
+        ->when($request->filled('type'), function ($query) use ($request) {
+            return $query->where('type', '=', $request->type);
         })
-        ->when($request->organization_date, function($query, $organization_date) {
-            $timestamp = strtotime($organization_date);
-            if(!empty($timestamp) && $timestamp !== false){
+        ->when($request->filled('organization_date'), function ($query) use ($request) {
+            $timestamp = strtotime($request->organization_date);
+            if($timestamp !== false){
                 return $query->where('organization_date', '>=', date('Y-m-d H:i:s', $timestamp));
             }
             return $query;

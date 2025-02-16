@@ -53,6 +53,7 @@ class UserController extends Controller
             'name' => $request->name,
             'phone' => $request->phone,
             'password' => $hashedPassword,
+            'role' => 'customer',
         ]);
 
         return response()->json([

@@ -9,18 +9,29 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\EventRegistrationController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    
+    // Headers: 
+    // Bearer: 7|TfBNMMLzVlhRNG4fGro9Sjlh7QwQEPS8fLL4gMpn5b2b25d5 => là cái token mà hệ thống nó trả về cho mình trong json sau khi login
+    Route::post('');
     Route::post('/pools/{id_pool}/reviews/create',[ReviewController::class,'createReview']);
-    Route::post('/logout',[UserController::class,'logout']);
+    // http://127.0.0.1:8000/api/pools/4/reviews/create?comment=Hồ bơi tệ quá&rating=3 
+    
+    // http://127.0.0.1:8000/api/logout 
+    Route::patch('/users/event-registrations/{id_ER}',[EventRegistrationController::class,'updateEventRegistration']);
+    Route::delete('/users/event-registrations/{id_ER}',[EventRegistrationController::class,'destroy']);
+    Route::get('/users/event-registrations/{id_ER}',[EventRegistrationController::class,'getEventRegistrationOfUser']);
     Route::get('/users/event-registrations',[EventRegistrationController::class,'getEventRegistrationsOfUser']);
+    // http://127.0.0.1:8000/api/users/event-registrations
+
     Route::post('/pools/{id_pool}/events/{id_event}/event-registration/create',[EventRegistrationController::class,'createER']);
+    Route::post('/logout',[UserController::class,'logout']);
+
 });
     
 
 
 Route::get('/pools/statistics',[PoolController::class,'NumberOfPoolsByTypeInDistrict']); // tổng số lượng hồ bơi của quận - tổng số lượng hồ bơi của quận theo loại
 Route::get('/pools/search',[PoolController::class,'searchPools']); // tìm hồ bơi 
-// http://127.0.0.1:8000/api/pools/search?lat=10.029881370747768&lng=105.77074458200029&distance=1&maxFee=50000.00&type=Hồ bơi trẻ em
+//http://127.0.0.1:8000/api/pools/search?type=Hồ bơi tư nhân&maxFee=20000&lat=10.02986040707733&distance=6&lng=105.77074336482
 Route::get('/pools/{id_pool}/events/filter',[EventController::class,'events_filter']); // lọc sự kiện của 1 hồ bơi
 // http://127.0.0.1:8000/api/pools/4/events/filter?organization_date=2025-05-10%2010:00:00
 Route::get('/pools/{id_pool}/events/{id_event}',[EventController::class,'getEvent']); // lấy chi tiết thông tin sự kiện của 1 hồ bơi

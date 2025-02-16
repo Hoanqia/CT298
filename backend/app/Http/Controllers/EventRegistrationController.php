@@ -22,7 +22,7 @@ class EventRegistrationController extends Controller
                 'message' => 'Bạn phải đăng nhập để xem danh sách sự kiện',
             ],401);
         }
-        $event_registrations = EventRegistration::with('event')->where('id_user',$user->id_user)->get();
+        $event_registrations = EventRegistration::with('event.pool')->where('id_user',$user->id_user)->get();
         if($event_registrations->isEmpty()){
             return response()->json([
                 'status' => 'success',
@@ -64,6 +64,13 @@ class EventRegistrationController extends Controller
                     'data' => null,
                 ],404);
             }
+            $number_of_recent_participants = EventRegistration::where('id_event',$event->id_event)->count(); 
+            if($number_of_recent_participants >= $event->max_participants){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sự kiện đã đủ số người tham gia',
+                ],409);
+            }
             $existing_er = EventRegistration::where('id_user',$user->id_user)->where('id_event',$event->id_event)->first();
             if($existing_er){
                 return response()->json([
@@ -76,10 +83,135 @@ class EventRegistrationController extends Controller
                         'id_event' => $event->id_event,
                     ]);
                     $er = EventRegistration::with(['user','event'])->find($er->id_ER);
+                    $er->user->makeHidden(['password']); 
+                    if (!$er) {
+                        return response()->json([
+                            'message' => 'Đăng ký sự kiện thất bại!',
+                            'status'  => 'error',
+                        ], 500);
+                    }
                     return response()->json([
                         'message' => 'Đăng ký sự kiện thành công',
                         'status' => 'success',
                         'data' => $er,
                     ],201);
+        }
+
+        public function destroy($id_ER){
+            $user = auth('sanctum')->user();
+            if(!$user){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Bạn cần đăng nhập để xóa phiếu đăng ký sự kiện này',
+                ],401);
+            }
+            $er = EventRegistration::where('id_ER',$id_ER)->where('id_user',$user->id_user)->first();
+            if(!$er){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Bạn không có quyền xóa phiếu đăng ký này',
+                ],403);
+            }
+            try {
+                $delete_er = $er->delete();
+                return response()->json([
+                    'message' => 'Xóa phiếu đăng ký sự kiện thành công',
+                    'status' => 'success',
+                ],200);
+            }catch(\Exception $e){
+                \Log::error("Lỗi khi xóa phiếu đăng ký sự kiện: " . $e->getMessage());
+                return response()->json([
+                    'message' => 'Không thể xóa phiếu đăng ký sự kiện',
+                        'status' => 'error',
+                ],500);
+            }
+        }
+       
+        public function updateEventRegistration($id_ER,Request $request){
+            $user = auth('sanctum')->user();
+            if(!$user){
+                return response()->json([
+                    'message' => 'Bạn cần phải đăng nhập để chỉnh sửa',
+                    'status' => 'error',
+                ],401);
+            }
+            if(!is_numeric($id_ER) || $id_ER <= 0){
+                return response()->json([
+                    'message' => 'Dữ liệu không hợp lệ',
+                    'status' => 'error',
+                ],401);
+            }
+            $er = EventRegistration::where('id_ER',$id_ER)->where('id_user',$user->id_user)->first();
+            if(!$er){
+                return response()->json([
+                    'message' => 'Bạn không có quyền chỉnh sửa phiếu đăng ký này',
+                    'status' => 'error',
+                ],403);
+            }
+            try {
+               if( !is_numeric($request->id_event) || $request->id_event <= 0){
+                    return response()->json([
+                        'message' => 'Dữ liệu không hợp lệ',
+                        'status' => 'error',
+                    ],401);
+               }
+               $number_of_recent_participants = EventRegistration::where('id_event',$request->id_event)->count();
+               $event = Event::where('id_event',$request->id_event)->first();
+               if(!$event){
+                return  response()->json([
+                    'message' => 'Sự kiện không tồn tại',
+                    'status' => 'error',
+                ],404);
+               }
+               if($number_of_recent_participants >= $event->max_participants){
+                return response()->json([
+                    'message' => 'Sự kiện bạn chọn đã đủ số người tham gia',
+                    'status' => 'error',
+                ],409);
+               } else {
+                $er->update(['id_event' => $request->id_event]);
+                $er = EventRegistration::with('event.pool')->where('id_ER',$er->id_ER)->first();
+                return response()->json([
+                 'message' => 'Chỉnh sửa phiếu đăng ký thành công',
+                 'status' => 'success',
+                 'data' => $er,
+                ],200);
+               }
+            }catch(\Exception $e){
+                \Log::error("Lỗi khi chỉnh sửa phiếu đăng ký sự kiện: " . $e->getMessage());
+                return response()->json([
+                    'message' => 'Chỉnh sửa phiếu đăng ký thất bại',
+                    'status' => 'error',
+                ],500);
+            }
+           
+        }
+
+        public function getEventRegistrationOfUser($id_ER){
+            $user = auth('sanctum')->user();
+            if(!$user){
+                return response()->json([
+                    'message' => 'Bạn cần phải đăng nhập', 
+                    'status' => 'error',
+                ],401);
+            }
+            if(!is_numeric($id_ER) || $id_ER <= 0 ){
+                return response()->json([
+                    'message' => 'Dữ liệu không hợp lệ',
+                    'status' => 'error',
+                ],422);
+            }
+            $er = EventRegistration::with('event.pool')->where('id_ER',$id_ER)->where('id_user',$user->id_user)->first();
+            if(!$er){
+                return response()->json([
+                    'message' => 'Bạn không có quyền lấy thông tin phiếu đăng ký này',
+                    'status' => 'error',
+                ],403);
+            }
+            return response()->json([
+                'message' => 'Lấy thông tin phiếu đăng ký thành công',
+                'status' => 'success',
+                'data' => $er,
+            ],200);
         }
 }
