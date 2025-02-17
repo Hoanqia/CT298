@@ -9,7 +9,7 @@ use App\Models\Ward;
 use App\Models\Street;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Validator;
 class PoolController extends Controller
 {
     public function getPools(){
@@ -136,10 +136,76 @@ class PoolController extends Controller
         ],200);
     }
   
-public function createPool(Request $request)
-{
-    // Kiểm tra dữ liệu đầu vào
-    $validatedData = $request->validate([
+public function createPool(Request $request){
+        // Kiểm tra dữ liệu đầu vào
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'house_number' => 'required|integer',
+            'id_street' => 'required|exists:streets,id_street',
+            'lat' => 'required|numeric|between:-90,90',
+            'lng' => 'required|numeric|between:-180,180',
+            'length' => 'required|numeric|min:1',
+            'width' => 'required|numeric|min:1',
+            'depth' => 'required|numeric|min:1',
+            'type' => 'required|in:Hồ bơi công cộng,Hồ bơi tư nhân,Hồ bơi trẻ em,Hồ bơi thi đấu',
+            'opening_hours' => 'required|date_format:H:i',
+            'close_hours' => 'required|date_format:H:i|after:opening_hours',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'children_price' => 'required|numeric|min:0',
+            'adult_price' => 'required|numeric|min:0',
+            'student_price' => 'required|numeric|min:0',
+        ]);
+        
+        try {
+            if ($request->hasFile('img')) {
+                $image = $request->file('img');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->storeAs('uploads/pools', $imageName, 'public');
+                $validatedData['img'] = 'uploads/pools/' . $imageName;
+            }
+
+            $pool = Pool::create($validatedData);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Thêm hồ bơi thành công',
+                'data' => $pool
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+public function updatePool($id_pool,Request $request){
+    $user = auth('sanctum')->user();
+    if(!$user){
+        return response()->json([
+            'message' => 'Bạn cần đăng nhập',
+            'status' => 'error',
+        ],401);
+    }
+    if($user->role !== "admin"){
+        return response()->json([
+            'message' => 'Bạn không có quyền chỉnh sửa thông tin hồ bơi',
+            'status' => 'error',
+        ],403);
+    }
+    if($id_pool <= 0 || !filter_var($id_pool,FILTER_VALIDATE_INT)){
+        return response()->json([
+            'message' => 'Dữ liệu không hợp lệ',
+            'status' =>  'error',
+        ],422);
+    }
+    $pool = Pool::find($id_pool);
+    if(!$pool){
+        return response()->json([
+            'message' => 'Hồ bơi này không tồn tại',
+            'status' => 'error',
+        ],404);
+    }
+    $validator = Validator::make($request->all(), [
         'name' => 'required|string|max:255',
         'house_number' => 'required|integer',
         'id_street' => 'required|exists:streets,id_street',
@@ -157,37 +223,40 @@ public function createPool(Request $request)
         'student_price' => 'required|numeric|min:0',
     ]);
 
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Dữ liệu không hợp lệ',
+            'status' => 'error',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+    $validatedData = $validator->validated();
     try {
-        // Kiểm tra và xử lý ảnh
-        if ($request->hasFile('img')) {
-            $image = $request->file('img');
+       if ($request->hasFile('img')) {
+            if (!empty($pool->img) && Storage::disk('public')->exists($pool->img)) {
+                Storage::disk('public')->delete($pool->img);
+            }
+
+            $image = $request->file('img'); 
             $imageName = time() . '_' . $image->getClientOriginalName();
-
-            // Lưu ảnh vào thư mục public/uploads/pools
             $image->storeAs('uploads/pools', $imageName, 'public');
-
-            // Cập nhật đường dẫn ảnh vào dữ liệu
             $validatedData['img'] = 'uploads/pools/' . $imageName;
         }
-
-        // Tạo hồ bơi mới
-        $pool = Pool::create($validatedData);
-
-        // Trả về phản hồi JSON
+        $pool->update($validatedData);
         return response()->json([
+            'message' => 'Cập nhật hồ bơi thành công',
             'status' => 'success',
-            'message' => 'Thêm hồ bơi thành công',
-            'data' => $pool
-        ], 201);
-    } catch (\Exception $e) {
-        // Xử lý lỗi và trả về phản hồi lỗi
+            'data' => $pool,
+        ], 200);
+        
+    }catch(\Exception $e){
         return response()->json([
+            'message' => $e->getMessage(),
             'status' => 'error',
-            'message' => $e->getMessage()
-        ], 500);
+        ],500);
     }
-}
 
+}
 
 
 }
