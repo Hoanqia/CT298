@@ -8,6 +8,8 @@ use App\Models\District;
 use App\Models\Ward;
 use App\Models\Street;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+
 class PoolController extends Controller
 {
     public function getPools(){
@@ -23,6 +25,7 @@ class PoolController extends Controller
         $pool->children_price = (float) $pool->children_price;
         $pool->adult_price = (float) $pool->adult_price;
         $pool->student_price = (float) $pool->student_price;
+        $pool->img = asset('storage/' . $pool->img);
         return $pool;
     });
   return response()->json([
@@ -33,13 +36,18 @@ class PoolController extends Controller
 }
 
     public function getPool($id_pool){
-        $pool = Pool::with('street.ward.district')->find($id_pool);
+        $pool = Pool::with(['street.ward.district','pool_services.service','pool_utilities.utility'])->find($id_pool);
         if (!$pool) {
         return response()->json(['message' => 'Không tìm thấy hồ bơi','status' => 'error','data' => null,], 404);
     }
     $pool->children_price = (float) $pool->children_price;
     $pool->adult_price = (float) $pool->adult_price;
     $pool->student_price = (float) $pool->student_price;
+
+    foreach ($pool->pool_services as $service) {
+        $service->price = (float) $service->price;
+    }
+   
     return response()->json([
         'data' => $pool,
         'status' => 'success',
@@ -50,7 +58,7 @@ class PoolController extends Controller
         public function searchPools(Request $request)
         {
             $pools = Pool::with('street.ward.district')
-                ->when($request->filled('type'), function ($query) use ($request) {
+                ->when($request->filled('type') && $request->type !== "Tất cả", function ($query) use ($request) {
                     return $query->where('type', $request->type);
                 })
                 ->when($request->has(['lat','lng','distance']), function ($query) use ($request) {
@@ -127,12 +135,59 @@ class PoolController extends Controller
             'data' => $groupedData,
         ],200);
     }
-    
+  
+public function createPool(Request $request)
+{
+    // Kiểm tra dữ liệu đầu vào
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255',
+        'house_number' => 'required|integer',
+        'id_street' => 'required|exists:streets,id_street',
+        'lat' => 'required|numeric|between:-90,90',
+        'lng' => 'required|numeric|between:-180,180',
+        'length' => 'required|numeric|min:1',
+        'width' => 'required|numeric|min:1',
+        'depth' => 'required|numeric|min:1',
+        'type' => 'required|in:Hồ bơi công cộng,Hồ bơi tư nhân,Hồ bơi trẻ em,Hồ bơi thi đấu',
+        'opening_hours' => 'required|date_format:H:i',
+        'close_hours' => 'required|date_format:H:i|after:opening_hours',
+        'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'children_price' => 'required|numeric|min:0',
+        'adult_price' => 'required|numeric|min:0',
+        'student_price' => 'required|numeric|min:0',
+    ]);
 
-   
-    
-    
-    
+    try {
+        // Kiểm tra và xử lý ảnh
+        if ($request->hasFile('img')) {
+            $image = $request->file('img');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+
+            // Lưu ảnh vào thư mục public/uploads/pools
+            $image->storeAs('uploads/pools', $imageName, 'public');
+
+            // Cập nhật đường dẫn ảnh vào dữ liệu
+            $validatedData['img'] = 'uploads/pools/' . $imageName;
+        }
+
+        // Tạo hồ bơi mới
+        $pool = Pool::create($validatedData);
+
+        // Trả về phản hồi JSON
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Thêm hồ bơi thành công',
+            'data' => $pool
+        ], 201);
+    } catch (\Exception $e) {
+        // Xử lý lỗi và trả về phản hồi lỗi
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
 
 
 }

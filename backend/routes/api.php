@@ -26,7 +26,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users/reviews',[ReviewController::class,'getReviewsOfUser']); // lịch sử đánh giá của user
 
     Route::post('/logout',[UserController::class,'logout']); // Người dùng đăng xuất 
-
 });
     
 Route::get('/pools/statistics',[PoolController::class,'NumberOfPoolsByTypeInDistrict']); // tổng số lượng hồ bơi của quận - tổng số lượng hồ bơi của quận theo loại
@@ -47,7 +46,7 @@ Route::get('/pools/{id_pool}/reviews',[ReviewController::class,'getReviewsOfPool
 
 Route::get('/pools/{id_pool}/services',[PoolServiceController::class,'getPoolServiceOfPool']); // Lấy danh sách dịch vụ của 1 hồ bơi 
 Route::get('/pools/{id_pool}/utilities',[PoolUtilityController::class,'getUtilitiesOfPool']); // Lấy danh sách tiện ích của 1 hồ bơi
-
+Route::post('/admin/pools/create',[PoolController::class,'createPool']);
 Route::get('/pools/{id_pool}',[PoolController::class,'getPool']); // lấy thông tin chi tiết của một hồ bơi
 Route::get('/pools', [PoolController::class, 'getPools']); // lấy danh sách tất cả hồ bơi
 Route::post('/register',[UserController::class,'register']); // Đăng ký 

@@ -8,7 +8,7 @@ class Pool extends Model
 {
     protected $fillable = [
         'name',
-        'hour_number',
+        'house_number',
         'id_street',
         'lat',
         'lng',
@@ -37,5 +37,11 @@ class Pool extends Model
     }
     public function reviews(){
         return $this->hasMany(Review::class,'id_pool');
+    }
+    public function pool_services(){
+        return $this->hasMany(PoolService::class,'id_pool');
+    }
+    public function pool_utilities(){
+        return $this->hasMany(PoolUtility::class,'id_pool');
     }
 }
