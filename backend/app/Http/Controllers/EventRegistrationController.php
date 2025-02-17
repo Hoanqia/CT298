@@ -22,6 +22,12 @@ class EventRegistrationController extends Controller
                 'message' => 'Bạn phải đăng nhập để xem danh sách sự kiện',
             ],401);
         }
+        if($user->role !== 'customer'){
+            return response()->json([
+                'message' => 'Bạn không có quyền truy cập',
+                'status' => 'error',
+            ],403);
+        }
         $event_registrations = EventRegistration::with('event.pool')->where('id_user',$user->id_user)->get();
         if($event_registrations->isEmpty()){
             return response()->json([
@@ -48,6 +54,13 @@ class EventRegistrationController extends Controller
                    'message' => 'Bạn cần đăng nhập để đăng ký sự kiện',
                     'status' => 'error',
                 ],401);
+            }
+
+            if($user->role !== 'customer'){
+                return response()->json([
+                    'message' => 'Bạn không có quyền truy cập',
+                    'status' => 'error',
+                ],403);
             }
             if (!is_numeric($id_event) || (int)$id_event <= 0 || !is_numeric($id_pool) || (int)$id_pool <= 0) {
                 return response()->json([
@@ -105,6 +118,12 @@ class EventRegistrationController extends Controller
                     'message' => 'Bạn cần đăng nhập để xóa phiếu đăng ký sự kiện này',
                 ],401);
             }
+            if($user->role !== 'customer'){
+                return response()->json([
+                    'message' => 'Bạn không có quyền truy cập',
+                    'status' => 'error',
+                ],403);
+            }
             $er = EventRegistration::where('id_ER',$id_ER)->where('id_user',$user->id_user)->first();
             if(!$er){
                 return response()->json([
@@ -127,7 +146,7 @@ class EventRegistrationController extends Controller
             }
         }
        
-        public function updateEventRegistration($id_ER,Request $request){
+       /* public function updateEventRegistration($id_ER,Request $request){
             $user = auth('sanctum')->user();
             if(!$user){
                 return response()->json([
@@ -185,7 +204,7 @@ class EventRegistrationController extends Controller
                 ],500);
             }
            
-        }
+        }*/
 
         public function getEventRegistrationOfUser($id_ER){
             $user = auth('sanctum')->user();
@@ -194,6 +213,12 @@ class EventRegistrationController extends Controller
                     'message' => 'Bạn cần phải đăng nhập', 
                     'status' => 'error',
                 ],401);
+            }
+            if($user->role !== 'customer'){
+                return response()->json([
+                    'message' => 'Bạn không có quyền truy cập',
+                    'status' => 'error',
+                ],403);
             }
             if(!is_numeric($id_ER) || $id_ER <= 0 ){
                 return response()->json([
@@ -214,4 +239,6 @@ class EventRegistrationController extends Controller
                 'data' => $er,
             ],200);
         }
+
+       
 }

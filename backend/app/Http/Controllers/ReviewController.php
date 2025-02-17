@@ -37,9 +37,60 @@ class ReviewController extends Controller
     }
 
     public function getReviewsOfUser(){
-        
-    }
+        $user = auth('sanctum')->user();
+        if(!$user){
+            return response()->json([
+                'message' => 'Bạn cần đăng nhập',
+                'status' => 'error',
+            ],401);
+        }
+        if($user->role !== 'customer'){
+            return response()->json([
+                'message' => 'Bạn không có quyền truy cập đánh giá',
+                'status' => 'error',
+            ],403);
+        }
 
+        $reviews = Review::with('pool')->where('id_user',$user->id_user)->get();
+        if(!$reviews){
+            return response()->json([
+                'message' => 'Bạn không có quyền truy cập danh sách review này',
+                'status' => 'error',
+            ],403);
+        }
+        return response()->json([
+            'message' => 'Lấy danh sách đánh giá của người dùng thành công',
+            'status' => 'success',
+            'data' => $reviews,
+        ],200);
+    }
+    public function getReviewOfUser($id_review){
+        $user = auth('sanctum')->user();
+        if(!$user){
+            return response()->json([
+                'message' => 'Bạn cần đăng nhập',
+                'status' => 'error',
+            ],401);
+        }
+        if(!filter_var($id_review,FILTER_VALIDATE_INT) || $id_review <= 0){
+            return response()->json([
+                'message' => 'Dữ liệu không hợp lệ',
+                'status' => 'error',
+            ],422);
+        }
+        $review = Review::with('pool')->where('id_user',$user->id_user)->where('id_review',$id_review)->first();
+        if(!$review){
+            return response()->json([
+                'message' => 'Bạn không có quyền truy cập đánh giá này',
+                'status' => 'error',
+            ],403);
+        }
+        return response()->json([
+            'message' => 'Lấy thông tin đánh giá của người dùng thành công',
+            'status' => 'success',
+            'data' => $review,
+        ],200);
+    }
 
     public function createReview($id_pool, Request $request)
     {   
@@ -59,7 +110,12 @@ class ReviewController extends Controller
                 'status' => 'error',
             ], 401);
         }
-    
+        if($user->role !== 'customer'){
+            return response()->json([
+                'message' => 'Bạn không có quyền gửi đánh giá',
+                'status' => 'error',
+            ],403);
+        }
         // 2. Kiểm tra hồ bơi có tồn tại không
         $pool = Pool::find($id_pool);
         if (!$pool) {
@@ -119,6 +175,12 @@ class ReviewController extends Controller
                 'message' => 'Bạn cần đăng nhập',
                 'status' => 'error',
             ],401);
+        }
+        if($user->role !== 'customer'){
+            return response()->json([
+                'message' => 'Bạn không có quyền cập nhật đánh giá',
+                'status' => 'error',
+            ],403);
         }
         if($id_review <= 0 || !filter_var($id_review,FILTER_VALIDATE_INT)){
             return response()->json([

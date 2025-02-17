@@ -9,20 +9,19 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\EventRegistrationController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    // Headers: 
-    // Bearer: 7|TfBNMMLzVlhRNG4fGro9Sjlh7QwQEPS8fLL4gMpn5b2b25d5 => là cái token mà hệ thống nó trả về cho mình trong json sau khi login
-    Route::post('');
     Route::post('/pools/{id_pool}/reviews/create',[ReviewController::class,'createReview']);
     // http://127.0.0.1:8000/api/pools/4/reviews/create?comment=Hồ bơi tệ quá&rating=3 
     
-    // http://127.0.0.1:8000/api/logout 
-    Route::patch('/users/event-registrations/{id_ER}',[EventRegistrationController::class,'updateEventRegistration']);
     Route::delete('/users/event-registrations/{id_ER}',[EventRegistrationController::class,'destroy']);
     Route::get('/users/event-registrations/{id_ER}',[EventRegistrationController::class,'getEventRegistrationOfUser']);
     Route::get('/users/event-registrations',[EventRegistrationController::class,'getEventRegistrationsOfUser']);
     // http://127.0.0.1:8000/api/users/event-registrations
 
     Route::post('/pools/{id_pool}/events/{id_event}/event-registration/create',[EventRegistrationController::class,'createER']);
+    Route::get('/users/reviews/{id_review}',[ReviewController::class,'getReviewOfUser']);
+    Route::patch('/users/reviews/{id_review}',[ReviewController::class,'updateReview']);
+    Route::get('/users/reviews',[ReviewController::class,'getReviewsOfUser']);
+
     Route::post('/logout',[UserController::class,'logout']);
 
 });
