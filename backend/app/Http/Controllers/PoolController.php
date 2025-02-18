@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Validator;
 class PoolController extends Controller
 {
     public function getPools(){
-    $pools = Pool::with('street.ward.district')->get();
+    $pools = Pool::with('street.ward.district')
+    ->withAvg('reviews','rating')->withCount('reviews')
+    ->get();
     if($pools->isEmpty()){
         return response()->json([
             'status' => 'success',
@@ -26,6 +28,9 @@ class PoolController extends Controller
         $pool->adult_price = (float) $pool->adult_price;
         $pool->student_price = (float) $pool->student_price;
         $pool->img = asset('storage/' . $pool->img);
+        $pool->average_rating = round($pool->reviews_avg_rating,1);
+        $pool->total_reviews = $pool->reviews_count; 
+        unset($pool->reviews_avg_rating, $pool->reviews_count); 
         return $pool;
     });
   return response()->json([
@@ -36,14 +41,18 @@ class PoolController extends Controller
 }
 
     public function getPool($id_pool){
-        $pool = Pool::with(['street.ward.district','pool_services.service','pool_utilities.utility'])->find($id_pool);
+        $pool = Pool::with(['street.ward.district','pool_services.service','pool_utilities.utility'])
+        ->withAvg('reviews','rating')->withCount('reviews')
+        ->find($id_pool);
         if (!$pool) {
         return response()->json(['message' => 'Không tìm thấy hồ bơi','status' => 'error','data' => null,], 404);
     }
     $pool->children_price = (float) $pool->children_price;
     $pool->adult_price = (float) $pool->adult_price;
     $pool->student_price = (float) $pool->student_price;
-
+    $pool->average_rating = round($pool->reviews_avg_rating,1);
+    $pool->total_reviews = $pool->reviews_count; 
+    unset($pool->reviews_avg_rating, $pool->reviews_count); 
     foreach ($pool->pool_services as $service) {
         $service->price = (float) $service->price;
     }
