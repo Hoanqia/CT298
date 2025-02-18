@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin cá nhân</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+
+    <!-- Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Css -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Js -->
+    <script src="js/main.js" defer></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="index-customer.html">Quản lý hồ bơi</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index-customer.html">Trang chủ</a></li>
+                    <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-user text-white" style="font-size: 1rem;"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                        <li><a class="dropdown-item" href="index-guest.html" onclick="logout()">Đăng xuất</a></li>
+                    </ul>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2 class="text-primary">Thông tin cá nhân</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="profileForm">
+                            <div class="mb-3">
+                                <label class="form-label text-primary">Họ và tên</label>
+                                <input type="text" class="form-control" id="fullName" value="Nguyễn Văn A">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-primary">Số điện thoại</label>
+                                <input type="text" class="form-control" id="phone" value="0123456789">
+                            </div>
+                            <div class="mb-3 position-relative">
+                                <label class="form-label text-primary">Mật khẩu</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password" value="password123">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                                        <i id="toggleIcon" class="fas fa-eye text-primary"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" onclick="updateProfile(event)">Cập nhật thông
+                                tin</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label text-primary">Sự kiện đã đăng ký</label>
+                            <ul class="list-group" id="eventList">
+                                <li class="list-group-item">Sự kiện 1 <button class="btn btn-danger btn-sm float-end"
+                                        onclick="confirmDelete(event, this)">Hủy</button></li>
+                                <li class="list-group-item">Sự kiện 2 <button class="btn btn-danger btn-sm float-end"
+                                        onclick="confirmDelete(event, this)">Hủy</button></li>
+                            </ul>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-primary">Lịch sử đánh giá</label>
+                            <ul class="list-group">
+                                <li class="list-group-item">Hồ bơi A - Sạch sẽ - 5 sao <button
+                                        class="btn btn-warning btn-sm float-end" data-bs-toggle="modal"
+                                        data-bs-target="#editReviewModal"
+                                        onclick="populateModal('Hồ bơi A', 5)">Sửa</button></li>
+                                <li class="list-group-item">Hồ bơi B - Nhiều tiện ích - 4 sao <button
+                                        class="btn btn-warning btn-sm float-end" data-bs-toggle="modal"
+                                        data-bs-target="#editReviewModal"
+                                        onclick="populateModal('Hồ bơi B', 4)">Sửa</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sửa Đánh Giá -->
+    <div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editReviewModalLabel">Sửa Đánh Giá</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editReviewForm">
+                        <div class="mb-3">
+                            <label for="feedback" class="form-label">Đánh giá của bạn</label>
+                            <div class="star-rating">
+                                <i class="fas fa-star star" data-value="1"></i>
+                                <i class="fas fa-star star" data-value="2"></i>
+                                <i class="fas fa-star star" data-value="3"></i>
+                                <i class="fas fa-star star" data-value="4"></i>
+                                <i class="fas fa-star star" data-value="5"></i>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="feedback" class="form-label">Phản hồi của bạn</label>
+                            <textarea class="form-control" id="feedback" rows="3"
+                                placeholder="Nhập đánh giá của bạn..."></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="saveReview()">Lưu thay đổi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function confirmDelete(event, button) {
+            event.preventDefault();
+            if (confirm("Bạn có chắc chắn muốn hủy đăng ký sự kiện này?")) {
+                button.closest("li").remove();
+            }
+        }
+
+        function updateProfile(event) {
+            event.preventDefault();
+            const fullName = document.getElementById("fullName").value;
+            const phone = document.getElementById("phone").value;
+            const password = document.getElementById("password").value;
+
+            alert("Thông tin cá nhân đã được cập nhật\nHọ và tên: " + fullName + "\nSố điện thoại: " + phone + "\nMật khẩu: " + password);
+        }
+
+        function togglePassword() {
+            const passwordField = document.getElementById("password");
+            const toggleIcon = document.getElementById("toggleIcon");
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
+
+        // Rating
+        const stars = document.querySelectorAll(".star-rating .star");
+        let selectedRating = 0;
+
+        stars.forEach(star => {
+            star.addEventListener("mouseover", function () {
+                resetStars();
+                highlightStars(this.getAttribute("data-value"));
+            });
+
+            star.addEventListener("click", function () {
+                selectedRating = this.getAttribute("data-value");
+                persistSelection();
+                console.log("Đánh giá: " + selectedRating);
+            });
+
+            star.addEventListener("mouseleave", function () {
+                resetStars();
+                if (selectedRating > 0) {
+                    highlightStars(selectedRating);
+                }
+            });
+        });
+
+        function highlightStars(rating) {
+            for (let i = 0; i < rating; i++) {
+                stars[i].classList.add("hover");
+            }
+        }
+
+        function resetStars() {
+            stars.forEach(star => {
+                star.classList.remove("hover");
+            });
+        }
+
+        function persistSelection() {
+            stars.forEach(star => {
+                star.classList.remove("selected");
+            });
+            for (let i = 0; i < selectedRating; i++) {
+                stars[i].classList.add("selected");
+            }
+        }
+
+        function saveReview() {
+            const reviewText = document.getElementById("feedback");
+            const selectedStars = document.querySelectorAll(".fa-star.selected").length;
+
+            if (!reviewText || reviewText.value.trim() === "") {
+                alert("Vui lòng nhập nội dung đánh giá trước khi lưu!");
+                return;
+            }
+
+            if (selectedStars === 0) {
+                alert("Vui lòng chọn số sao trước khi lưu!");
+                return;
+            }
+
+            alert("Lưu thành công!");
+        }
+    </script>
+</body>
+
+</html>

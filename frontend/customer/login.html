@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index-guest.html">Quản lý hồ bơi</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index-guest.html">Trang chủ</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Đăng Nhập</h2>
+        <form action=" " method="POST" id="loginForm">
+            <input type="text" name="phone" placeholder="Số điện thoại" required>
+            <input type="password" name="password" placeholder="Mật khẩu" required>
+            <button type="submit">Đăng Nhập</button>
+        </form>
+        <br>
+        <div class="switch-form">
+            Chưa có tài khoản? <a href="register.html">Đăng ký</a> <!-- Điều hướng sang trang đăng ký -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white text-center py-3 mt-3">
+        <p>&copy; 2025 Quản lý hồ bơi. Tất cả các quyền được bảo lưu.</p>
+    </footer>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const loginForm = document.getElementById("loginForm");
+
+            loginForm.addEventListener("submit", function (event) {
+                event.preventDefault(); // Ngăn chặn form gửi đi mặc định
+
+                const phone = document.querySelector('input[name="phone"]').value.trim();
+                const password = document.querySelector('input[name="password"]').value.trim();
+
+                // Giả lập danh sách tài khoản (ở thực tế, bạn nên kiểm tra với database)
+                const validUsers = [
+                    { phone: "0123456789", password: "12345678", name: "Nguyễn Văn A" },
+                    { phone: "0987654321", password: "654321", name: "Trần Thị B" }
+                ];
+
+                // Kiểm tra thông tin đăng nhập
+                const user = validUsers.find(user => user.phone === phone && user.password === password);
+
+                if (user) {
+                    // Lưu trạng thái đăng nhập
+                    localStorage.setItem("loggedInUser", JSON.stringify(user));
+                    alert("Đăng nhập thành công!");
+
+                    // Chuyển hướng đến trang index.html
+                    window.location.href = "index-customer.html";
+                } else {
+                    alert("Số điện thoại hoặc mật khẩu không đúng!");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
