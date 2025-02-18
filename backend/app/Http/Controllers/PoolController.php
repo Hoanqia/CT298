@@ -52,6 +52,7 @@ class PoolController extends Controller
     $pool->student_price = (float) $pool->student_price;
     $pool->average_rating = round($pool->reviews_avg_rating,1);
     $pool->total_reviews = $pool->reviews_count; 
+    $pool->img = asset('storage/' . $pool->img);
     unset($pool->reviews_avg_rating, $pool->reviews_count); 
     foreach ($pool->pool_services as $service) {
         $service->price = (float) $service->price;
@@ -272,6 +273,56 @@ public function updatePool($id_pool,Request $request){
     }
 
 }
+public function cheapPools(Request $request){
+    $ticketType = $request->input('ticket_type');
+    $services = $request->input('services', []);
+    $userLat = $request->input('lat');
+    $userLng = $request->input('lng');
 
+    $validTicketTypes = ['children_price', 'adult_price', 'student_price'];
+    if (!in_array($ticketType, $validTicketTypes)) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Loại vé không hợp lệ. Chỉ chấp nhận: children_price, adult_price, student_price',
+        ], 400);
+    }
+
+    if (!$userLat || !$userLng) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Không tìm thấy vị trí hiện tại của người dùng',
+        ], 400);
+    }
+
+    $pools = Pool::select(
+        'pools.*',
+        DB::raw("pools.$ticketType as ticket_price"),
+        DB::raw("(6371 * ACOS(COS(RADIANS($userLat)) * COS(RADIANS(pools.lat)) * COS(RADIANS(pools.lng) - RADIANS($userLng))
+         + SIN(RADIANS($userLat)) * SIN(RADIANS(pools.lat)))) AS distance_km")
+    )
+    ->with(['pool_services' => function ($query) use ($services) {
+        if (!empty($services)) {
+            $query->whereIn('id_service', $services);
+        }
+    }])
+    ->having('distance_km', '<', 50)
+    ->orderBy('ticket_price', 'asc')
+    ->orderBy('distance_km', 'asc')
+    ->get();
+
+    $pools = $pools->map(function ($pool) use ($services) {
+        $filteredServiceCost = $pool->pool_services->sum('price');
+        $pool->total_cost = $pool->ticket_price + $filteredServiceCost; 
+        $pool->img = asset('storage/' . $pool->img);
+        unset($pool->pool_services); 
+        return $pool;
+    });
+    $pools = $pools->sortBy('total_cost');
+    return response()->json([
+        'status' => 'success',
+        'data' => $pools,
+        'message' => 'Danh sách hồ bơi rẻ nhất đã được lấy thành công.',
+    ], 200);
+}
 
 }

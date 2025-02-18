@@ -67,7 +67,7 @@ Route::get('/pools/{id_pool}/utilities',[PoolUtilityController::class,'getUtilit
 // http://127.0.0.1:8000/api/pools/15/utilities
 
 Route::post('/admin/pools/create',[PoolController::class,'createPool']);
-
+Route::get('/pools/cheapPools',[PoolController::class,'cheapPools']);
 Route::get('/pools/{id_pool}',[PoolController::class,'getPool']); // lấy thông tin chi tiết của một hồ bơi
 // http://127.0.0.1:8000/api/pools/15/
 Route::get('/pools', [PoolController::class, 'getPools']); // lấy danh sách tất cả hồ bơi
