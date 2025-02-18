@@ -28,7 +28,9 @@ class EventRegistrationController extends Controller
                 'status' => 'error',
             ],403);
         }
-        $event_registrations = EventRegistration::with('event.pool')->where('id_user',$user->id_user)->get();
+        $event_registrations = EventRegistration::with(['event.pool' => function($query){
+            $query->select('id_pool','name');
+        }])->where('id_user',$user->id_user)->get();
         if($event_registrations->isEmpty()){
             return response()->json([
                 'status' => 'success',

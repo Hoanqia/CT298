@@ -51,7 +51,9 @@ class ReviewController extends Controller
             ],403);
         }
 
-        $reviews = Review::with('pool')->where('id_user',$user->id_user)->get();
+        $reviews = Review::with(['pool' => function($query){
+            $query->select('id_pool','name');
+        }])->where('id_user',$user->id_user)->get();
         if(!$reviews){
             return response()->json([
                 'message' => 'Bạn không có quyền truy cập danh sách review này',
@@ -78,7 +80,9 @@ class ReviewController extends Controller
                 'status' => 'error',
             ],422);
         }
-        $review = Review::with('pool')->where('id_user',$user->id_user)->where('id_review',$id_review)->first();
+        $review = Review::with(['pool' => function($query){
+            $query->select('id_pool','name');
+        }])->where('id_user',$user->id_user)->where('id_review',$id_review)->first();
         if(!$review){
             return response()->json([
                 'message' => 'Bạn không có quyền truy cập đánh giá này',
@@ -206,7 +210,7 @@ class ReviewController extends Controller
                 'errors' => $validator->errors(),
             ],422);
         }
-
+        
         $updated = $review->update($validator->validated());
         if(!$updated){
             return response()->json([

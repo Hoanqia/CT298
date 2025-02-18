@@ -8,10 +8,13 @@ class EventRegistration extends Model
 {
     protected $fillable = [
         'id_user',
-        'id_event'
+        'id_event',
+        'create_at',
+        'status',
     ];
     protected $table = 'eventregistrations';
     protected $primaryKey = 'id_ER';
+    protected $keyType = 'int';
     public $timestamps = false;
     public function event(){
         return $this->belongsTo(Event::class,'id_event');

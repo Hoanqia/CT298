@@ -87,11 +87,17 @@ class PoolController extends Controller
             }
         
             $pools = $pools->get();
-        
+           
             if ($pools->isEmpty()) {
                 return response()->json(['message' => 'Không tìm thấy hồ bơi nào trong khoảng cách này','data' => [],'status' => 'error'], 404);
             }
-            
+            $pools = $pools->map(function ($pool) {
+                $pool->children_price = (float) $pool->children_price;
+                $pool->adult_price = (float) $pool->adult_price;
+                $pool->student_price = (float) $pool->student_price;
+                $pool->img = asset('storage/' . $pool->img);
+                return $pool;
+            });
             
             return response()->json([
                 'message' => 'Tìm thấy hồ bơi',
