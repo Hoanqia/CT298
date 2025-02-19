@@ -216,24 +216,23 @@ class EventRegistrationController extends Controller
                     'status' => 'error',
                 ],401);
             }
-            if($user->role !== 'customer'){
-                return response()->json([
-                    'message' => 'Bạn không có quyền truy cập',
-                    'status' => 'error',
-                ],403);
-            }
+            
             if(!is_numeric($id_ER) || $id_ER <= 0 ){
                 return response()->json([
                     'message' => 'Dữ liệu không hợp lệ',
                     'status' => 'error',
                 ],422);
             }
-            $er = EventRegistration::with('event.pool')->where('id_ER',$id_ER)->where('id_user',$user->id_user)->first();
+            if($user->role == "customer"){
+                $er = EventRegistration::with('event.pool')->where('id_ER',$id_ER)->where('id_user',$user->id_user)->first();
+            } else {
+                $er = EventRegistration::with('event.pool')->where('id_ER',$id_ER)->first();
+            }
             if(!$er){
                 return response()->json([
-                    'message' => 'Bạn không có quyền lấy thông tin phiếu đăng ký này',
+                    'message' => 'Phiếu đăng ký này không tồn tại',
                     'status' => 'error',
-                ],403);
+                ],404);
             }
             return response()->json([
                 'message' => 'Lấy thông tin phiếu đăng ký thành công',

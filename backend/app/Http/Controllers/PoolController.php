@@ -324,5 +324,41 @@ public function cheapPools(Request $request){
         'message' => 'Danh sách hồ bơi rẻ nhất đã được lấy thành công.',
     ], 200);
 }
-
+public function destroy($id_pool){
+    $user = auth('sanctum')->user();
+    if(!$user){
+        return response()->json([
+            'message' => 'Bạn cần đăng nhập',
+            'status' => 'error',
+        ],401);
+    }
+    if($user->role !== "admin"){
+        return response()->json([
+            'message' => 'Bạn không có quyền truy cập',
+            'status' => 'error',
+        ],403);
+    }
+    if(!filter_var($id_pool,FILTER_VALIDATE_INT) || $id_pool <= 0  ){
+        return response()->json([
+            'message' => 'ID hồ bơi không hợp lệ',
+            'status' => 'error',
+        ],422);
+    }
+    $pool = Pool::find($id_pool);
+    if(!$pool){
+        return response()->json([
+            'message' => 'Hồ bơi không tồn tại',
+            'status' => 'error',
+        ],404);
+    }
+    if( $pool->delete()){
+    return response()->json([
+        'message' => 'Xóa hồ bơi thành công',
+        'status' => 'success',
+    ],200);}
+    return response()->json([
+        'message' => 'Xóa hồ bơi thất bại',
+        'status' => 'error',
+    ],500);
+}
 }
