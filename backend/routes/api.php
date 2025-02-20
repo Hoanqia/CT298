@@ -13,6 +13,11 @@ use App\Http\Controllers\PoolUtilityController;
 use App\Http\Controllers\UtilityController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::delete('/pools/{id_pool}/utilities/{id_pu}',[PoolUtilityController::class,'destroy']); // Xóa tiện ích của 1 hồ bơi
+    Route::post('/pools/{id_pool}/utilities/create',[PoolUtilityController::class,'store']); // Thêm tiện ích cho 1 hồ bơi
+    Route::delete('/pools/{id_pool}/services/{id_ps}',[PoolServiceController::class,'destroy']); // Chỉnh sửa giá dịch vụ cho 1 hồ bơi
+    Route::patch('/pools/{id_pool}/services/{id_ps}',[PoolServiceController::class,'edit']); // Chỉnh sửa giá dịch vụ cho 1 hồ bơi
+    Route::post('/pools/{id_pool}/services/create',[PoolServiceController::class,'store']); // Thêm dịch vụ cho 1 hồ bơi
     Route::post('/pools/{id_pool}/reviews/create',[ReviewController::class,'createReview']); // customer đánh giá hồ bơi
     // http://127.0.0.1:8000/api/pools/4/reviews/create?comment=Hồ bơi tệ quá&rating=3 
     
@@ -66,10 +71,10 @@ Route::get('/pools/{id_pool}/events',[EventController::class,'getEventsOfPool'])
 
 Route::get('/pools/{id_pool}/reviews',[ReviewController::class,'getReviewsOfPool']); // Lấy danh sách đánh giá của 1 hồ bơi
 // http://127.0.0.1:8000/api/pools/15/reviews
-
-Route::get('/pools/{id_pool}/services',[PoolServiceController::class,'getPoolServiceOfPool']); // Lấy danh sách dịch vụ của 1 hồ bơi 
+Route::get('/pools/{id_pool}/services/{id_ps}',[PoolServiceController::class,'getPoolServiceOfPool']); // Lấy thông tin 1 dịch vụ của 1 hồ bơi 
+Route::get('/pools/{id_pool}/services',[PoolServiceController::class,'getPoolServicesOfPool']); // Lấy danh sách dịch vụ của 1 hồ bơi 
 // http://127.0.0.1:8000/api/pools/15/services
-
+Route::get('/pools/{id_pool}/utilities/{id_pu}',[PoolUtilityController::class,'getUtilityOfPool']); // Lấy thông tin chi tiết tiện ích của 1 hồ bơi
 Route::get('/pools/{id_pool}/utilities',[PoolUtilityController::class,'getUtilitiesOfPool']); // Lấy danh sách tiện ích của 1 hồ bơi
 // http://127.0.0.1:8000/api/pools/15/utilities
 
