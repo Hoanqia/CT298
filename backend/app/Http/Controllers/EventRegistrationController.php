@@ -13,7 +13,56 @@ use App\Models\EventRegistration;
 use App\Models\Review;
 use Illuminate\Support\Facades\Validator;
 class EventRegistrationController extends Controller
-{
+{   
+
+    public function getEventRegistrationsOfEvent($id_pool,$id_event){
+        $user = auth('sanctum')->user();
+        if(!$user){
+            return response()->json([
+                'message' => 'Bạn cần đăng nhập',
+                'status' => 'error',
+            ],401);
+        }
+        if($user->role !== "admin"){
+            return response()->json([
+                'message' => 'Bạn không có quyền truy cập',
+                'status' => 'error',
+            ],403);
+        }
+        if (!is_numeric($id_pool) || !is_numeric($id_event) || (floor($id_pool) != $id_pool)  || (floor($id_event) != $id_event) || $id_event <= 0 || $id_pool <= 0) {
+            return response()->json([
+                'message' => 'Dữ liệu không hợp lệ',
+                'status' => 'error',
+            ],422);
+        }
+        $pool = Pool::find($id_pool);
+        if(!$pool){
+            return response()->json([
+                'message' => 'Hồ bơi không tồn tại',
+                'status' => 'error',
+            ],404);
+        }
+        $event = Event::where('id_event',$id_event)->where('id_pool',$pool->id_pool)->first();
+        if(!$event){
+            return response()->json([
+                'message' => 'Sự kiện không tồn tại',
+                'status' => 'error',
+            ],404);
+        }
+        $ers = EventRegistration::with('user:id_user,name,phone')->where('id_event',$event->id_event)->get();
+        if($ers->isEmpty()){
+            return response()->json([
+                'message' => 'Chưa có phiếu đăng ký nào',
+                'status' => 'success',
+                'data' => [],
+            ],200);
+        }
+        return response()->json([
+            'message' => 'Lấy danh sách phiếu đăng ký của sự kiện thành công',
+            'status' => 'success',
+            'data' => $ers,
+        ],200);
+    }
     public function getEventRegistrationsOfUser(){
         $user = auth('sanctum')->user();
         if(!$user){
@@ -225,8 +274,13 @@ class EventRegistrationController extends Controller
             }
             if($user->role == "customer"){
                 $er = EventRegistration::with('event.pool')->where('id_ER',$id_ER)->where('id_user',$user->id_user)->first();
-            } else {
+            } else if($user->role == "admin") {
                 $er = EventRegistration::with('event.pool')->where('id_ER',$id_ER)->first();
+            } else {
+                return response()->json([
+                    'message' => 'Bạn không có quyền truy cập',
+                    'status' => 'error',
+                ],403);
             }
             if(!$er){
                 return response()->json([
@@ -240,6 +294,71 @@ class EventRegistrationController extends Controller
                 'data' => $er,
             ],200);
         }
+        public function updateStatusEr($id_pool,$id_event,$id_ER,Request $request){
+            $user = auth('sanctum')->user();
+            if(!$user){
+                return response()->json([
+                    'message' => 'Bạn cần đăng nhập',
+                    'status' => 'error',
+                ],401);
+            }
+            if($user->role !== "admin"){
+                return response()->json([
+                    'message' => 'Bạn không có quyền truy cập',
+                    'status' => 'error',
+                ],403);
+            }
+            if (!is_numeric($id_pool) || !is_numeric($id_event) || (floor($id_pool) != $id_pool)  || (floor($id_event) != $id_event) || $id_event <= 0 || $id_pool <= 0 ||
+             !is_numeric($id_ER) || (floor($id_ER) != $id_ER) || $id_ER <= 0 ) {
+                return response()->json([
+                    'message' => 'Dữ liệu không hợp lệ',
+                    'status' => 'error',
+                ],422);
+            }
+            $pool = Pool::find($id_pool);
+            if(!$pool){
+                return response()->json([
+                    'message' => 'Hồ bơi không tồn tại',
+                    'status' => 'error',
+                ],404);
+            }
+            $event = Event::where('id_event',$id_event)->where('id_pool',$pool->id_pool)->first();
+            if(!$event){
+                return response()->json([
+                    'message' => 'Sự kiện không tồn tại',
+                    'status' => 'error',
+                ],404);
+            }
+            $er = EventRegistration::find($id_ER);
+            if(!$er){
+                return response()->json([
+                    'message' => 'Phiếu đăng ký không tồn tại',
+                    'status' => 'error',
+                ],404);
+            }
+            $validator = Validator::make($request->all(),[
+                'status' => 'required|in:pending,confirmed,rejected',
+            ]);
+            if($validator->fails()){
+                return response()->json([
+                    'message' => 'Dữ liệu không hợp lệ',
+                    'status' => 'error',
+                    'errors' => $validator->errors(),
+                ],422);
+            }
+            $validatedData = $validator->validated();
+            if(!($er->update($validatedData))){
+                return response()->json([
+                    'message' => 'Cập nhật trạng thái phiếu đăng ký thất bại',
+                    'status' => 'error',
+                ],500);
+            }
+            return  response()->json([
+                'message' => 'Cập nhật trạng thái phiếu đăng ký thành công',
+                'status' => 'success',
+                'data' => $er,
+            ],200);
 
+        }
        
 }

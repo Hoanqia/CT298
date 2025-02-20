@@ -24,8 +24,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users/event-registrations',[EventRegistrationController::class,'getEventRegistrationsOfUser']); // lịch sử đăng ký của customer
     // http://127.0.0.1:8000/api/users/event-registrations/
 
-    Route::post('/pools/{id_pool}/events/{id_event}/event-registration/create',[EventRegistrationController::class,'createER']); // Tạo pdk
+    Route::patch('/pools/{id_pool}/events/{id_event}/event-registrations/{id_ER}',[EventRegistrationController::class,'updateStatusEr']); // Tạo pdk
+    Route::post('/pools/{id_pool}/events/{id_event}/event-registrations/create',[EventRegistrationController::class,'createER']); // Tạo pdk
     // http://127.0.0.1:8000/api/pools/15/events/9/event-registration/create
+    Route::get('/pools/{id_pool}/events/{id_event}/event-registrations',[EventRegistrationController::class,'getEventRegistrationsOfEvent']);
 
     Route::get('/users/reviews/{id_review}',[ReviewController::class,'getReviewOfUser']); // Lấy thông tin chi tiết đánh giá của user 
     // http://127.0.0.1:8000/api/users/reviews/4

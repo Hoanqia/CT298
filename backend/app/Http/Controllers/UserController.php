@@ -65,7 +65,6 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-        // Kiểm tra dữ liệu đầu vào
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string|max:15|regex:/^\+?\d{9,15}$/',
             'password' => 'required|string|min:6',
@@ -78,7 +77,6 @@ class UserController extends Controller
             ], 422);
         }
 
-        // Kiểm tra thông tin đăng nhập
         if (!Auth::attempt(['phone' => $request->phone, 'password' => $request->password])) {
             return response()->json([
                 'message' => 'Số điện thoại hoặc mật khẩu không đúng!',
@@ -93,7 +91,6 @@ class UserController extends Controller
         // Tạo token đăng nhập
         $token = $user->createToken('authToken')->plainTextToken;
         $user->makeHidden(['password']);
-
         return response()->json([
             'message' => 'Đăng nhập thành công!',
             'status' => 'success',
@@ -103,7 +100,6 @@ class UserController extends Controller
     }
 
     public function logout(Request $request){
-    // Kiểm tra nếu user đã đăng nhập
     $user = auth('sanctum')->user();
     
     if (!$user) {
