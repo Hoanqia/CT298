@@ -93,8 +93,8 @@ Route::get('/pools', [PoolController::class, 'getPools']); // lấy danh sách t
 Route::get('/services/{id_service}',[ServiceController::class,'get']); // Lấy chi tiết thông tin dịch vụ 
 Route::get('/services',[ServiceController::class,'getAll']);    // Lấy danh sách dịch vụ
 
-Route::get('/districts',[PoolController::class,'getDistrictList']);
-Route::get('/wards',[PoolController::class,'getWardList']);
-Route::get('/streets',[PoolController::class,'getStreetList']);
+Route::get('/districts',[PoolController::class,'getDistrictList']); // lấy danh sách quận huyện
+Route::get('/district/{id_district}/wards',[PoolController::class,'getWardList']); // lấy danh sách phường xã theo id quận 
+Route::get('/district/{id_district}/wards/{id_ward}/streets',[PoolController::class,'getStreetList']); // lấy danh sách đường xá của phường
 Route::post('/register',[UserController::class,'register']); // Đăng ký 
 Route::post('/login',[UserController::class,'login']); // Đăng nhập
