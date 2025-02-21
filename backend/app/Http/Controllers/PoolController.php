@@ -378,8 +378,8 @@ public function getDistrictList(){
         'data' => $districts,
     ],200);
 }
-public function getWardList(){
-    $wards = Ward::all();
+public function getWardList($id_district){
+    $wards = Ward::where('id_district',$id_district)->get();
     if($wards->isEmpty()){
         return response()->json([
             'message' => 'Không có dữ liệu phường xã',
@@ -393,8 +393,8 @@ public function getWardList(){
         'data' => $wards,
     ],200);
 }
-public function getStreetList(){
-    $streets = Street::all();
+public function getStreetList($id_district,$id_ward){
+    $streets = Street::where('id_ward',$id_ward)->get();
     if($streets->isEmpty()){
         return response()->json([
             'message' => 'Không có dữ liệu đường xã',
