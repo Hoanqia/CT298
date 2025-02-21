@@ -361,4 +361,51 @@ public function destroy($id_pool){
         'status' => 'error',
     ],500);
 }
+
+
+public function getDistrictList(){
+    $districts = District::all();
+    if($districts->isEmpty()){
+        return response()->json([
+            'message' => 'Không có dữ liệu quận huyện',
+            'status' => 'success',
+            'data' => [],
+        ],200);
+    }
+    return response()->json([
+        'message' => 'Lấy dữ liệu quận huyện thành công',
+        'status' => 'success',
+        'data' => $districts,
+    ],200);
+}
+public function getWardList(){
+    $wards = Ward::all();
+    if($wards->isEmpty()){
+        return response()->json([
+            'message' => 'Không có dữ liệu phường xã',
+            'status' => 'success',
+            'data' => [],
+        ],200);
+    }
+    return response()->json([
+        'message' => 'Lấy dữ liệu phường xã thành công',
+        'status' => 'success',
+        'data' => $wards,
+    ],200);
+}
+public function getStreetList(){
+    $streets = Street::all();
+    if($streets->isEmpty()){
+        return response()->json([
+            'message' => 'Không có dữ liệu đường xã',
+            'status' => 'success',
+            'data' => [],
+        ],200);
+    }
+    return response()->json([
+        'message' => 'Lấy dữ liệu đường xá thành công',
+        'status' => 'success',
+        'data' => $streets,
+    ],200);
+}
 }
