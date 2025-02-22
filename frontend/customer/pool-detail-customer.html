@@ -344,36 +344,40 @@
         }
 
         function logout() {
-            const token = localStorage.getItem("loggedInUser")
-                ? JSON.parse(localStorage.getItem("loggedInUser")).token
-                : null;
+            // Lấy thông tin người dùng từ localStorage
+            const authToken = localStorage.getItem("authToken");  // Lấy token từ "authToken"
 
-            if (!token) {
+            if (!authToken) {
                 alert("Bạn chưa đăng nhập!");
-                return;
+                return;  // Nếu không có token, thông báo và dừng lại
             }
 
+            // Gửi yêu cầu POST tới API để đăng xuất
             fetch("http://127.0.0.1:8000/api/logout", {
-                method: "POST",
+                method: "POST",  // Sử dụng phương thức POST
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    "Content-Type": "application/json",  // Đảm bảo gửi dữ liệu ở dạng JSON
+                    "Authorization": `Bearer ${authToken}`  // Gửi token qua header Authorization
                 }
             })
-                .then(response => response.json().then(data => ({ status: response.status, body: data })))
-                .then(({ status, body }) => {
-                    console.log("API Response:", body);
-
-                    if (status === 200) {
+                .then(response => response.json())  // Chuyển phản hồi từ server thành JSON
+                .then(data => {
+                    // Kiểm tra mã trạng thái phản hồi
+                    if (data.status === 200) {
                         alert("Đăng xuất thành công!");
-                        localStorage.removeItem("loggedInUser"); // Xóa thông tin đăng nhập
-                        window.location.href = "login.html"; // Chuyển hướng đến trang đăng nhập
+                        // Xóa thông tin người dùng và token khỏi localStorage
+                        localStorage.removeItem("authToken");
+                        localStorage.removeItem("loggedInUser");
+                        // Chuyển hướng đến trang đăng nhập
+                        window.location.href = "login.html";
                     } else {
-                        alert(body.message || "Có lỗi xảy ra, vui lòng thử lại!");
+                        // Nếu có lỗi, hiển thị thông báo lỗi
+                        alert(data.message || "Có lỗi xảy ra, vui lòng thử lại!");
                     }
                 })
                 .catch(error => {
-                    console.error("Lỗi API:", error);
+                    // Xử lý lỗi nếu có sự cố khi gọi API
+                    console.error("Lỗi khi gọi API logout:", error);
                     alert("Có lỗi xảy ra, vui lòng thử lại!");
                 });
         }

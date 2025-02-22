@@ -49,6 +49,8 @@
     </footer>
 
     <script>
+        let authToken = ""; // Biến lưu token toàn cục
+
         document.addEventListener("DOMContentLoaded", function () {
             const loginForm = document.getElementById("loginForm");
 
@@ -72,8 +74,10 @@
                         console.log("API Response:", body);
 
                         if (status === 200) {
-                            // Đăng nhập thành công
-                            localStorage.setItem("loggedInUser", JSON.stringify(body));
+                            // Lưu token vào localStorage
+                            localStorage.setItem("authToken", body.token);  // Lưu token vào key "authToken"
+                            localStorage.setItem("loggedInUser", JSON.stringify(body.user));
+
                             alert("Đăng nhập thành công!");
                             window.location.href = "index-customer.html";
                         } else if (status === 422) {
@@ -96,6 +100,7 @@
                     });
             });
         });
+
     </script>
 </body>
 
