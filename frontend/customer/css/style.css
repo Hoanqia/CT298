@@ -255,13 +255,51 @@ body {
   display: flex;
   align-items: center;
 }
+
 .password-container input {
   width: 100%;
   padding-right: 40px;
 }
+
 .password-container .toggle-password {
   position: absolute;
   right: 10px;
   cursor: pointer;
   color: gray;
+}
+
+.pool-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  width: 300px;
+  margin: 10px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  margin-top: auto;
+}
+
+#map {
+  height: 400px;
+  width: 100%;
+}
+
+.pool-list {
+  width: 100%;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+}
+
+.pool-item {
+  padding: 10px;
+  margin-bottom: 10px;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 }
