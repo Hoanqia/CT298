@@ -77,6 +77,7 @@
                 dataType: "json",
                 contentType: "application/json",
                 headers: {
+                    "Accept": "application/json",
                     "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
                 },
                 data: JSON.stringify({
@@ -90,12 +91,20 @@
                 },
                 error: function (xhr) {
                     console.error("Lỗi API:", xhr.responseText);
-                    alert("Lỗi: " + xhr.status + " - " + xhr.statusText);
+                    if (xhr.status === 422) {
+                        let errors = JSON.parse(xhr.responseText);
+                        if (errors.error) {
+                            alert(errors.message + "\nChi tiết: " + errors.error);
+                        } else {
+                            alert("Có lỗi xảy ra, vui lòng thử lại!");
+                        }
+                    } else {
+                        alert("Lỗi: " + xhr.status + " - " + xhr.statusText);
+                    }
                 }
             });
         }
     </script>
-
 </body>
 
 </html>
