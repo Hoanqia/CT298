@@ -40,7 +40,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li><a class="dropdown-item" href="profile.html">Thông tin cá nhân</a></li>
-                            <li><a class="dropdown-item" href="index-guest.html" onclick="logout()">Đăng xuất</a></li>
+                            <li><a class="dropdown-item" onclick="logout()">Đăng xuất</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -239,6 +239,41 @@
             const modal = new bootstrap.Modal(document.getElementById('searchResultModal'));
             modal.show();
         });
+
+        function logout() {
+            const token = localStorage.getItem("loggedInUser")
+                ? JSON.parse(localStorage.getItem("loggedInUser")).token
+                : null;
+
+            if (!token) {
+                alert("Bạn chưa đăng nhập!");
+                return;
+            }
+
+            fetch("http://127.0.0.1:8000/api/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            })
+                .then(response => response.json().then(data => ({ status: response.status, body: data })))
+                .then(({ status, body }) => {
+                    console.log("API Response:", body);
+
+                    if (status === 200) {
+                        alert("Đăng xuất thành công!");
+                        localStorage.removeItem("loggedInUser"); // Xóa thông tin đăng nhập
+                        window.location.href = "login.html"; // Chuyển hướng đến trang đăng nhập
+                    } else {
+                        alert(body.message || "Có lỗi xảy ra, vui lòng thử lại!");
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi API:", error);
+                    alert("Có lỗi xảy ra, vui lòng thử lại!");
+                });
+        }
     </script>
 
 </body>
