@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Validator;
 class PoolController extends Controller
 {
     public function getPools(){
-    $pools = Pool::with('street.ward.district')->get();
+    $pools = Pool::with('street.ward.district')
+    ->withAvg('reviews','rating')->withCount('reviews')
+    ->get();
     if($pools->isEmpty()){
         return response()->json([
             'status' => 'success',
@@ -26,6 +28,9 @@ class PoolController extends Controller
         $pool->adult_price = (float) $pool->adult_price;
         $pool->student_price = (float) $pool->student_price;
         $pool->img = asset('storage/' . $pool->img);
+        $pool->average_rating = round($pool->reviews_avg_rating,1);
+        $pool->total_reviews = $pool->reviews_count; 
+        unset($pool->reviews_avg_rating, $pool->reviews_count); 
         return $pool;
     });
   return response()->json([
@@ -36,14 +41,19 @@ class PoolController extends Controller
 }
 
     public function getPool($id_pool){
-        $pool = Pool::with(['street.ward.district','pool_services.service','pool_utilities.utility'])->find($id_pool);
+        $pool = Pool::with(['street.ward.district','pool_services.service','pool_utilities.utility'])
+        ->withAvg('reviews','rating')->withCount('reviews')
+        ->find($id_pool);
         if (!$pool) {
         return response()->json(['message' => 'Không tìm thấy hồ bơi','status' => 'error','data' => null,], 404);
     }
     $pool->children_price = (float) $pool->children_price;
     $pool->adult_price = (float) $pool->adult_price;
     $pool->student_price = (float) $pool->student_price;
-
+    $pool->average_rating = round($pool->reviews_avg_rating,1);
+    $pool->total_reviews = $pool->reviews_count; 
+    $pool->img = asset('storage/' . $pool->img);
+    unset($pool->reviews_avg_rating, $pool->reviews_count); 
     foreach ($pool->pool_services as $service) {
         $service->price = (float) $service->price;
     }
@@ -263,6 +273,140 @@ public function updatePool($id_pool,Request $request){
     }
 
 }
+public function cheapPools(Request $request){
+    $ticketType = $request->input('ticket_type');
+    $services = $request->input('services', []);
+    $userLat = $request->input('lat');
+    $userLng = $request->input('lng');
 
+    $validTicketTypes = ['children_price', 'adult_price', 'student_price'];
+    if (!in_array($ticketType, $validTicketTypes)) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Loại vé không hợp lệ. Chỉ chấp nhận: children_price, adult_price, student_price',
+        ], 400);
+    }
+
+    if (!$userLat || !$userLng) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Không tìm thấy vị trí hiện tại của người dùng',
+        ], 400);
+    }
+
+    $pools = Pool::select(
+        'pools.*',
+        DB::raw("pools.$ticketType as ticket_price"),
+        DB::raw("(6371 * ACOS(COS(RADIANS($userLat)) * COS(RADIANS(pools.lat)) * COS(RADIANS(pools.lng) - RADIANS($userLng))
+         + SIN(RADIANS($userLat)) * SIN(RADIANS(pools.lat)))) AS distance_km")
+    )
+    ->with(['pool_services' => function ($query) use ($services) {
+        if (!empty($services)) {
+            $query->whereIn('id_service', $services);
+        }
+    }])
+    ->having('distance_km', '<', 50)
+    ->orderBy('ticket_price', 'asc')
+    ->orderBy('distance_km', 'asc')
+    ->get();
+
+    $pools = $pools->map(function ($pool) use ($services) {
+        $filteredServiceCost = $pool->pool_services->sum('price');
+        $pool->total_cost = $pool->ticket_price + $filteredServiceCost; 
+        $pool->img = asset('storage/' . $pool->img);
+        unset($pool->pool_services); 
+        return $pool;
+    });
+    $pools = $pools->sortBy('total_cost');
+    return response()->json([
+        'status' => 'success',
+        'data' => $pools,
+        'message' => 'Danh sách hồ bơi rẻ nhất đã được lấy thành công.',
+    ], 200);
+}
+public function destroy($id_pool){
+    $user = auth('sanctum')->user();
+    if(!$user){
+        return response()->json([
+            'message' => 'Bạn cần đăng nhập',
+            'status' => 'error',
+        ],401);
+    }
+    if($user->role !== "admin"){
+        return response()->json([
+            'message' => 'Bạn không có quyền truy cập',
+            'status' => 'error',
+        ],403);
+    }
+    if(!filter_var($id_pool,FILTER_VALIDATE_INT) || $id_pool <= 0  ){
+        return response()->json([
+            'message' => 'ID hồ bơi không hợp lệ',
+            'status' => 'error',
+        ],422);
+    }
+    $pool = Pool::find($id_pool);
+    if(!$pool){
+        return response()->json([
+            'message' => 'Hồ bơi không tồn tại',
+            'status' => 'error',
+        ],404);
+    }
+    if( $pool->delete()){
+    return response()->json([
+        'message' => 'Xóa hồ bơi thành công',
+        'status' => 'success',
+    ],200);}
+    return response()->json([
+        'message' => 'Xóa hồ bơi thất bại',
+        'status' => 'error',
+    ],500);
+}
+
+
+public function getDistrictList(){
+    $districts = District::all();
+    if($districts->isEmpty()){
+        return response()->json([
+            'message' => 'Không có dữ liệu quận huyện',
+            'status' => 'success',
+            'data' => [],
+        ],200);
+    }
+    return response()->json([
+        'message' => 'Lấy dữ liệu quận huyện thành công',
+        'status' => 'success',
+        'data' => $districts,
+    ],200);
+}
+public function getWardList($id_district){
+    $wards = Ward::where('id_district',$id_district)->get();
+    if($wards->isEmpty()){
+        return response()->json([
+            'message' => 'Không có dữ liệu phường xã',
+            'status' => 'success',
+            'data' => [],
+        ],200);
+    }
+    return response()->json([
+        'message' => 'Lấy dữ liệu phường xã thành công',
+        'status' => 'success',
+        'data' => $wards,
+    ],200);
+}
+public function getStreetList($id_district,$id_ward){
+    $streets = Street::where('id_ward',$id_ward)->get();
+    if($streets->isEmpty()){
+        return response()->json([
+            'message' => 'Không có dữ liệu đường xã',
+            'status' => 'success',
+            'data' => [],
+        ],200);
+    }
+    return response()->json([
+        'message' => 'Lấy dữ liệu đường xá thành công',
+        'status' => 'success',
+        'data' => $streets,
+    ],200);
+}
 
 }
