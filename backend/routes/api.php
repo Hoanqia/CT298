@@ -28,6 +28,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/users/event-registrations',[EventRegistrationController::class,'getEventRegistrationsOfUser']); // lịch sử đăng ký của customer
     // http://127.0.0.1:8000/api/users/event-registrations/
+    Route::patch('/users/update/changePassword',[UserController::class,'changePassword']);
+    Route::patch('/users/update',[UserController::class,'update']);
 
     Route::patch('/pools/{id_pool}/events/{id_event}/event-registrations/{id_ER}',[EventRegistrationController::class,'updateStatusEr']); // Tạo pdk
     Route::post('/pools/{id_pool}/events/{id_event}/event-registrations/create',[EventRegistrationController::class,'createER']); // Tạo pdk
