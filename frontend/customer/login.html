@@ -74,12 +74,19 @@
                         console.log("API Response:", body);
 
                         if (status === 200) {
-                            // Lưu token vào localStorage
-                            localStorage.setItem("authToken", body.token);  // Lưu token vào key "authToken"
-                            localStorage.setItem("loggedInUser", JSON.stringify(body.user));
+                            const user = body.user;
 
                             alert("Đăng nhập thành công!");
-                            window.location.href = "index-customer.html";
+
+                            if (user.role === "customer") {
+                                // Lưu token vào localStorage
+                                localStorage.setItem("authToken", body.token);
+                                localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+                                window.location.href = "index-customer.html"; // Chuyển hướng khách hàng
+                            } else {
+                                window.location.href = "index-admin.html"; // Chuyển hướng admin
+                            }
                         } else if (status === 422) {
                             // Lỗi validate dữ liệu
                             let errorMessage = "Dữ liệu không hợp lệ:\n";
