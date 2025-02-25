@@ -49,6 +49,7 @@
       <thead>
         <tr>
           <th>STT</th>
+          <th>Tên Hồ Bơi</th>
           <th>Tên Dịch Vụ</th>
           <th>Giá Dịch Vụ</th>
           <th>Thao Tác</th>
@@ -69,6 +70,10 @@
         </div>
         <div class="modal-body">
           <form id="addServiceForm">
+            <div class="mb-3">
+              <label for="poolName" class="form-label">Tên Hồ Bơi</label>
+              <input type="text" class="form-control" id="poolName" required>
+            </div>
             <div class="mb-3">
               <label for="serviceName" class="form-label">Tên Dịch Vụ</label>
               <input type="text" class="form-control" id="serviceName" required>
