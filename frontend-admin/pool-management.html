@@ -39,38 +39,36 @@
     </div>
   </nav>
 
-  <!-- Nội dung chính -->
   <div class="container mt-5">
     <h2>Danh Sách Hồ Bơi</h2>
-    <div class="search-container mb-3">
-      <input type="text" id="searchPool" class="form-control" placeholder="Tìm kiếm thông tin hồ bơi...">
-    </div>
     <button class="btn btn-primary mb-3" id="addPoolBtn">Thêm Hồ Bơi</button>
-    
-    <!-- Bảng danh sách hồ bơi -->
     <table class="table table-bordered">
       <thead>
         <tr>
           <th>STT</th>
           <th>Tên Hồ Bơi</th>
+          <th>Số Nhà</th>
           <th>Địa Chỉ</th>
+          <th>Tỉnh/TP</th>
+          <th>Vĩ Độ</th>
+          <th>Kinh Độ</th>
           <th>Chiều Dài (m)</th>
           <th>Chiều Rộng (m)</th>
           <th>Độ Sâu (m)</th>
+          <th>Loại Hồ Bơi</th>
           <th>Giờ Mở Cửa</th>
           <th>Giờ Đóng Cửa</th>
           <th>Hình</th>
           <th>Giá Trẻ Em</th>
+          <th>Giá Sinh Viên</th>
           <th>Giá Người Lớn</th>
           <th>Thao Tác</th>
         </tr>
       </thead>
-      <tbody id="poolList">
-      </tbody>
+      <tbody id="poolList"></tbody>
     </table>
   </div>
 
-  <!-- Modal Thêm Hồ Bơi -->
   <div class="modal fade" id="addPoolModal" tabindex="-1" aria-labelledby="addPoolModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -80,46 +78,25 @@
         </div>
         <div class="modal-body">
           <form id="addPoolForm">
-            <div class="mb-3">
-              <label for="poolName" class="form-label">Tên Hồ Bơi</label>
-              <input type="text" class="form-control" id="poolName" required>
-            </div>
-            <div class="mb-3">
-              <label for="poolAddress" class="form-label">Địa Chỉ</label>
-              <input type="text" class="form-control" id="poolAddress" required>
-            </div>
-            <div class="mb-3">
-              <label for="poolLength" class="form-label">Chiều Dài (m)</label>
-              <input type="number" class="form-control" id="poolLength" required>
-            </div>
-            <div class="mb-3">
-              <label for="poolWidth" class="form-label">Chiều Rộng (m)</label>
-              <input type="number" class="form-control" id="poolWidth" required>
-            </div>
-            <div class="mb-3">
-              <label for="poolDepth" class="form-label">Độ Sâu (m)</label>
-              <input type="number" class="form-control" id="poolDepth" required>
-            </div>
-            <div class="mb-3">
-              <label for="poolOpeningTime" class="form-label">Giờ Mở Cửa</label>
-              <input type="time" class="form-control" id="poolOpeningTime" required>
-            </div>
-            <div class="mb-3">
-              <label for="poolClosingTime" class="form-label">Giờ Đóng Cửa</label>
-              <input type="time" class="form-control" id="poolClosingTime" required>
-            </div>
-            <div class="mb-3">
-              <label for="poolImage" class="form-label">Hình</label>
-              <input type="file" class="form-control" id="poolImage" accept="img/*">
-            </div>
-            <div class="mb-3">
-              <label for="poolChildFee" class="form-label">Giá Trẻ Em</label>
-              <input type="number" class="form-control" id="poolChildFee" required>
-            </div>
-            <div class="mb-3">
-              <label for="poolAdultFee" class="form-label">Giá Người Lớn</label>
-              <input type="number" class="form-control" id="poolAdultFee" required>
-            </div>
+            <input type="text" class="form-control mb-2" id="poolName" placeholder="Tên Hồ Bơi" required>
+            <input type="text" class="form-control mb-2" id="poolHouseNumber" placeholder="Số Nhà" required>
+            <input type="text" class="form-control mb-2" id="poolAddress" placeholder="Địa Chỉ" required>
+            <input type="text" class="form-control mb-2" id="poolCity" placeholder="Tỉnh/TP" required>
+            <input type="number" class="form-control mb-2" id="poolLatitude" placeholder="Vĩ Độ" required>
+            <input type="number" class="form-control mb-2" id="poolLongitude" placeholder="Kinh Độ" required>
+            <input type="number" class="form-control mb-2" id="poolLength" placeholder="Chiều Dài (m)" required>
+            <input type="number" class="form-control mb-2" id="poolWidth" placeholder="Chiều Rộng (m)" required>
+            <input type="number" class="form-control mb-2" id="poolDepth" placeholder="Độ Sâu (m)" required>
+            <select class="form-control mb-2" id="poolType" required>
+              <option value="Trong Nhà">Trong Nhà</option>
+              <option value="Ngoài Trời">Ngoài Trời</option>
+            </select>
+            <input type="time" class="form-control mb-2" id="poolOpeningTime" required>
+            <input type="time" class="form-control mb-2" id="poolClosingTime" required>
+            <input type="file" class="form-control mb-2" id="poolImage" accept="image/*">
+            <input type="number" class="form-control mb-2" id="poolChildFee" placeholder="Giá Trẻ Em" required>
+            <input type="number" class="form-control mb-2" id="poolStudentFee" placeholder="Giá Sinh Viên" required>
+            <input type="number" class="form-control mb-2" id="poolAdultFee" placeholder="Giá Người Lớn" required>
             <button type="submit" class="btn btn-primary">Lưu</button>
           </form>
         </div>
@@ -129,6 +106,6 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/pool-management.js"></script> <!-- Tệp JavaScript của bạn -->
+  <script src="js/pool-management.js"></script>
 </body>
 </html>
