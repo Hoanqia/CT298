@@ -49,8 +49,8 @@
       <thead>
         <tr>
           <th>STT</th>
+          <th>Tên Hồ Bơi</th>
           <th>Tên Tiện Ích</th>
-          <th>Trạng Thái</th>
           <th>Thao Tác</th>
         </tr>
       </thead>
@@ -70,15 +70,12 @@
         <div class="modal-body">
           <form id="addFacilityForm">
             <div class="mb-3">
-              <label for="facilityName" class="form-label">Tên Tiện Ích</label>
-              <input type="text" class="form-control" id="facilityName" required>
+              <label for="poolName" class="form-label">Tên Hồ Bơi</label>
+              <input type="text" class="form-control" id="poolName" required>
             </div>
             <div class="mb-3">
-              <label for="facilityStatus" class="form-label">Trạng Thái</label>
-              <select class="form-control" id="facilityStatus" required>
-                <option value="Hoạt động">Hoạt động</option>
-                <option value="Bảo trì">Bảo trì</option>
-              </select>
+              <label for="facilityName" class="form-label">Tên Tiện Ích</label>
+              <input type="text" class="form-control" id="facilityName" required>
             </div>
             <button type="submit" class="btn btn-primary">Lưu</button>
           </form>
