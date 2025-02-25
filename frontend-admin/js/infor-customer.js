@@ -26,10 +26,10 @@ let customers = [
   }
 ];
 
-// Hàm để hiển thị danh sách khách hàng trong bảng
+// Hàm hiển thị danh sách khách hàng
 function displayCustomers() {
   const customerList = document.getElementById('customerList');
-  customerList.innerHTML = ''; // Xóa nội dung cũ trong bảng
+  customerList.innerHTML = '';
 
   customers.forEach((customer, index) => {
     const row = document.createElement('tr');
@@ -39,99 +39,18 @@ function displayCustomers() {
       <td>${customer.phone}</td>
       <td>${customer.password}</td>
       <td>${customer.registrationDate}</td>
-      <td>
-        <button class="btn btn-warning btn-sm" onclick="editCustomer(${index})">Sửa</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteCustomer(${index})">Xóa</button>
-      </td>
     `;
     customerList.appendChild(row);
   });
 }
 
-// Hàm để mở modal thêm khách hàng
-document.getElementById('addCustomerBtn').addEventListener('click', function() {
-  // Mở modal
-  new bootstrap.Modal(document.getElementById('addCustomerModal')).show();
-});
-
-// Hàm để thêm khách hàng mới
-document.getElementById('addCustomerForm').addEventListener('submit', function(event) {
-  event.preventDefault();
-
-  const name = document.getElementById('customerName').value;
-  const phone = document.getElementById('customerPhone').value;
-  const password = document.getElementById('customerPassword').value;
-  const registrationDate = document.getElementById('registrationDate').value;
-
-  // Thêm khách hàng vào mảng
-  customers.push({
-    name,
-    phone,
-    password,
-    registrationDate
-  });
-
-  // Hiển thị lại danh sách khách hàng
-  displayCustomers();
-
-  // Đóng modal
-  new bootstrap.Modal(document.getElementById('addCustomerModal')).hide();
-
-  // Xóa dữ liệu trong form
-  document.getElementById('addCustomerForm').reset();
-});
-
-// Hàm để chỉnh sửa khách hàng
-function editCustomer(index) {
-  const customer = customers[index];
-
-  // Điền dữ liệu vào các trường trong form sửa
-  document.getElementById('customerName').value = customer.name;
-  document.getElementById('customerPhone').value = customer.phone;
-  document.getElementById('customerPassword').value = customer.password;
-  document.getElementById('registrationDate').value = customer.registrationDate;
-
-  // Thay đổi hành động của form thành cập nhật
-  const addCustomerForm = document.getElementById('addCustomerForm');
-  addCustomerForm.onsubmit = function(event) {
-    event.preventDefault();
-
-    // Cập nhật thông tin khách hàng
-    customer.name = document.getElementById('customerName').value;
-    customer.phone = document.getElementById('customerPhone').value;
-    customer.password = document.getElementById('customerPassword').value;
-    customer.registrationDate = document.getElementById('registrationDate').value;
-
-    // Hiển thị lại danh sách khách hàng
-    displayCustomers();
-
-    // Đóng modal
-    new bootstrap.Modal(document.getElementById('addCustomerModal')).hide();
-
-    // Xóa dữ liệu trong form
-    addCustomerForm.reset();
-  };
-
-  // Mở modal
-  new bootstrap.Modal(document.getElementById('addCustomerModal')).show();
-}
-
-// Hàm để xóa khách hàng
-function deleteCustomer(index) {
-  // Xác nhận xóa
-  if (confirm('Bạn có chắc chắn muốn xóa khách hàng này?')) {
-    // Xóa khách hàng khỏi mảng
-    customers.splice(index, 1);
-    // Hiển thị lại danh sách khách hàng
-    displayCustomers();
-  }
-}
-
-// Tìm kiếm đánh giá
+// Hàm tìm kiếm khách hàng theo tên hoặc số điện thoại
 document.getElementById("searchInfor").addEventListener("input", function () {
   const searchTerm = this.value.toLowerCase();
   document.querySelectorAll("#customerList tr").forEach(row => {
-    row.style.display = row.innerText.toLowerCase().includes(searchTerm) ? "" : "none";
+    const name = row.cells[1].textContent.toLowerCase();
+    const phone = row.cells[2].textContent.toLowerCase();
+    row.style.display = (name.includes(searchTerm) || phone.includes(searchTerm)) ? "" : "none";
   });
 });
 
