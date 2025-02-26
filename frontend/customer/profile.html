@@ -48,17 +48,17 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <form id="profileForm">
+                    <form id="profileForm" onsubmit="changeInformation(event)">
                         <h5 class="card-title">Cập nhật thông tin</h5>
                         <div class="mb-3">
                             <label class="form-label text-primary">Họ và tên</label>
-                            <input type="text" class="form-control" id="fullName" value="Nguyễn Văn A">
+                            <input type="text" class="form-control" id="name">
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-primary">Số điện thoại</label>
-                            <input type="text" class="form-control" id="phone" value="0123456789">
+                            <input type="text" class="form-control" id="phone">
                         </div>
-                        <button type="submit" class="btn btn-primary" onclick="updateProfile(event)">Cập nhật thông
+                        <button type="submit" class="btn btn-primary">Cập nhật thông
                             tin</button>
                     </form>
                 </div>
@@ -186,15 +186,6 @@
             if (confirm("Bạn có chắc chắn muốn hủy đăng ký sự kiện này?")) {
                 button.closest("li").remove();
             }
-        }
-
-        function updateProfile(event) {
-            event.preventDefault();
-            const fullName = document.getElementById("fullName").value;
-            const phone = document.getElementById("phone").value;
-            const password = document.getElementById("password").value;
-
-            alert("Thông tin cá nhân đã được cập nhật\nHọ và tên: " + fullName + "\nSố điện thoại: " + phone + "\nMật khẩu: " + password);
         }
 
         function togglePassword(fieldId, iconElement) {
@@ -365,6 +356,61 @@
                 }
             });
         }
+
+        function changeInformation(event) {
+            event.preventDefault(); // Ngăn form reload lại trang
+
+            const name = document.getElementById("name").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const token = localStorage.getItem("authToken");
+
+            console.log("🔹 Token:", token);
+            console.log("🔹 Tên:", name);
+            console.log("🔹 SDT:", phone);
+
+            if (!token) {
+                alert("Bạn chưa đăng nhập! Vui lòng đăng nhập lại.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            if (!name || !phone) {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
+            // Kiểm tra số điện thoại (chỉ cho phép 10 chữ số)
+            const phoneRegex = /^[0-9]{10}$/;
+            if (!phoneRegex.test(phone)) {
+                alert("Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 chữ số!");
+                return;
+            }
+
+            $.ajax({
+                type: "PATCH",
+                url: "http://127.0.0.1:8000/api/users/update",
+                dataType: "json",
+                contentType: "application/json",
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                data: JSON.stringify({
+                    name: name,
+                    phone: phone
+                }),
+                success: function (response) {
+                    alert(response.message);
+                    window.location.href = "profile.html";
+                },
+                error: function (xhr) {
+                    console.error("❌ Lỗi API:", xhr.responseText);
+                    let errors = JSON.parse(xhr.responseText);
+                    alert(errors.message);
+                }
+            });
+        }
+
     </script>
 </body>
 
