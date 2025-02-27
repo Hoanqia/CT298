@@ -178,4 +178,16 @@ class UserController extends Controller
         }
 
     }
+    public function getPersonalInformation(){
+        $user = auth('sanctum')->user();
+        if (!$user) {
+            return response()->json(['message' => 'Bạn chưa đăng nhập!','status' => 'error'], 401);
+        }
+        $user->makeHidden(['password','role']);
+        return response()->json([
+            'message' => 'Lấy thông tin cá nhân thành công',
+            'status' => 'success',
+            'data' => $user
+        ],200);
+    }
 }
