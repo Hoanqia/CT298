@@ -46,7 +46,6 @@
     <div class="container-fluid mt-3">
         <div class="row">
 
-<<<<<<< HEAD
             <div class="row">
                 <!-- Sidebar: Tìm kiếm hồ bơi -->
                 <div class="col-md-4">
@@ -165,7 +164,7 @@
                             }
 
                             const pools = result.data.map(pool => ({
-                                id: pool.id,
+                                id: pool.id_pool,
                                 name: pool.name,
                                 lat: pool.lat,
                                 lng: pool.lng,
@@ -184,7 +183,7 @@
                                     <div class="card">
                                         <img src="${pool.image}" class="card-img-top" alt="Hồ bơi ${pool.name}">
                                         <div class="card-body">
-                                            <a href="pool-detail-customer.html?poolId=${pool.id}" class="card-title">
+                                            <a href="pool-detail-guest.html?poolId=${pool.id}" class="card-title">
                                                 <h5>${pool.name}</h5>
                                             </a>
                                             <p class="card-text">📍 Địa chỉ: ${pool.address}</p>
@@ -214,7 +213,6 @@
                     alert("❌ Trình duyệt của bạn không hỗ trợ định vị!");
                 }
             }
-
 
             function logout() {
                 // Lấy thông tin người dùng từ localStorage
@@ -281,6 +279,7 @@
                     }
 
                     const pools = result.data.map(pool => ({
+                        id: pool.id_pool,
                         name: pool.name,
                         lat: pool.lat,
                         lng: pool.lng,
@@ -380,7 +379,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <!-- Chỉnh sửa ở đây: dùng thẻ <a> thay vì thẻ <h5> -->
-                                <a href="pool-detail-customer.html?poolId=${pool.id}" class="card-title">
+                                <a href="pool-detail-guest.html?poolId=${pool.id}" class="card-title">
                                     <h5>${pool.name}</h5>
                                 </a>
                                 <p class="card-text">📍 Địa chỉ: ${pool.address}</p>
@@ -402,198 +401,6 @@
             fetchAndRenderPools();
 
         </script>
-=======
-            <!-- Sidebar: Tìm kiếm và danh sách hồ bơi -->
-            <div class="col-md-4">
-                <!-- Form Tìm kiếm -->
-                <div class="card mb-3">
-                    <div class="card-header bg-primary text-white">Tìm kiếm hồ bơi</div>
-                    <div class="card-body">
-                        <form id="searchForm">
-                            <div class="mb-3">
-                                <label for="type" class="form-label">Loại hình hồ bơi</label>
-                                <select class="form-select" id="type">
-                                    <option value="all">Tất cả</option>
-                                    <option value="public">Công cộng</option>
-                                    <option value="private">Tư nhân</option>
-                                    <option value="children">Dành cho trẻ em</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="distance" class="form-label">Khoảng cách (km)</label>
-                                <input type="number" class="form-control" id="distance" placeholder="Nhập khoảng cách">
-                            </div>
-                            <div class="mb-3">
-                                <label for="maxFee" class="form-label">Phí tối đa (VNĐ)</label>
-                                <input type="number" class="form-control" id="maxFee" placeholder="Nhập phí tối đa">
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Danh sách hồ bơi -->
-                <div class="card">
-                    <div class="card-header bg-primary text-white">Danh sách hồ bơi</div>
-                    <div class="card-body" id="poolList">
-                        <div class="list-group">
-                            <a href="pool-detail-guest.html" class="mb-1">
-                                Hồ bơi ABC
-                            </a>
-                            <p class="mb-1">Địa chỉ: 123 Đường X</p>
-
-                            <!-- Phí vào cổng theo từng đối tượng -->
-                            <div class="mt-3">
-                                <h6><strong>Phí vào cổng:</strong></h6>
-                                <ul class="list-unstyled">
-                                    <li><strong>Người lớn:</strong> 50.000 VNĐ</li>
-                                    <li><strong>Trẻ em:</strong> 10.000 VNĐ</li>
-                                    <li><strong>Học sinh/Sinh viên:</strong> 30.000 VNĐ</li>
-                                </ul>
-                            </div>
-
-                            <!-- Hướng dẫn đường đi -->
-                            <div class="mt-3">
-                                <!-- Danh sách hồ bơi sẽ được thêm động qua JavaScript -->
-                                <a href="javascript:void(0)" class="list-group-item list-group-item-action">
-                                    <button id="getDirectionsBtn" class="btn btn-primary">Hiển thị lộ trình</button>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main: Bản đồ -->
-            <div class="col-md-8">
-                <div id="map" style="height: 500px;"></div>
-                <br>
-
-                <!-- Modal Tìm kiếm kết quả -->
-                <div class="modal fade" id="searchResultModal" tabindex="-1" aria-labelledby="searchResultModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="searchResultModalLabel">Kết quả tìm kiếm</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <!-- Hiển thị số điện thoại tìm kiếm -->
-                                <div class="mb-3">
-                                    <label for="phoneNumber" class="form-label">Số điện thoại</label>
-                                    <input type="text" class="form-control" id="phoneNumber" readonly value="">
-                                </div>
-
-                                <!-- Thông tin sự kiện -->
-                                <div class="mb-3">
-                                    <label for="eventInfo" class="form-label">Thông tin sự kiện</label>
-                                    <textarea class="form-control" id="eventInfo" rows="3"
-                                        readonly>Hiển thị kết quả tìm kiếm ở đây...</textarea>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="bg-primary text-white text-center py-3 mt-3">
-        <p>&copy; 2025 Quản lý hồ bơi. Tất cả các quyền được bảo lưu.</p>
-    </footer>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <!-- Custom JS -->
-    <script src="js/main.js"></script>
-
-    <!-- Leaflet Routing Machine JS -->
-    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-
-    <!-- Custom JS -->
-    <script>
-        // Khởi tạo bản đồ
-        var map = L.map('map').setView([10.762622, 106.660172], 13); // Toạ độ trung tâm
-
-        // Thêm lớp bản đồ OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        // Thêm marker cho hồ bơi ABC
-        var poolLocation = [10.762622, 106.660172]; // Tọa độ của hồ bơi ABC
-        var marker = L.marker(poolLocation).addTo(map);
-        marker.bindPopup("<b>Hồ bơi ABC</b><br>Địa chỉ: 123 Đường X").openPopup();
-
-        // Kiểm tra vị trí người dùng
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                var userLocation = [position.coords.latitude, position.coords.longitude];
-
-                // Thêm marker cho vị trí người dùng
-                var userMarker = L.marker(userLocation).addTo(map);
-                userMarker.bindPopup("<b>Vị trí của bạn</b>").openPopup();
-
-                // Lắng nghe sự kiện click để hiển thị lộ trình
-                document.getElementById('getDirectionsBtn').addEventListener('click', function () {
-                    // Vẽ lộ trình từ vị trí người dùng đến hồ bơi
-                    L.Routing.control({
-                        waypoints: [
-                            L.latLng(userLocation), // Vị trí người dùng
-                            L.latLng(poolLocation) // Vị trí hồ bơi
-                        ],
-                        routeWhileDragging: true
-                    }).addTo(map);
-                });
-            });
-        } else {
-            alert("Trình duyệt của bạn không hỗ trợ định vị.");
-
-        }
-
-        // Tìm kiếm phiếu đăng ký
-        document.getElementById('searchButton').addEventListener('click', function () {
-            // Lấy giá trị từ ô nhập liệu
-            const phoneNumber = document.getElementById('searchEvent').value;
-
-            // Kiểm tra nếu người dùng không nhập số điện thoại
-            if (!phoneNumber) {
-                alert('Vui lòng nhập số điện thoại!');
-                return;
-            }
-
-            // Giả lập tìm kiếm thông tin dựa trên số điện thoại
-            // Dữ liệu mẫu
-            const events = {
-                '0123456789': 'Sự kiện 1: Bơi lội ngày 20/01/2025\nSự kiện 2: Cuộc thi bơi ngày 22/01/2025',
-                '0987654321': 'Sự kiện 1: Tham quan hồ bơi ABC ngày 25/01/2025',
-            };
-
-            // Lấy thông tin sự kiện dựa trên số điện thoại
-            const eventInfo = events[phoneNumber] || 'Không tìm thấy sự kiện nào cho số điện thoại này.';
-
-            // Hiển thị thông tin trong modal
-            document.getElementById('phoneNumber').value = phoneNumber;
-            document.getElementById('eventInfo').value = eventInfo;
-
-            // Hiển thị modal
-            const modal = new bootstrap.Modal(document.getElementById('searchResultModal'));
-            modal.show();
-        });
-
-    </script>
->>>>>>> b1ad739777b1585ff13381430655ebcd340b77b3
 
 </body>
 

@@ -170,7 +170,7 @@
                             }
 
                             const pools = result.data.map(pool => ({
-                                id: pool.id,
+                                id: pool.id_pool,
                                 name: pool.name,
                                 lat: pool.lat,
                                 lng: pool.lng,
@@ -286,6 +286,7 @@
                     }
 
                     const pools = result.data.map(pool => ({
+                        id: pool.id_pool,
                         name: pool.name,
                         lat: pool.lat,
                         lng: pool.lng,
