@@ -241,7 +241,7 @@
                     .then(response => response.json())  // Chuyển phản hồi từ server thành JSON
                     .then(data => {
                         // Kiểm tra mã trạng thái phản hồi
-                        if (data.status === 200) {
+                        if (data.status === "success" || data.status === 200) {
                             alert("Đăng xuất thành công!");
                             // Xóa thông tin người dùng và token khỏi localStorage
                             localStorage.removeItem("authToken");
