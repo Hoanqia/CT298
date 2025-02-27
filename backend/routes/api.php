@@ -54,7 +54,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/services/{id_service}',[ServiceController::class,'update']); // Cập nhật giá dịch vụ 
     Route::delete('/services/{id_service}',[ServiceController::class,'destroy']); // Xóa dịch vụ
     Route::post('/services/create',[ServiceController::class,'store']); // Thêm dịch vụ
-   
+    Route::get('/users/',[UserController::class,'getPersonalInformation']); // Lấy thông tin cá nhân của người dùng
+
 
 
     Route::post('/logout',[UserController::class,'logout']); // Người dùng đăng xuất 
