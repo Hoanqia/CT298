@@ -13,11 +13,46 @@ use App\Models\EventRegistration;
 use App\Models\Review;
 use App\Models\PoolService;
 use App\Models\Service;
+use App\Models\Utility;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
-
-class ServiceController extends Controller
+class UtilityController extends Controller
 {
+    public function get($id_utility){
+        if(!is_numeric($id_utility) || $id_utility <= 0 || floor($id_utility) != $id_utility){
+            return response()->json([
+                'message' => 'Dữ liệu không hợp lệ',
+                'status' => 'error',
+            ],422);
+        }
+        $utility = Utility::find($id_utility);
+        if(!$utility){
+            return response()->json([
+                'message' => 'Tiện ích không tồn tại',
+                'status' => 'error',
+            ],404);
+        }
+        return response()->json([
+            'message' => 'Lấy thông tin tiện ích thành công',
+            'status' => 'success',
+            'data' => $utility,
+        ],200);
+    }
+    public function getAll(){
+        $utilities = Utility::all();
+        if($utilities->isEmpty()){
+            return response()->json([
+                'message' => 'Chưa có tiện ích',
+                'status' => 'success',
+                'data' => [],
+            ],200);
+        }
+        return response()->json([
+            'message' => 'Lấy danh sách tiện ích thành công',
+            'status' => 'success',
+            'data' => $utilities,
+        ],200);
+    }
     public function store(Request $request){
         $user = auth('sanctum')->user();
         if(!$user){
@@ -32,26 +67,26 @@ class ServiceController extends Controller
                 'status' => 'error',
             ],403);
         }
-        $validator = Validator::make($request->all(),[
+        
+        $validatedData = $request->validate([
             'name' => 'required|string|max:500',
         ]);
-        $validatedData = $validator->validated();
         try {
-            $sv = Service::create($validatedData);
+            $utility = Utility::create($validatedData);
             return response()->json([
-                'message' => 'Thêm dịch vụ thành công',
+                'message' => 'Thêm tiện ích thành công',
                 'status' => 'success',
-                'data' => $sv,
+                'data' => $utility,
             ],201);
         }catch(\Exception $e){
-            Log::error("Thêm dịch vụ thất bại" . $e->getMessage());
+            Log::error("Thêm tiện ích thất bại" . $e->getMessage());
             return response()->json([
-                'message' => 'Thêm dịch vụ thất bại',
+                'message' => 'Thêm tiện ích thất bại',
                 'status' => 'error',
             ],500);
         }
     }
-    public function update(Request $request,$id_service){
+    public function update(Request $request,$id_utility){
         $user = auth('sanctum')->user();
         if(!$user){
             return response()->json([
@@ -65,38 +100,38 @@ class ServiceController extends Controller
                 'status' => 'error',
             ],403);
         }
-        if(!is_numeric($id_service) || $id_service <= 0 || floor($id_service) != $id_service){
+        if(!is_numeric($id_utility) || $id_utility <= 0 || floor($id_utility) != $id_utility){
             return response()->json([
                 'message' => 'Dữ liệu không hợp lệ',
                 'status' => 'error',
             ],422);
         }
-        $service = Service::find($id_service);
-        if(!$service){
+        $utility = Utility::find($id_utility);
+        if(!$utility){
             return response()->json([
-                'message' => 'Dịch vụ không tồn tại',
+                'message' => 'Tiện ích không tồn tại',
                 'status' => 'error',
             ],404);
         }
         $validatedData = $request->validate([
             'name' => 'required|string|max:500',
         ]);
-        try{
-            $service->update($validatedData);
+        try {
+            $utility->update($validatedData);
             return response()->json([
-                'message' => 'Cập nhật tên dịch vụ thành công',
+                'message' => 'Cập nhật thông tin thành công',
                 'status' => 'success',
-                'data' => $service,
+                'data' => $utility,
             ],200);
         }catch(\Exception $e){
-            Log::error("Cập nhật tên dịch vụ thất bại" . $e->getMessage());
+            Log::error("Cập nhật thông tin tiện ích thất bại" . $e->getMessage());
             return response()->json([
-                'message' => 'Cập nhật tên dịch vụ thất bại',
-                'status' => 'error', 
+                'message' => 'Cập nhật thông tin tiện ích thất bại',
+                'status' => 'error',
             ],500);
         }
     }
-    public function destroy($id_service){
+    public function destroy($id_utility){
         $user = auth('sanctum')->user();
         if(!$user){
             return response()->json([
@@ -110,66 +145,31 @@ class ServiceController extends Controller
                 'status' => 'error',
             ],403);
         }
-        if(!is_numeric($id_service) || $id_service <= 0 || floor($id_service) != $id_service){
+        if(!is_numeric($id_utility) || $id_utility <= 0 || floor($id_utility) != $id_utility){
             return response()->json([
                 'message' => 'Dữ liệu không hợp lệ',
                 'status' => 'error',
             ],422);
         }
-        $service = Service::find($id_service);
-        if(!$service){
+        $utility = Utility::find($id_utility);
+        if(!$utility){
             return response()->json([
-                'message' => 'Dịch vụ không tồn tại',
+                'message' => 'Tiện ích không tồn tại',
                 'status' => 'error',
             ],404);
         }
-      try {
-        $service->delete();
-        return response()->json([
-            'message' => 'Xóa thành công',
-            'status' => 'success',
-        ],200);
-      }catch(\Exception $e){
-        Log::error("Xóa thất bại" . $e->getMessage());
-        return response()->json([
-            'message' => 'Xóa thất bại',
-            'status' => 'error',
-        ],500);
-      }
-    }
-    public function get($id_service){
-        if(!is_numeric($id_service) || $id_service <= 0 || floor($id_service) != $id_service){
+        try {   
+            $utility->delete();
             return response()->json([
-                'message' => 'Dữ liệu không hợp lệ',
-                'status' => 'error',
-            ],422);
-        }
-        $service = Service::find($id_service);
-        if(!$service){
-            return response()->json([
-                'message' => 'Dịch vụ không tồn tại',
-                'status' => 'error',
-            ],404);
-        }
-        return response()->json([
-            'message' => 'Lấy dữ liệu dịch vụ thành công',
-            'status' => 'success',
-            'data' => $service,
-        ],200);
-    }
-    public function getAll(){
-        $services = Service::all();
-        if($services->isEmpty()){
-            return response()->json([
-                'message' => 'Không có dịch vụ nào',
-                'status' => 'success',
-                'data' => [],
+                'message' => 'Xóa thành công',
+                'status' => 'success'
             ],200);
+        }catch(\Exception $e){
+            Log::error("Xóa tiện ích thất bại");
+            return response()->json([
+                'message' => 'Xóa tiện ích thất bại',
+                'status' => 'error',
+            ],500);
         }
-        return response()->json([
-            'message' => 'Lấy danh sách dịch vụ thành công',
-            'status' => 'success',
-            'data' => $services,
-        ],200);
     }
 }

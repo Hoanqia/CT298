@@ -47,7 +47,10 @@
     <footer class="bg-primary text-white text-center py-3 mt-3">
         <p>&copy; 2025 Quản lý hồ bơi. Tất cả các quyền được bảo lưu.</p>
     </footer>
+
     <script>
+        let authToken = ""; // Biến lưu token toàn cục
+
         document.addEventListener("DOMContentLoaded", function () {
             const loginForm = document.getElementById("loginForm");
 
@@ -57,27 +60,54 @@
                 const phone = document.querySelector('input[name="phone"]').value.trim();
                 const password = document.querySelector('input[name="password"]').value.trim();
 
-                // Giả lập danh sách tài khoản (ở thực tế, bạn nên kiểm tra với database)
-                const validUsers = [
-                    { phone: "0123456789", password: "12345678", name: "Nguyễn Văn A" },
-                    { phone: "0987654321", password: "654321", name: "Trần Thị B" }
-                ];
+                // Gửi request đến API
+                fetch("http://127.0.0.1:8000/api/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content
+                    },
+                    body: JSON.stringify({ phone, password })
+                })
+                    .then(response => response.json().then(data => ({ status: response.status, body: data })))
+                    .then(({ status, body }) => {
+                        console.log("API Response:", body);
 
-                // Kiểm tra thông tin đăng nhập
-                const user = validUsers.find(user => user.phone === phone && user.password === password);
+                        if (status === 200) {
+                            const user = body.user;
 
-                if (user) {
-                    // Lưu trạng thái đăng nhập
-                    localStorage.setItem("loggedInUser", JSON.stringify(user));
-                    alert("Đăng nhập thành công!");
+                            alert("Đăng nhập thành công!");
 
-                    // Chuyển hướng đến trang index.html
-                    window.location.href = "index-customer.html";
-                } else {
-                    alert("Số điện thoại hoặc mật khẩu không đúng!");
-                }
+                            if (user.role === "customer") {
+                                // Lưu token vào localStorage
+                                localStorage.setItem("authToken", body.token);
+                                localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+                                window.location.href = "index-customer.html"; // Chuyển hướng khách hàng
+                            } else {
+                                window.location.href = "index-admin.html"; // Chuyển hướng admin
+                            }
+                        } else if (status === 422) {
+                            // Lỗi validate dữ liệu
+                            let errorMessage = "Dữ liệu không hợp lệ:\n";
+                            Object.values(body.errors).forEach(err => {
+                                errorMessage += `- ${err[0]}\n`;
+                            });
+                            alert(errorMessage);
+                        } else if (status === 401) {
+                            // Sai thông tin đăng nhập
+                            alert("Số điện thoại hoặc mật khẩu không đúng!");
+                        } else {
+                            alert("Có lỗi xảy ra. Vui lòng thử lại!");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Lỗi API:", error);
+                        alert("Có lỗi xảy ra. Vui lòng thử lại!");
+                    });
             });
         });
+
     </script>
 </body>
 

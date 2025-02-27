@@ -13,6 +13,11 @@ use App\Http\Controllers\PoolUtilityController;
 use App\Http\Controllers\UtilityController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::delete('/pools/{id_pool}/utilities/{id_pu}',[PoolUtilityController::class,'destroy']); // Xóa tiện ích của 1 hồ bơi
+    Route::post('/pools/{id_pool}/utilities/create',[PoolUtilityController::class,'store']); // Thêm tiện ích cho 1 hồ bơi
+    Route::delete('/pools/{id_pool}/services/{id_ps}',[PoolServiceController::class,'destroy']); // Chỉnh sửa giá dịch vụ cho 1 hồ bơi
+    Route::patch('/pools/{id_pool}/services/{id_ps}',[PoolServiceController::class,'edit']); // Chỉnh sửa giá dịch vụ cho 1 hồ bơi
+    Route::post('/pools/{id_pool}/services/create',[PoolServiceController::class,'store']); // Thêm dịch vụ cho 1 hồ bơi
     Route::post('/pools/{id_pool}/reviews/create',[ReviewController::class,'createReview']); // customer đánh giá hồ bơi
     // http://127.0.0.1:8000/api/pools/4/reviews/create?comment=Hồ bơi tệ quá&rating=3 
     
@@ -23,9 +28,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/users/event-registrations',[EventRegistrationController::class,'getEventRegistrationsOfUser']); // lịch sử đăng ký của customer
     // http://127.0.0.1:8000/api/users/event-registrations/
+    Route::patch('/users/update/changePassword',[UserController::class,'changePassword']);
+    Route::patch('/users/update',[UserController::class,'update']);
 
-    Route::post('/pools/{id_pool}/events/{id_event}/event-registration/create',[EventRegistrationController::class,'createER']); // Tạo pdk
+    Route::patch('/pools/{id_pool}/events/{id_event}/event-registrations/{id_ER}',[EventRegistrationController::class,'updateStatusEr']); // Tạo pdk
+    Route::post('/pools/{id_pool}/events/{id_event}/event-registrations/create',[EventRegistrationController::class,'createER']); // Tạo pdk
     // http://127.0.0.1:8000/api/pools/15/events/9/event-registration/create
+    Route::get('/pools/{id_pool}/events/{id_event}/event-registrations',[EventRegistrationController::class,'getEventRegistrationsOfEvent']);
 
     Route::get('/users/reviews/{id_review}',[ReviewController::class,'getReviewOfUser']); // Lấy thông tin chi tiết đánh giá của user 
     // http://127.0.0.1:8000/api/users/reviews/4
@@ -35,6 +44,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/users/reviews',[ReviewController::class,'getReviewsOfUser']); // lịch sử đánh giá của user
     // http://127.0.0.1:8000/api/users/reviews
+    Route::delete('/pools/{id_pool}/events/{id_event}',[EventController::class,'destroy']); // xóa sự kiện của hồ bơi
+    Route::patch('/pools/{id_pool}/events/{id_event}',[EventController::class,'updateEvent']); // Cập nhật sự kiện 
+    Route::post('/pools/{id_pool}/events/create',[EventController::class,'createEvent']); // Thêm sự kiện cho hồ bơi
+    Route::patch('/pools/{id_pool}',[PoolController::class,'updatePool']); // Cập nhật hồ bơi 
+    Route::post('/pools/create',[PoolController::class,'createPool']); // Thêm hồ bơi
+    Route::delete('/pools/{id_pool}',[PoolController::class,'destroy']); // Xóa hồ bơi
+
+    Route::put('/services/{id_service}',[ServiceController::class,'update']); // Cập nhật giá dịch vụ 
+    Route::delete('/services/{id_service}',[ServiceController::class,'destroy']); // Xóa dịch vụ
+    Route::post('/services/create',[ServiceController::class,'store']); // Thêm dịch vụ
+   
+
 
     Route::post('/logout',[UserController::class,'logout']); // Người dùng đăng xuất 
     // http://127.0.0.1:8000/api/logout
@@ -59,18 +80,23 @@ Route::get('/pools/{id_pool}/events',[EventController::class,'getEventsOfPool'])
 
 Route::get('/pools/{id_pool}/reviews',[ReviewController::class,'getReviewsOfPool']); // Lấy danh sách đánh giá của 1 hồ bơi
 // http://127.0.0.1:8000/api/pools/15/reviews
-
-Route::get('/pools/{id_pool}/services',[PoolServiceController::class,'getPoolServiceOfPool']); // Lấy danh sách dịch vụ của 1 hồ bơi 
+Route::get('/pools/{id_pool}/services/{id_ps}',[PoolServiceController::class,'getPoolServiceOfPool']); // Lấy thông tin 1 dịch vụ của 1 hồ bơi 
+Route::get('/pools/{id_pool}/services',[PoolServiceController::class,'getPoolServicesOfPool']); // Lấy danh sách dịch vụ của 1 hồ bơi 
 // http://127.0.0.1:8000/api/pools/15/services
-
+Route::get('/pools/{id_pool}/utilities/{id_pu}',[PoolUtilityController::class,'getUtilityOfPool']); // Lấy thông tin chi tiết tiện ích của 1 hồ bơi
 Route::get('/pools/{id_pool}/utilities',[PoolUtilityController::class,'getUtilitiesOfPool']); // Lấy danh sách tiện ích của 1 hồ bơi
 // http://127.0.0.1:8000/api/pools/15/utilities
 
-Route::post('/admin/pools/create',[PoolController::class,'createPool']);
-
+Route::get('/pools/cheapPools',[PoolController::class,'cheapPools']); // Gợi ý hồ bơi rẻ nhất dựa theo tiêu chí ng dùng chọn 
 Route::get('/pools/{id_pool}',[PoolController::class,'getPool']); // lấy thông tin chi tiết của một hồ bơi
 // http://127.0.0.1:8000/api/pools/15/
 Route::get('/pools', [PoolController::class, 'getPools']); // lấy danh sách tất cả hồ bơi
 // http://127.0.0.1:8000/api/pools/
+Route::get('/services/{id_service}',[ServiceController::class,'get']); // Lấy chi tiết thông tin dịch vụ 
+Route::get('/services',[ServiceController::class,'getAll']);    // Lấy danh sách dịch vụ
+
+Route::get('/districts',[PoolController::class,'getDistrictList']); // lấy danh sách quận huyện
+Route::get('/district/{id_district}/wards',[PoolController::class,'getWardList']); // lấy danh sách phường xã theo id quận 
+Route::get('/district/{id_district}/wards/{id_ward}/streets',[PoolController::class,'getStreetList']); // lấy danh sách đường xá của phường
 Route::post('/register',[UserController::class,'register']); // Đăng ký 
 Route::post('/login',[UserController::class,'login']); // Đăng nhập

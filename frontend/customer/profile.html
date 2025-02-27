@@ -17,6 +17,12 @@
 
     <!-- Js -->
     <script src="js/main.js" defer></script>
+
+    <!-- Thêm Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 
 <body>
@@ -30,69 +36,110 @@
                         <i class="fa-solid fa-user text-white" style="font-size: 1rem;"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                        <li><a class="dropdown-item" href="index-guest.html" onclick="logout()">Đăng xuất</a></li>
+                        <li><a class="dropdown-item" onclick="logout()">Đăng xuất</a></li>
                     </ul>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <h2 class="text-primary">Thông tin cá nhân</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <form id="profileForm">
-                            <div class="mb-3">
-                                <label class="form-label text-primary">Họ và tên</label>
-                                <input type="text" class="form-control" id="fullName" value="Nguyễn Văn A">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label text-primary">Số điện thoại</label>
-                                <input type="text" class="form-control" id="phone" value="0123456789">
-                            </div>
-                            <div class="mb-3 position-relative">
-                                <label class="form-label text-primary">Mật khẩu</label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" id="password" value="password123">
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
-                                        <i id="toggleIcon" class="fas fa-eye text-primary"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary" onclick="updateProfile(event)">Cập nhật thông
-                                tin</button>
-                        </form>
-                    </div>
+    <div class="row p-3">
+        <!-- Thông tin cá nhân -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form id="profileForm" onsubmit="changeInformation(event)">
+                        <h5 class="card-title">Cập nhật thông tin</h5>
+                        <div class="mb-3">
+                            <label class="form-label text-primary">Họ và tên</label>
+                            <input type="text" class="form-control" id="name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-primary">Số điện thoại</label>
+                            <input type="text" class="form-control" id="phone">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cập nhật thông
+                            tin</button>
+                    </form>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label text-primary">Sự kiện đã đăng ký</label>
-                            <ul class="list-group" id="eventList">
-                                <li class="list-group-item">Sự kiện 1 <button class="btn btn-danger btn-sm float-end"
-                                        onclick="confirmDelete(event, this)">Hủy</button></li>
-                                <li class="list-group-item">Sự kiện 2 <button class="btn btn-danger btn-sm float-end"
-                                        onclick="confirmDelete(event, this)">Hủy</button></li>
-                            </ul>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label text-primary">Lịch sử đánh giá</label>
-                            <ul class="list-group">
-                                <li class="list-group-item">Hồ bơi A - Sạch sẽ - 5 sao <button
-                                        class="btn btn-warning btn-sm float-end" data-bs-toggle="modal"
-                                        data-bs-target="#editReviewModal"
-                                        onclick="populateModal('Hồ bơi A', 5)">Sửa</button></li>
-                                <li class="list-group-item">Hồ bơi B - Nhiều tiện ích - 4 sao <button
-                                        class="btn btn-warning btn-sm float-end" data-bs-toggle="modal"
-                                        data-bs-target="#editReviewModal"
-                                        onclick="populateModal('Hồ bơi B', 4)">Sửa</button></li>
-                            </ul>
+
+            <!-- Đổi mật khẩu -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Đổi mật khẩu</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label text-primary">Mật khẩu cũ</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="currentPassword">
+                            <span class="input-group-text" onclick="togglePassword('currentPassword', this)">
+                                <i class="bi bi-eye-slash"></i>
+                            </span>
                         </div>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-primary">Mật khẩu mới</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="newPassword">
+                            <span class="input-group-text" onclick="togglePassword('newPassword', this)">
+                                <i class="bi bi-eye-slash"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-primary">Xác nhận mật khẩu mới</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="confirmPassword">
+                            <span class="input-group-text" onclick="togglePassword('confirmPassword', this)">
+                                <i class="bi bi-eye-slash"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-success" onclick="changePassword()">Cập nhật mật khẩu</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sự kiện đã đăng ký & Lịch sử đánh giá -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Sự kiện đã đăng ký</h5>
+                    <ul class="list-group" id="eventList">
+                        <li class="list-group-item">
+                            Sự kiện 1
+                            <button class="btn btn-danger btn-sm float-end"
+                                onclick="confirmDelete(event, this)">Hủy</button>
+                        </li>
+                        <li class="list-group-item">
+                            Sự kiện 2
+                            <button class="btn btn-danger btn-sm float-end"
+                                onclick="confirmDelete(event, this)">Hủy</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Lịch sử đánh giá</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            Hồ bơi A - Sạch sẽ - 5 sao
+                            <button class="btn btn-warning btn-sm float-end" data-bs-toggle="modal"
+                                data-bs-target="#editReviewModal" onclick="populateModal('Hồ bơi A', 5)">Sửa</button>
+                        </li>
+                        <li class="list-group-item">
+                            Hồ bơi B - Nhiều tiện ích - 4 sao
+                            <button class="btn btn-warning btn-sm float-end" data-bs-toggle="modal"
+                                data-bs-target="#editReviewModal" onclick="populateModal('Hồ bơi B', 4)">Sửa</button>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -141,26 +188,18 @@
             }
         }
 
-        function updateProfile(event) {
-            event.preventDefault();
-            const fullName = document.getElementById("fullName").value;
-            const phone = document.getElementById("phone").value;
-            const password = document.getElementById("password").value;
+        function togglePassword(fieldId, iconElement) {
+            const passwordField = document.getElementById(fieldId);
+            const icon = iconElement.querySelector("i");
 
-            alert("Thông tin cá nhân đã được cập nhật\nHọ và tên: " + fullName + "\nSố điện thoại: " + phone + "\nMật khẩu: " + password);
-        }
-
-        function togglePassword() {
-            const passwordField = document.getElementById("password");
-            const toggleIcon = document.getElementById("toggleIcon");
             if (passwordField.type === "password") {
                 passwordField.type = "text";
-                toggleIcon.classList.remove("fa-eye");
-                toggleIcon.classList.add("fa-eye-slash");
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
             } else {
                 passwordField.type = "password";
-                toggleIcon.classList.remove("fa-eye-slash");
-                toggleIcon.classList.add("fa-eye");
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
             }
         }
 
@@ -225,6 +264,153 @@
 
             alert("Lưu thành công!");
         }
+
+        function logout() {
+            // Lấy thông tin người dùng từ localStorage
+            const authToken = localStorage.getItem("authToken");  // Lấy token từ "authToken"
+
+            if (!authToken) {
+                alert("Bạn chưa đăng nhập!");
+                return;  // Nếu không có token, thông báo và dừng lại
+            }
+
+            // Gửi yêu cầu POST tới API để đăng xuất
+            fetch("http://127.0.0.1:8000/api/logout", {
+                method: "POST",  // Sử dụng phương thức POST
+                headers: {
+                    "Content-Type": "application/json",  // Đảm bảo gửi dữ liệu ở dạng JSON
+                    "Authorization": `Bearer ${authToken}`  // Gửi token qua header Authorization
+                }
+            })
+                .then(response => response.json())  // Chuyển phản hồi từ server thành JSON
+                .then(data => {
+                    // Kiểm tra mã trạng thái phản hồi
+                    if (data.status === "success" || data.status === 200) {
+                        alert("Đăng xuất thành công!");
+                        // Xóa thông tin người dùng và token khỏi localStorage
+                        localStorage.removeItem("authToken");
+                        localStorage.removeItem("loggedInUser");
+                        // Chuyển hướng đến trang đăng nhập
+                        window.location.href = "login.html";
+                    } else {
+                        // Nếu có lỗi, hiển thị thông báo lỗi
+                        alert(data.message || "Có lỗi xảy ra, vui lòng thử lại!");
+                    }
+                })
+                .catch(error => {
+                    // Xử lý lỗi nếu có sự cố khi gọi API
+                    console.error("Lỗi khi gọi API logout:", error);
+                    alert("Có lỗi xảy ra, vui lòng thử lại!");
+                });
+        }
+
+        function changePassword() {
+            const currentPassword = document.getElementById("currentPassword").value.trim();
+            const newPassword = document.getElementById("newPassword").value.trim();
+            const confirmPassword = document.getElementById("confirmPassword").value.trim();
+            const token = localStorage.getItem("authToken");
+
+            console.log("🔹 Token:", token);
+            console.log("🔹 Mật khẩu cũ:", currentPassword);
+            console.log("🔹 Mật khẩu mới:", newPassword);
+            console.log("🔹 Xác nhận mật khẩu:", confirmPassword);
+
+            if (!token) {
+                alert("Bạn chưa đăng nhập! Vui lòng đăng nhập lại.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert("Mật khẩu mới phải có ít nhất 6 ký tự!");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert("Mật khẩu xác nhận không khớp!");
+                return;
+            }
+
+            $.ajax({
+                type: "PATCH",
+                url: "http://127.0.0.1:8000/api/users/update/changePassword",
+                dataType: "json",
+                contentType: "application/json",
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                data: JSON.stringify({
+                    old_password: currentPassword,
+                    new_password: newPassword,
+                    new_password_confirmation: confirmPassword
+                }),
+                success: function (response) {
+                    alert(response.message);
+                    window.location.href = "profile.html";
+                },
+                error: function (xhr) {
+                    console.error("❌ Lỗi API:", xhr.responseText);
+                    let errors = JSON.parse(xhr.responseText);
+                    alert(errors.message);
+                }
+            });
+        }
+
+        function changeInformation(event) {
+            event.preventDefault(); // Ngăn form reload lại trang
+
+            const name = document.getElementById("name").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const token = localStorage.getItem("authToken");
+
+            console.log("🔹 Token:", token);
+            console.log("🔹 Tên:", name);
+            console.log("🔹 SDT:", phone);
+
+            if (!token) {
+                alert("Bạn chưa đăng nhập! Vui lòng đăng nhập lại.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            if (!name || !phone) {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
+            // Kiểm tra số điện thoại (chỉ cho phép 10 chữ số)
+            const phoneRegex = /^[0-9]{10}$/;
+            if (!phoneRegex.test(phone)) {
+                alert("Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 chữ số!");
+                return;
+            }
+
+            $.ajax({
+                type: "PATCH",
+                url: "http://127.0.0.1:8000/api/users/update",
+                dataType: "json",
+                contentType: "application/json",
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                data: JSON.stringify({
+                    name: name,
+                    phone: phone
+                }),
+                success: function (response) {
+                    alert(response.message);
+                    window.location.href = "profile.html";
+                },
+                error: function (xhr) {
+                    console.error("❌ Lỗi API:", xhr.responseText);
+                    let errors = JSON.parse(xhr.responseText);
+                    alert(errors.message);
+                }
+            });
+        }
+
     </script>
 </body>
 
