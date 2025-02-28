@@ -411,6 +411,47 @@
             });
         }
 
+        function fetchUserData() {
+            let token = localStorage.getItem("authToken"); // Lấy token từ localStorage
+
+            if (!token) {
+                console.error("Không tìm thấy token!");
+                return;
+            }
+
+            console.log(localStorage.getItem("authToken"));
+
+            fetch("http://127.0.0.1:8000/api/users/", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` // Gửi token
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Lỗi HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("name").value = data.data.name;
+                        document.getElementById("phone").value = data.data.phone;
+                    } else {
+                        console.error("Lỗi API: ", data.message);
+                    }
+                })
+                .catch(error => console.error("Lỗi kết nối API:", error));
+        }
+
+        // Gọi API khi trang tải xong
+        window.onload = function () {
+            fetchUserData();
+        };
+
+
+
     </script>
 </body>
 
