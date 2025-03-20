@@ -70,7 +70,9 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="maxFee" class="form-label">Phí tối đa (VNĐ)</label>
-                                    <input type="number" class="form-control" id="maxFee" placeholder="Nhập phí tối đa">
+                                    <input type="range" class="form-range" id="maxFee" min="0" max="500000" step="10"
+                                        value="250" oninput="updateMaxFeeValue(this.value)">
+                                    <span id="maxFeeValue">25.000 VNĐ</span>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100">Tìm
                                     kiếm</button>
@@ -133,8 +135,20 @@
                 let distance = parseFloat(distanceElement.value);
                 let maxFee = parseFloat(maxFeeElement.value);
 
-                if (isNaN(distance) || distance < 0 || isNaN(maxFee) || maxFee < 0) {
-                    alert("⚠️ Khoảng cách và phí tối đa phải là số dương hợp lệ!");
+                let queryParams = [];
+
+                if (type && type !== "Chọn loại hồ bơi") {
+                    queryParams.push(`type=${encodeURIComponent(type)}`);
+                }
+                if (!isNaN(distance) && distance > 0) {
+                    queryParams.push(`distance=${distance}`);
+                }
+                if (!isNaN(maxFee) && maxFee > 0) {
+                    queryParams.push(`maxFee=${maxFee}`);
+                }
+
+                if (queryParams.length === 0) {
+                    alert("⚠️ Vui lòng nhập ít nhất một tiêu chí tìm kiếm!");
                     return;
                 }
 
@@ -145,9 +159,10 @@
 
                         console.log(`📍 Vị trí hiện tại: ${lat}, ${lng}`);
 
-                        const encodedType = encodeURIComponent(type);
+                        queryParams.push(`lat=${lat}`);
+                        queryParams.push(`lng=${lng}`);
 
-                        let apiUrl = `http://127.0.0.1:8000/api/pools/search?type=${encodedType}&maxFee=${maxFee}&lat=${lat}&distance=${distance}&lng=${lng}`;
+                        let apiUrl = `http://127.0.0.1:8000/api/pools/search?${queryParams.join("&")}`;
 
                         console.log(`🔗 Gọi API: ${apiUrl}`);
 
@@ -168,6 +183,7 @@
                                 name: pool.name,
                                 lat: pool.lat,
                                 lng: pool.lng,
+                                type: pool.type || "private", // ✅ Lấy loại hồ bơi, mặc định là "private" nếu không có
                                 address: `${pool.house_number || "N/A"}, ${pool.street?.name || "N/A"}, ${pool.street?.ward?.name || "N/A"}, ${pool.street?.ward?.district?.name || "N/A"}`,
                                 price: {
                                     adult: `${pool.adult_price} VNĐ`,
@@ -183,7 +199,7 @@
                                     <div class="card">
                                         <img src="${pool.image}" class="card-img-top" alt="Hồ bơi ${pool.name}">
                                         <div class="card-body">
-                                            <a href="pool-detail-guest.html?poolId=${pool.id}" class="card-title">
+                                            <a href="pool-detail-customer.html?poolId=${pool.id}" class="card-title">
                                                 <h5>${pool.name}</h5>
                                             </a>
                                             <p class="card-text">📍 Địa chỉ: ${pool.address}</p>
@@ -203,7 +219,7 @@
                             renderMarker(pools);
                         } catch (error) {
                             console.error("❌ Lỗi khi gọi API:", error);
-                            alert("⚠️ Có lỗi xảy ra, vui lòng thử lại!");
+                            alert("⚠️ Không tìm thấy hồ bơi phù hợp!");
                         }
                     }, function (error) {
                         console.error("❌ Lỗi khi lấy vị trí người dùng:", error);
@@ -283,6 +299,7 @@
                         name: pool.name,
                         lat: pool.lat,
                         lng: pool.lng,
+                        type: pool.type || "private", // ✅ Lấy loại hồ bơi, mặc định là "private" nếu không có
                         address: `${pool.house_number || "N/A"}, ${pool.street?.name || "N/A"}, ${pool.street?.ward?.name || "N/A"}, ${pool.street?.ward?.district?.name || "N/A"}`,
                         price: {
                             adult: `${pool.adult_price} VNĐ`,
@@ -291,6 +308,8 @@
                         },
                         image: pool.img
                     }));
+
+                    console.log("Dữ liệu hồ bơi đã xử lý:", pools);
 
                     renderPools(pools);
                     renderMarker(pools);
@@ -309,51 +328,100 @@
 
             let markers = []; // Lưu danh sách markers
 
+            const poolIcons = {
+                "Hồ bơi công cộng": L.icon({
+                    iconUrl: 'https://img.freepik.com/free-vector/3d-gradient-map-pin_78370-1524.jpg?semt=ais_hybrid', // Thay bằng link ảnh thực tế
+                    iconSize: [32, 32]
+                }),
+                "Hồ bơi thi đấu": L.icon({
+                    iconUrl: 'https://media.istockphoto.com/id/1333566220/vector/location-icon-vector-free-download-in-blue-clipart-symbol-maps.jpg?s=612x612&w=0&k=20&c=vSr4fkUKdMwcmDDa5a0OvPiyNGeGblkrKJtINijHyEs=',
+                    iconSize: [32, 32]
+                }),
+                "Hồ bơi trẻ em": L.icon({
+                    iconUrl: 'https://atlas-content-cdn.pixelsquid.com/stock-images/location-marker-computer-icon-3A8DGBC-600.jpg',
+                    iconSize: [32, 32]
+                }),
+                "Hồ bơi tư nhân": L.icon({
+                    iconUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIisiVg7wQAbjb7OpuOX1sPm_CCoWjPa7cLA&s',
+                    iconSize: [32, 32]
+                })
+            };
+
             function renderMarker(pools) {
-                // Xóa tất cả marker cũ trước khi thêm marker mới
                 markers.forEach(marker => map.removeLayer(marker));
-                markers = []; // Reset danh sách marker
+                markers = [];
 
                 pools.forEach(function (pool) {
                     var poolLocation = [pool.lat, pool.lng];
 
-                    // Tạo marker mới và thêm vào bản đồ
-                    var marker = L.marker(poolLocation).addTo(map);
+                    // Đảm bảo loại hồ bơi hợp lệ
+                    var iconType = poolIcons[pool.type] || poolIcons.private;
 
-                    // Thêm popup với tên và địa chỉ của hồ bơi
-                    marker.bindPopup(`<b>${pool.name}</b><br>Địa chỉ: ${pool.address}`).openPopup();
+                    console.log(`Loại hồ bơi: ${pool.type}, Icon URL: ${iconType.options.iconUrl}`);
 
-                    // Lắng nghe sự kiện click để hiển thị lộ trình
+                    var marker = L.marker(poolLocation, { icon: iconType }).addTo(map);
+
+                    marker.bindPopup(`
+                    <b>${pool.name}</b><br>
+                    📍 Địa chỉ: ${pool.address}<br>
+                    💰 Giá vé:
+                    <ul>
+                        <li>Người lớn: <b>${pool.price.adult} VNĐ</b></li>
+                        <li>Trẻ em: <b>${pool.price.child} VNĐ</b></li>
+                        <li>Sinh viên: <b>${pool.price.student} VNĐ</b></li>
+                    </ul>
+                `).openPopup();
+
                     marker.on('click', function () {
                         document.getElementById('getDirectionsBtn').onclick = function () {
                             displayRoute(poolLocation);
                         };
                     });
 
-                    // Lưu marker vào danh sách để có thể xóa sau này
                     markers.push(marker);
                 });
             }
 
+            // Định nghĩa userIcon (ví dụ: icon màu xanh)
+            var userIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png', // Đường dẫn icon
+                iconSize: [30, 30], // Kích thước icon
+                iconAnchor: [15, 30], // Điểm neo
+                popupAnchor: [0, -30] // Vị trí popup
+            });
+
             let routeControl = null; // Lưu tuyến đường hiện tại
+            let userMarker = null;   // Lưu marker của người dùng
 
             function displayRoute(poolLocation) {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function (position) {
                         var userLocation = [position.coords.latitude, position.coords.longitude];
 
-                        // Nếu đã có tuyến đường cũ, xoá trước khi tạo mới
-                        if (routeControl !== null) {
+                        // Xóa marker user cũ trước khi thêm mới
+                        if (userMarker) {
+                            console.log("🗑 Xóa marker cũ của user");
+                            map.removeLayer(userMarker);
+                        }
+
+                        // Thêm marker mới của user
+                        userMarker = L.marker(userLocation, { icon: userIcon }).addTo(map);
+                        console.log("✅ Thêm marker mới của user:", userMarker);
+
+                        // Xóa tuyến đường cũ nếu có
+                        if (routeControl) {
+                            console.log("🗑 Xóa tuyến đường cũ");
                             map.removeControl(routeControl);
                         }
 
-                        // Tạo tuyến đường mới
+                        // Tạo tuyến đường mới (chỉ vẽ đường, không tạo thêm marker)
                         routeControl = L.Routing.control({
                             waypoints: [
                                 L.latLng(userLocation),
                                 L.latLng(poolLocation)
                             ],
-                            routeWhileDragging: true
+                            routeWhileDragging: true,
+                            createMarker: function () { return null; } // Ngăn chặn tạo thêm marker
                         }).addTo(map);
 
                     }, function (error) {
@@ -399,6 +467,10 @@
 
             // Gọi hàm để lấy dữ liệu và hiển thị
             fetchAndRenderPools();
+
+            function updateMaxFeeValue(value) {
+                document.getElementById("maxFeeValue").textContent = new Intl.NumberFormat('vi-VN').format(value) + " VNĐ";
+            }
 
         </script>
 
