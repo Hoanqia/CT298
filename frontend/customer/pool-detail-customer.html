@@ -226,7 +226,9 @@
                                 <label class="form-label">Số điện thoại:</label>
                                 <input type="text" class="form-control" id="userPhone" placeholder="Nhập số điện thoại">
                             </div>
-                            <button type="submit" class="btn btn-primary">Xác nhận đăng ký</button>
+                            <button type="submit" class="btn btn-primary" id="confirmRegisterBtn"
+                                onclick="registerEvent(poolId, eventId)">Xác
+                                nhận đăng ký</button>
                         </form>
                     </div>
                 </div>
@@ -247,8 +249,8 @@
             <div class="card-body">
                 <!-- Hiển thị đánh giá trung bình -->
                 <div class="mb-3">
-                    <h5>Đánh giá trung bình: <span id="averageRating"></span> / 5</h5>
-                    <p><span id="totalReviews"></span> người đã đánh giá</p>
+                    <h5>Đánh giá trung bình: <span id="averageRating">0</span> / 5</h5>
+                    <p><span id="totalReviews">0</span> người đã đánh giá</p>
                 </div>
 
                 <!-- Form đánh giá -->
@@ -261,6 +263,7 @@
                         <i class="fas fa-star star" data-value="4"></i>
                         <i class="fas fa-star star" data-value="5"></i>
                     </div>
+                    <input type="hidden" id="selectedRating" value="0">
                 </div>
 
                 <div class="mb-3">
@@ -269,9 +272,10 @@
                         placeholder="Nhập đánh giá của bạn..."></textarea>
                 </div>
 
-                <button onclick="redirectToLogin()" class="btn btn-primary">Gửi</button>
+                <button onclick="sendRating()" class="btn btn-primary">Gửi</button>
             </div>
         </div>
+
 
     </div>
 
@@ -291,6 +295,9 @@
 
     <!-- Custom JS -->
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const poolId = urlParams.get("poolId");
+
         // Rating
         const stars = document.querySelectorAll(".star-rating .star");
         let selectedRating = 0;
@@ -336,8 +343,13 @@
             }
         }
 
-        function openRegisterForm(eventName) {
+        function openRegisterForm(poolId, eventId, eventName) {
             document.getElementById('eventName').value = eventName;
+
+            // Lưu eventId và poolId vào button xác nhận đăng ký
+            const registerButton = document.getElementById('confirmRegisterBtn');
+            registerButton.setAttribute("onclick", `registerEvent(${poolId}, ${eventId})`);
+
             let registerModal = new bootstrap.Modal(document.getElementById('registerEventModal'));
             registerModal.show();
         }
@@ -393,8 +405,6 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const poolId = urlParams.get("poolId");
 
             const apiUrl = `http://127.0.0.1:8000/api/pools/${poolId}`;
 
@@ -473,8 +483,8 @@
             const servicesDropdown = document.getElementById("servicesDropdown");
 
             // Lấy poolId từ URL (nếu có)
-            const urlParams = new URLSearchParams(window.location.search);
-            const poolId = urlParams.get("poolId");
+            //  const urlParams = new URLSearchParams(window.location.search);
+            // const poolId = urlParams.get("poolId");
 
             // Kiểm tra nếu poolId không có
             if (!poolId) {
@@ -504,7 +514,7 @@
                             <span>${eventItem.organization_date || "Chưa cập nhật"}</span>
                             <span>${eventItem.price ? eventItem.price + " VNĐ" : "Miễn phí"}</span>
                             <span>${eventItem.max_participants || 0}</span>
-                            <button class="btn btn-primary" onclick="openRegisterform()">Đăng ký</button>
+                            <button class="btn btn-primary" onclick="openRegisterForm(${poolId}, ${event.id_event}, '${event.name}')">Đăng ký</button>
                         `;
 
                         // Thêm sự kiện vào danh sách
@@ -529,8 +539,8 @@
             const serviceInfo = document.getElementById("serviceInfo");
             const serviceModal = new bootstrap.Modal(document.getElementById("serviceModal"));
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const poolId = urlParams.get("poolId");
+            //    const urlParams = new URLSearchParams(window.location.search);
+            //   const poolId = urlParams.get("poolId");
 
             if (!poolId) {
                 console.error("Không tìm thấy poolId trong URL!");
@@ -598,27 +608,20 @@
             });
         });
 
-        // Sự kiện
         document.addEventListener("DOMContentLoaded", function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const poolId = urlParams.get("poolId");
+            // const urlParams = new URLSearchParams(window.location.search);
+            //const poolId = urlParams.get("poolId");
 
             if (!poolId) {
                 console.error("❌ Không tìm thấy poolId trong URL");
                 return;
             }
 
-            const apiUrl = `http://127.0.0.1:8000/api/pools/${poolId}/events`; // API động theo poolId
+            const apiUrl = `http://127.0.0.1:8000/api/pools/${poolId}/events`;
 
             fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Lỗi API: ${response.status}`);
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     const eventList = document.getElementById("eventList");
                     eventList.innerHTML = "";
 
@@ -637,14 +640,14 @@
                             <span>${event.organization_date || "Chưa cập nhật"}</span>
                             <span>${event.price ? event.price + " VNĐ" : "Miễn phí"}</span>
                             <span>${event.max_participants || 0}</span>
-                            <button class="btn btn-primary" onclick="openRegisterform()">Đăng ký</button>
+                            <button class="btn btn-primary" onclick="openRegisterForm(${poolId}, ${event.id_event}, '${event.name}')">Đăng ký</button>
                         `;
 
                         // Thêm sự kiện click vào tên sự kiện
                         const eventNameLink = li.querySelector(".event-name");
                         eventNameLink.addEventListener("click", function (e) {
-                            e.preventDefault(); // Ngăn chặn chuyển hướng mặc định
-                            showEventModal(event); // Gọi hàm hiển thị modal với dữ liệu sự kiện
+                            e.preventDefault();
+                            showEventModal(event);
                         });
 
                         eventList.appendChild(li);
@@ -711,7 +714,7 @@
                             <span>${event.organization_date || "Chưa cập nhật"}</span>
                             <span>${event.price ? event.price + " VNĐ" : "Miễn phí"}</span>
                             <span>${event.max_participants || 0}</span>
-                            <button class="btn btn-primary" onclick="openRegisterform()">Đăng ký</button>
+                            <button class="btn btn-primary" onclick="openRegisterForm(${poolId}, ${event.id_event}, '${event.name}')">Đăng ký</button>
                         `;
 
                         eventList.appendChild(li);
@@ -723,6 +726,127 @@
                         "<li class='list-group-item text-danger'>Không thể có dữ liệu sự kiện</li>";
                 });
         });
+
+        // Đăng ký sự kiện
+        // Đăng ký sự kiện
+        async function registerEvent(poolId, eventId) {
+            if (!poolId || !eventId) {
+                alert("Dữ liệu sự kiện không hợp lệ!");
+                return;
+            }
+
+            const apiUrl = `http://127.0.0.1:8000/api/pools/${poolId}/events/${eventId}/event-registrations/create`;
+            const authToken = localStorage.getItem("authToken"); // Lấy token
+
+            if (!authToken) {
+                alert("Bạn cần đăng nhập để đăng ký sự kiện!");
+                return;
+            }
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem("poolId", poolId);
+                    window.location.href = window.location.pathname + "?poolId=" + poolId;
+                } else {
+                    switch (response.status) {
+                        case 400:
+                            alert("Dữ liệu không hợp lệ!");
+                            break;
+                        case 401:
+                            alert("Bạn cần đăng nhập để đăng ký sự kiện!");
+                            break;
+                        case 403:
+                            alert("Bạn không có quyền truy cập!");
+                            break;
+                        case 404:
+                            alert("Sự kiện không tồn tại!");
+                            break;
+                        case 409:
+                            if (data.message.includes("Bạn đã đăng ký sự kiện này rồi")) {
+                                alert("Bạn đã đăng ký sự kiện này trước đó!");
+                                localStorage.setItem("poolId", poolId);
+                                window.location.href = window.location.pathname + "?poolId=" + poolId;
+                            } else {
+                                alert(data.message || "Sự kiện đã đủ số người tham gia!");
+                                localStorage.setItem("poolId", poolId);
+                                window.location.href = window.location.pathname + "?poolId=" + poolId;
+                            }
+                            break;
+                        case 500:
+                            alert("Đăng ký sự kiện thất bại do lỗi hệ thống!");
+                            break;
+                        default:
+                            alert(`Đăng ký thất bại: ${data.message || "Lỗi không xác định"}`);
+                    }
+                }
+            } catch (error) {
+                console.error("Lỗi khi kết nối API:", error);
+                alert("Có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.");
+            }
+        }
+
+        document.querySelectorAll(".star").forEach(star => {
+            star.addEventListener("click", function () {
+                let value = this.getAttribute("data-value");
+                document.getElementById("selectedRating").value = value;
+                highlightStars(value);
+            });
+        });
+
+        function getPoolId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get("poolId") || null; // Nếu không có poolId, trả về null
+        }
+
+        async function sendRating() {
+            const comment = document.getElementById("feedback").value;
+            const rating = document.getElementById("selectedRating").value;
+            //  const poolId = getPoolId(); // Lấy ID hồ bơi từ URL
+
+            const authToken = localStorage.getItem("authToken"); // Lấy token
+
+            if (!poolId) {
+                alert("Không tìm thấy Pool ID trong URL!");
+                return;
+            }
+
+            if (rating == 0) {
+                alert("Vui lòng chọn số sao trước khi gửi!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/pools/${poolId}/reviews/create`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ comment, rating })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert("Gửi đánh giá thành công!");
+                    location.reload();
+                } else {
+                    alert(`Lỗi: ${data.message}`);
+                }
+            } catch (error) {
+                console.error("Lỗi khi gửi đánh giá:", error);
+                alert("Có lỗi xảy ra, vui lòng thử lại!");
+            }
+        }
 
     </script>
 </body>

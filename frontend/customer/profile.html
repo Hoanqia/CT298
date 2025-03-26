@@ -111,16 +111,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Sự kiện đã đăng ký</h5>
                     <ul class="list-group" id="eventList">
-                        <li class="list-group-item">
-                            Sự kiện 1
-                            <button class="btn btn-danger btn-sm float-end"
-                                onclick="confirmDelete(event, this)">Hủy</button>
-                        </li>
-                        <li class="list-group-item">
-                            Sự kiện 2
-                            <button class="btn btn-danger btn-sm float-end"
-                                onclick="confirmDelete(event, this)">Hủy</button>
-                        </li>
+                        <!-- Sự kiện sẽ được hiển thị ở đây -->
                     </ul>
                 </div>
             </div>
@@ -128,20 +119,12 @@
             <div class="card mt-3">
                 <div class="card-body">
                     <h5 class="card-title">Lịch sử đánh giá</h5>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            Hồ bơi A - Sạch sẽ - 5 sao
-                            <button class="btn btn-warning btn-sm float-end" data-bs-toggle="modal"
-                                data-bs-target="#editReviewModal" onclick="populateModal('Hồ bơi A', 5)">Sửa</button>
-                        </li>
-                        <li class="list-group-item">
-                            Hồ bơi B - Nhiều tiện ích - 4 sao
-                            <button class="btn btn-warning btn-sm float-end" data-bs-toggle="modal"
-                                data-bs-target="#editReviewModal" onclick="populateModal('Hồ bơi B', 4)">Sửa</button>
-                        </li>
+                    <ul class="list-group" id="reviewList">
+                        <!-- Dữ liệu đánh giá sẽ được thêm vào đây bằng JavaScript -->
                     </ul>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -156,8 +139,12 @@
                 </div>
                 <div class="modal-body">
                     <form id="editReviewForm">
+                        <!-- Lưu ID đánh giá -->
+                        <input type="hidden" id="reviewId">
+
+                        <!-- Form đánh giá -->
                         <div class="mb-3">
-                            <label for="feedback" class="form-label">Đánh giá của bạn</label>
+                            <label class="form-label">Đánh giá của bạn</label>
                             <div class="star-rating">
                                 <i class="fas fa-star star" data-value="1"></i>
                                 <i class="fas fa-star star" data-value="2"></i>
@@ -165,7 +152,9 @@
                                 <i class="fas fa-star star" data-value="4"></i>
                                 <i class="fas fa-star star" data-value="5"></i>
                             </div>
+                            <input type="hidden" id="selectedRating" value="0">
                         </div>
+
                         <div class="mb-3">
                             <label for="feedback" class="form-label">Phản hồi của bạn</label>
                             <textarea class="form-control" id="feedback" rows="3"
@@ -249,20 +238,48 @@
         }
 
         function saveReview() {
-            const reviewText = document.getElementById("feedback");
-            const selectedStars = document.querySelectorAll(".fa-star.selected").length;
+            const token = localStorage.getItem("authToken");
+            const reviewId = document.getElementById("reviewId").value;
 
-            if (!reviewText || reviewText.value.trim() === "") {
+            const reviewText = document.getElementById("feedback").value;
+            const selectedStars = document.getElementById("selectedRating").value;
+
+            console.log("Review ID:", reviewId);
+            console.log("Review Text:", reviewText);
+            console.log("Selected Stars:", selectedStars);
+
+            if (!reviewText) {
                 alert("Vui lòng nhập nội dung đánh giá trước khi lưu!");
                 return;
             }
 
-            if (selectedStars === 0) {
+            if (selectedStars === "0" || selectedStars === "") {
                 alert("Vui lòng chọn số sao trước khi lưu!");
                 return;
             }
 
-            alert("Lưu thành công!");
+            fetch(`http://127.0.0.1:8000/api/users/reviews/${reviewId}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ comment: reviewText, rating: selectedStars })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("API Response:", data);
+                    if (data.status === "success") {
+                        alert("Cập nhật đánh giá thành công!");
+                        location.reload();
+                    } else {
+                        alert("Lỗi khi cập nhật đánh giá: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi kết nối API:", error);
+                    alert("Có lỗi xảy ra khi gửi yêu cầu.");
+                });
         }
 
         function logout() {
@@ -357,6 +374,14 @@
             });
         }
 
+        document.querySelectorAll(".star").forEach(star => {
+            star.addEventListener("click", function () {
+                let value = this.getAttribute("data-value");
+                document.getElementById("selectedRating").value = value;
+                highlightStars(value);
+            });
+        });
+
         function changeInformation(event) {
             event.preventDefault(); // Ngăn form reload lại trang
 
@@ -449,6 +474,115 @@
         window.onload = function () {
             fetchUserData();
         };
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const eventList = document.getElementById("eventList");
+            let token = localStorage.getItem("authToken"); // Lấy token từ localStorage
+
+            fetch("http://127.0.0.1:8000/api/users/event-registrations/", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`, // Gửi token
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        eventList.innerHTML = ""; // Xóa nội dung cũ
+                        data.data.forEach(event => {
+                            const li = document.createElement("li");
+                            li.classList.add("list-group-item");
+
+                            li.innerHTML = `
+                            <strong>${event.event.name}</strong> - 
+                            ${event.event.pool.name} <br>
+                            Thời gian: ${event.event.organization_date} <br>
+                            Giá: ${event.event.price} VND
+                            <button class="btn btn-danger btn-sm float-end"
+                                onclick="confirmDelete(${event.id_ER}, this)">Hủy</button>
+                        `;
+
+                            eventList.appendChild(li);
+                        });
+                    }
+                })
+                .catch(error => console.error("Lỗi khi lấy dữ liệu:", error));
+        });
+
+        // Hàm xử lý hủy đăng ký
+        function confirmDelete(eventId, button) {
+            let token = localStorage.getItem("authToken"); // Lấy token từ localStorage
+            if (confirm("Bạn có chắc muốn hủy đăng ký sự kiện này không?")) {
+                fetch(`http://127.0.0.1:8000/api/users/event-registrations/${eventId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`, // Gửi token
+                        "Content-Type": "application/json"
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            button.parentElement.remove(); // Xóa sự kiện khỏi danh sách
+                        } else {
+                            alert("Hủy đăng ký thất bại!");
+                        }
+                    })
+                    .catch(error => console.error("Lỗi khi hủy đăng ký:", error));
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            let token = localStorage.getItem("authToken"); // Lấy token từ localStorage
+
+            fetch("http://127.0.0.1:8000/api/users/reviews", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` // Gửi token trong header
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const reviewList = document.getElementById("reviewList");
+                        reviewList.innerHTML = ""; // Xóa danh sách cũ trước khi cập nhật mới
+
+                        data.data.forEach(review => {
+                            const listItem = document.createElement("li");
+                            listItem.className = "list-group-item";
+                            listItem.innerHTML = `
+                            ${review.pool.name} - ${review.comment} - ${review.rating} sao
+                            <button class="btn btn-warning btn-sm float-end" data-bs-toggle="modal"
+                                data-bs-target="#editReviewModal" 
+                                onclick="populateModal(${review.id_review}, '${review.pool.name}', ${review.rating}, '${review.comment}')">
+                                Sửa
+                            </button>
+                        `;
+                            reviewList.appendChild(listItem);
+                        });
+                    } else {
+                        console.error("Lỗi lấy danh sách đánh giá:", data.message);
+                    }
+                })
+                .catch(error => console.error("Lỗi kết nối API:", error));
+        });
+
+        function populateModal(reviewId, poolName, rating, comment) {
+            document.getElementById("reviewId").value = reviewId; // Gán ID vào input hidden
+            document.getElementById("feedback").value = comment;  // Gán nội dung đánh giá
+
+            // Reset trạng thái sao
+            document.querySelectorAll(".star-rating .star").forEach(star => {
+                star.classList.remove("selected");
+            });
+
+            // Đánh dấu số sao đã chọn
+            for (let i = 1; i <= rating; i++) {
+                document.querySelector(`.star-rating .star[data-value="${i}"]`).classList.add("selected");
+            }
+        }
 
 
 
