@@ -76,11 +76,67 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="maxFee" class="form-label">Phí tối đa (VNĐ)</label>
-                                    <input type="number" class="form-control" id="maxFee" placeholder="Nhập phí tối đa">
+                                    <input type="range" class="form-range" id="maxFee" min="0" max="500000" step="10"
+                                        value="250" oninput="updateMaxFeeValue(this.value)">
+                                    <span id="maxFeeValue">25.000 VNĐ</span>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100">Tìm
                                     kiếm</button>
                             </form>
+                        </div>
+                    </div>
+
+                    <!-- Gợi ý hồ bơi rẻ nhất -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">Hồ bơi rẻ nhất</div>
+                        <div class="card-body" id="cheapestPool">
+                            <!-- Chọn loại vé -->
+                            <div class="mb-3">
+                                <label for="ticketType" class="form-label">Loại vé</label>
+                                <select class="form-select" id="ticketType">
+                                    <option value="children_price">Trẻ em</option>
+                                    <option value="adult_price">Người lớn</option>
+                                    <option value="student_price">Học sinh/sinh viên</option>
+                                </select>
+                            </div>
+
+                            <!-- Bộ lọc dịch vụ -->
+                            <div class="mb-3">
+                                <label class="form-label">Dịch vụ đi kèm</label>
+                                <div class="form-check">
+                                    <input class="form-check-input service-checkbox" type="checkbox" id="service_1"
+                                        value="1">
+                                    <label class="form-check-label" for="service_1">Cho thuê đồ bơi</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input service-checkbox" type="checkbox" id="service_2"
+                                        value="2">
+                                    <label class="form-check-label" for="service_2">Dịch vụ huấn luyện viên bơi
+                                        lội</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input service-checkbox" type="checkbox" id="service_3"
+                                        value="3">
+                                    <label class="form-check-label" for="service_3">Dịch vụ giữ đồ</label>
+                                </div>
+                            </div>
+
+                            <!-- Nhập hoặc lấy tọa độ -->
+                            <div class="mb-3">
+                                <label for="latitude" class="form-label">Vị trí của bạn</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="latitude"
+                                        placeholder="Vĩ độ (Latitude)">
+                                    <input type="text" class="form-control" id="longitude"
+                                        placeholder="Kinh độ (Longitude)">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="getCurrentLocation()">📍</button>
+                                </div>
+                            </div>
+
+                            <!-- Nút Tìm kiếm -->
+                            <button type="button" class="btn btn-primary w-100" onclick="searchCheapPool()">Tìm
+                                kiếm</button>
                         </div>
                     </div>
                 </div>
@@ -139,8 +195,20 @@
                 let distance = parseFloat(distanceElement.value);
                 let maxFee = parseFloat(maxFeeElement.value);
 
-                if (isNaN(distance) || distance < 0 || isNaN(maxFee) || maxFee < 0) {
-                    alert("⚠️ Khoảng cách và phí tối đa phải là số dương hợp lệ!");
+                let queryParams = [];
+
+                if (type && type !== "Chọn loại hồ bơi") {
+                    queryParams.push(`type=${encodeURIComponent(type)}`);
+                }
+                if (!isNaN(distance) && distance > 0) {
+                    queryParams.push(`distance=${distance}`);
+                }
+                if (!isNaN(maxFee) && maxFee > 0) {
+                    queryParams.push(`maxFee=${maxFee}`);
+                }
+
+                if (queryParams.length === 0) {
+                    alert("⚠️ Vui lòng nhập ít nhất một tiêu chí tìm kiếm!");
                     return;
                 }
 
@@ -151,9 +219,10 @@
 
                         console.log(`📍 Vị trí hiện tại: ${lat}, ${lng}`);
 
-                        const encodedType = encodeURIComponent(type);
+                        queryParams.push(`lat=${lat}`);
+                        queryParams.push(`lng=${lng}`);
 
-                        let apiUrl = `http://127.0.0.1:8000/api/pools/search?type=${encodedType}&maxFee=${maxFee}&lat=${lat}&distance=${distance}&lng=${lng}`;
+                        let apiUrl = `http://127.0.0.1:8000/api/pools/search?${queryParams.join("&")}`;
 
                         console.log(`🔗 Gọi API: ${apiUrl}`);
 
@@ -174,6 +243,7 @@
                                 name: pool.name,
                                 lat: pool.lat,
                                 lng: pool.lng,
+                                type: pool.type || "private",
                                 address: `${pool.house_number || "N/A"}, ${pool.street?.name || "N/A"}, ${pool.street?.ward?.name || "N/A"}, ${pool.street?.ward?.district?.name || "N/A"}`,
                                 price: {
                                     adult: `${pool.adult_price} VNĐ`,
@@ -209,7 +279,7 @@
                             renderMarker(pools);
                         } catch (error) {
                             console.error("❌ Lỗi khi gọi API:", error);
-                            alert("⚠️ Có lỗi xảy ra, vui lòng thử lại!");
+                            alert("⚠️ Không tìm thấy hồ bơi phù hợp!");
                         }
                     }, function (error) {
                         console.error("❌ Lỗi khi lấy vị trí người dùng:", error);
@@ -219,7 +289,6 @@
                     alert("❌ Trình duyệt của bạn không hỗ trợ định vị!");
                 }
             }
-
 
             function logout() {
                 // Lấy thông tin người dùng từ localStorage
@@ -290,6 +359,7 @@
                         name: pool.name,
                         lat: pool.lat,
                         lng: pool.lng,
+                        type: pool.type || "private",
                         address: `${pool.house_number || "N/A"}, ${pool.street?.name || "N/A"}, ${pool.street?.ward?.name || "N/A"}, ${pool.street?.ward?.district?.name || "N/A"}`,
                         price: {
                             adult: `${pool.adult_price} VNĐ`,
@@ -316,6 +386,25 @@
 
             let markers = []; // Lưu danh sách markers
 
+            const poolIcons = {
+                "Hồ bơi công cộng": L.icon({
+                    iconUrl: 'https://img.freepik.com/free-vector/3d-gradient-map-pin_78370-1524.jpg?semt=ais_hybrid', // Thay bằng link ảnh thực tế
+                    iconSize: [32, 32]
+                }),
+                "Hồ bơi thi đấu": L.icon({
+                    iconUrl: 'https://media.istockphoto.com/id/1333566220/vector/location-icon-vector-free-download-in-blue-clipart-symbol-maps.jpg?s=612x612&w=0&k=20&c=vSr4fkUKdMwcmDDa5a0OvPiyNGeGblkrKJtINijHyEs=',
+                    iconSize: [32, 32]
+                }),
+                "Hồ bơi trẻ em": L.icon({
+                    iconUrl: 'https://atlas-content-cdn.pixelsquid.com/stock-images/location-marker-computer-icon-3A8DGBC-600.jpg',
+                    iconSize: [32, 32]
+                }),
+                "Hồ bơi tư nhân": L.icon({
+                    iconUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIisiVg7wQAbjb7OpuOX1sPm_CCoWjPa7cLA&s',
+                    iconSize: [32, 32]
+                })
+            };
+
             function renderMarker(pools) {
                 // Xóa tất cả marker cũ trước khi thêm marker mới
                 markers.forEach(marker => map.removeLayer(marker));
@@ -324,11 +413,24 @@
                 pools.forEach(function (pool) {
                     var poolLocation = [pool.lat, pool.lng];
 
-                    // Tạo marker mới và thêm vào bản đồ
-                    var marker = L.marker(poolLocation).addTo(map);
+                    // Đảm bảo loại hồ bơi hợp lệ
+                    var iconType = poolIcons[pool.type] || poolIcons.private;
 
                     // Thêm popup với tên và địa chỉ của hồ bơi
-                    marker.bindPopup(`<b>${pool.name}</b><br>Địa chỉ: ${pool.address}`).openPopup();
+                    console.log(`Loại hồ bơi: ${pool.type}, Icon URL: ${iconType.options.iconUrl}`);
+
+                    var marker = L.marker(poolLocation, { icon: iconType }).addTo(map);
+
+                    marker.bindPopup(`
+                    <b>${pool.name}</b><br>
+                    📍 Địa chỉ: ${pool.address}<br>
+                    💰 Giá vé:
+                    <ul>
+                        <li>Người lớn: <b>${pool.price.adult} VNĐ</b></li>
+                        <li>Trẻ em: <b>${pool.price.child} VNĐ</b></li>
+                        <li>Sinh viên: <b>${pool.price.student} VNĐ</b></li>
+                    </ul>
+                `).openPopup();
 
                     // Lắng nghe sự kiện click để hiển thị lộ trình
                     marker.on('click', function () {
@@ -342,25 +444,46 @@
                 });
             }
 
+            // Định nghĩa userIcon (ví dụ: icon màu xanh)
+            var userIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png', // Đường dẫn icon
+                iconSize: [30, 30], // Kích thước icon
+                iconAnchor: [15, 30], // Điểm neo
+                popupAnchor: [0, -30] // Vị trí popup
+            });
+
             let routeControl = null; // Lưu tuyến đường hiện tại
+            let userMarker = null;   // Lưu marker của người dùng
 
             function displayRoute(poolLocation) {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function (position) {
                         var userLocation = [position.coords.latitude, position.coords.longitude];
 
-                        // Nếu đã có tuyến đường cũ, xoá trước khi tạo mới
-                        if (routeControl !== null) {
+                        // Xóa marker user cũ trước khi thêm mới
+                        if (userMarker) {
+                            console.log("🗑 Xóa marker cũ của user");
+                            map.removeLayer(userMarker);
+                        }
+
+                        // Thêm marker mới của user
+                        userMarker = L.marker(userLocation, { icon: userIcon }).addTo(map);
+                        console.log("✅ Thêm marker mới của user:", userMarker);
+
+                        // Xóa tuyến đường cũ nếu có
+                        if (routeControl) {
+                            console.log("🗑 Xóa tuyến đường cũ");
                             map.removeControl(routeControl);
                         }
 
-                        // Tạo tuyến đường mới
+                        // Tạo tuyến đường mới (chỉ vẽ đường, không tạo thêm marker)
                         routeControl = L.Routing.control({
                             waypoints: [
                                 L.latLng(userLocation),
                                 L.latLng(poolLocation)
                             ],
-                            routeWhileDragging: true
+                            routeWhileDragging: true,
+                            createMarker: function () { return null; } // Ngăn chặn tạo thêm marker
                         }).addTo(map);
 
                     }, function (error) {
@@ -371,6 +494,7 @@
                     alert("❌ Trình duyệt của bạn không hỗ trợ định vị!");
                 }
             }
+
 
             function renderPools(pools) {
                 const poolList = document.getElementById("poolList");
@@ -406,6 +530,227 @@
 
             // Gọi hàm để lấy dữ liệu và hiển thị
             fetchAndRenderPools();
+
+            function updateMaxFeeValue(value) {
+                document.getElementById("maxFeeValue").textContent = new Intl.NumberFormat('vi-VN').format(value) + " VNĐ";
+            }
+
+            function getCurrentLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        document.getElementById("latitude").value = position.coords.latitude;
+                        document.getElementById("longitude").value = position.coords.longitude;
+                    }, function (error) {
+                        alert("Không thể lấy vị trí: " + error.message);
+                    });
+                } else {
+                    alert("Trình duyệt của bạn không hỗ trợ GPS.");
+                }
+            }
+
+            async function searchCheapPool() {
+                console.log("🔍 Bắt đầu tìm kiếm hồ bơi giá rẻ...");
+
+                const ticketTypeElement = document.getElementById("ticketType");
+
+                const poolList = document.getElementById("poolList");
+                const serviceCheckboxes = document.querySelectorAll(".service-checkbox");
+
+                if (!ticketTypeElement || !poolList) {
+                    console.error("❌ Một hoặc nhiều phần tử đầu vào không tìm thấy.");
+                    alert("Lỗi: Một hoặc nhiều phần tử đầu vào không tồn tại trên trang!");
+                    return;
+                }
+
+                let ticketType = ticketTypeElement.value.trim();
+                let selectedServices = Array.from(serviceCheckboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => parseInt(checkbox.value));
+
+                if (!ticketType || selectedServices.length === 0) {
+                    alert("⚠️ Vui lòng chọn loại vé và ít nhất một dịch vụ!");
+                    return;
+                }
+
+                let lat = document.getElementById("latitude").value.trim();
+                let lng = document.getElementById("longitude").value.trim();
+
+                // Nếu không có vị trí, lấy từ geolocation
+                if (!lat || !lng) {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(async function (position) {
+                            lat = position.coords.latitude;
+                            lng = position.coords.longitude;
+                            await fetchCheapPools(ticketType, selectedServices, lat, lng);
+                        }, function (error) {
+                            console.warn("⚠️ Không thể lấy vị trí. Tiếp tục tìm kiếm mà không có tọa độ.");
+                            fetchCheapPools(ticketType, selectedServices, null, null);
+                        });
+                    } else {
+                        console.warn("❌ Trình duyệt không hỗ trợ định vị.");
+                        fetchCheapPools(ticketType, selectedServices, null, null);
+                    }
+                } else {
+                    await fetchCheapPools(ticketType, selectedServices, lat, lng);
+                }
+            }
+
+            async function fetchCheapPools(ticketType, selectedServices, lat, lng) {
+                let queryParams = new URLSearchParams({
+                    ticket_type: ticketType,
+                    lat: lat,
+                    lng: lng
+                });
+
+                // Append selected services
+                selectedServices.forEach(service => queryParams.append("services[]", service));
+
+                const apiUrl = `http://127.0.0.1:8000/api/pools/cheapPools?${queryParams}`;
+
+                console.log(`🔗 Gọi API: ${apiUrl}`);
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Lỗi API: ${response.status} - ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+
+                    // Clear previous pool list
+                    const poolList = document.getElementById("poolList"); // Display container
+                    poolList.innerHTML = "";
+
+                    if (!result || !result.data || Object.keys(result.data).length === 0) {
+                        poolList.innerHTML = "<p class='text-danger'>⚠️ Không tìm thấy hồ bơi giá rẻ!</p>";
+                        return;
+                    }
+
+                    // Process and map pools data from the API response
+                    const pools = Object.values(result.data).map(pool => ({
+                        id: pool.id_pool,
+                        name: pool.name,
+                        lat: pool.lat,
+                        lng: pool.lng,
+                        type: pool.type || "private", // Default to "private" if type is not available
+                        address: `${pool.house_number || "N/A"}, ${pool.street?.name || "N/A"}, ${pool.street?.ward?.name || "N/A"}, ${pool.street?.ward?.district?.name || "N/A"}`,
+                        price: {
+                            adult: `${pool.adult_price} VNĐ`,
+                            child: `${pool.children_price} VNĐ`,
+                            student: `${pool.student_price} VNĐ`
+                        },
+                        image: pool.img,
+                        distance: pool.distance_km.toFixed(2),  // Distance in km (rounded to 2 decimal places)
+                    }));
+
+                    // Hiển thị danh sách hồ bơi
+                    poolList.innerHTML = pools.map(pool => `
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <a href="pool-detail-guest.html?poolId=${pool.id}" class="card-title">
+                                        <h5>${pool.name}</h5>
+                                    </a>
+                                 
+                                    <h6><strong>💰 Phí vào cổng:</strong></h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>👨‍🦳 Người lớn:</strong> ${pool.price.adult}</li>
+                                        <li><strong>🧒 Trẻ em:</strong> ${pool.price.child}</li>
+                                        <li><strong>🎓 Học sinh/Sinh viên:</strong> ${pool.price.student}</li>
+                                    </ul>
+                                    <button class="btn btn-primary" onclick="displayRoute([${pool.lat}, ${pool.lng}])">📍 Hiển thị lộ trình</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    // renderPools(pools);
+                    // renderMarker(pools);
+                } catch (error) {
+                    console.error("❌ Lỗi khi gọi API:", error);
+                    const poolList = document.getElementById("poolList");
+                    poolList.innerHTML = "<p class='text-danger'>⚠️ Không tìm thấy hồ bơi giá rẻ!</p>";
+                }
+            }
+
+            // Hàm để chọn màu theo số lượng hồ bơi
+            function getColor(count) {
+                return count > 4 ? '#003366' :    // Dark Blue
+                    count > 3 ? '#0066cc' :    // Medium Blue
+                        count > 2 ? '#66ccff' :    // Light Blue
+                            count > 1 ? '#99ff99' :    // Light Green
+                                count > 0 ? '#ccff66' :    // Light Yellow-Green
+                                    '#ffffcc';                 // Light Yellow
+            }
+
+            // Load dữ liệu từ GeoJSON
+            fetch('https://raw.githubusercontent.com/Nhn2025/geojson-data/main/diaphanhuyen.geojson')
+                .then(response => response.json())
+                .then(geojsonData => {
+                    // Load dữ liệu từ API
+                    fetch('http://127.0.0.1:8000/api/pools/statistics')
+                        .then(response => response.json())
+                        .then(apiData => {
+                            let poolStats = {};
+                            apiData.data.forEach(d => {
+                                poolStats[d.district] = {
+                                    total: d.total_pools,
+                                    pools: d.pools // Danh sách loại hồ bơi trong huyện
+                                };
+                            });
+
+                            // Thêm layer vào bản đồ
+                            L.geoJson(geojsonData, {
+                                style: function (feature) {
+                                    let districtName = feature.properties.Ten_Huyen;
+                                    let poolData = poolStats[districtName] || { total: 0, pools: [] };
+                                    return {
+                                        fillColor: getColor(poolData.total),
+                                        weight: 2,
+                                        opacity: 1,
+                                        color: 'white',
+                                        dashArray: '3',
+                                        fillOpacity: 0.7
+                                    };
+                                },
+                                onEachFeature: function (feature, layer) {
+                                    let districtName = feature.properties.Ten_Huyen;
+                                    let poolData = poolStats[districtName] || { total: 0, pools: [] };
+
+                                    // Nội dung popup hiển thị danh sách hồ bơi
+                                    let poolsInfo = poolData.pools.map(pool =>
+                                        `<b>${pool.type}:</b> ${pool.count}`
+                                    ).join("<br>");
+
+                                    layer.bindPopup(`<b>${districtName}</b><br>Hồ bơi: ${poolData.total}<br>${poolsInfo}`);
+
+                                    layer.on('mouseover', function (e) {
+                                        this.setStyle({
+                                            weight: 3,
+                                            color: '#666',
+                                            fillOpacity: 0.9
+                                        });
+                                        this.openPopup();
+                                    });
+
+                                    layer.on('mouseout', function (e) {
+                                        this.setStyle({
+                                            weight: 2,
+                                            color: 'white',
+                                            fillOpacity: 0.7
+                                        });
+                                        this.closePopup();
+                                    });
+                                }
+                            }).addTo(map);
+                        });
+                });
 
         </script>
 
