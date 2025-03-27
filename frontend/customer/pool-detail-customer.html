@@ -569,6 +569,7 @@
                         option.value = serviceItem.service.id_service;
                         option.textContent = serviceItem.service.name;
                         option.dataset.price = serviceItem.price; // Gán giá tiền
+                        option.dataset.time = serviceItem.applied_at; // Gán thời gian áp dụng
                         servicesDropdown.appendChild(option);
                     });
                 } else {
@@ -602,7 +603,9 @@
                 }
 
                 serviceInfo.innerHTML = `<strong>Dịch vụ:</strong> ${selectedOption.textContent} <br>
-                                         <strong>Giá:</strong> ${selectedOption.dataset.price} VND`;
+                                         <strong>Giá:</strong> ${selectedOption.dataset.price} VND
+                                           <br>
+                                         <strong>Thời gian áp dụng:</strong> ${selectedOption.dataset.time}`;
 
                 serviceModal.show();
             });
