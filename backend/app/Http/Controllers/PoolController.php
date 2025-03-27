@@ -415,6 +415,8 @@ public function destroy($id_pool){
         'status' => 'error',
     ],500);
 }
+
+
 public function getDistrictList(){
     $districts = District::all();
     if($districts->isEmpty()){

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index-guest.html">Quản lý hồ bơi</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index-guest.html">Trang chủ</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Đăng Nhập</h2>
+        <form action=" " method="POST" id="loginForm">
+            <input type="text" name="phone" placeholder="Số điện thoại" required>
+            <input type="password" name="password" placeholder="Mật khẩu" required>
+            <button type="submit">Đăng Nhập</button>
+        </form>
+        <br>
+        <div class="switch-form">
+            Chưa có tài khoản? <a href="register.html">Đăng ký</a> <!-- Điều hướng sang trang đăng ký -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white text-center py-3 mt-3">
+        <p>&copy; 2025 Quản lý hồ bơi. Tất cả các quyền được bảo lưu.</p>
+    </footer>
+
+    <script>
+        let authToken = ""; // Biến lưu token toàn cục
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const loginForm = document.getElementById("loginForm");
+
+            loginForm.addEventListener("submit", function (event) {
+                event.preventDefault(); // Ngăn chặn form gửi đi mặc định
+
+                const phone = document.querySelector('input[name="phone"]').value.trim();
+                const password = document.querySelector('input[name="password"]').value.trim();
+
+                // Gửi request đến API
+                fetch("http://127.0.0.1:8000/api/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content
+                    },
+                    body: JSON.stringify({ phone, password })
+                })
+                    .then(response => response.json().then(data => ({ status: response.status, body: data })))
+                    .then(({ status, body }) => {
+                        console.log("API Response:", body);
+
+                        if (status === 200) {
+                            const user = body.user;
+
+                            alert("Đăng nhập thành công!");
+
+                            if (user.role === "customer") {
+                                // Lưu token vào localStorage
+                                localStorage.setItem("authToken", body.token);
+                                localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+                                window.location.href = "index-customer.html"; // Chuyển hướng khách hàng
+                            } else {
+                                window.location.href = "index-admin.html"; // Chuyển hướng admin
+                            }
+                        } else if (status === 422) {
+                            // Lỗi validate dữ liệu
+                            let errorMessage = "Dữ liệu không hợp lệ:\n";
+                            Object.values(body.errors).forEach(err => {
+                                errorMessage += `- ${err[0]}\n`;
+                            });
+                            alert(errorMessage);
+                        } else if (status === 401) {
+                            // Sai thông tin đăng nhập
+                            alert("Số điện thoại hoặc mật khẩu không đúng!");
+                        } else {
+                            alert("Có lỗi xảy ra. Vui lòng thử lại!");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Lỗi API:", error);
+                        alert("Có lỗi xảy ra. Vui lòng thử lại!");
+                    });
+            });
+        });
+
+    </script>
+</body>
+
+</html>
