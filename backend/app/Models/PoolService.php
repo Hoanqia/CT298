@@ -11,6 +11,7 @@ class PoolService extends Model
         'id_pool',
         'id_service',
         'price',
+        'applied_at',
     ];
     protected $primaryKey = 'id_ps';
     protected $keyType = 'int';
