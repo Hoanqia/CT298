@@ -1,111 +1,290 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quản Lý Hồ Bơi</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Hồ Bơi</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Quản Lý Hồ Bơi</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link active" href="index.html">Trang Chủ</a></li>
-        <li class="nav-item"><a class="nav-link" href="pool-management.html">Quản Lý Hồ Bơi</a></li>
-        <li class="nav-item"><a class="nav-link" href="service-management.html">Quản Lý Dịch Vụ</a></li>
-        <li class="nav-item"><a class="nav-link active" href="event-management.html">Quản Lý Sự Kiện</a></li>
-        <li class="nav-item"><a class="nav-link" href="facility-management.html">Quản Lý Tiện Ích</a></li>
-        <li class="nav-item"><a class="nav-link" href="registration-management.html">Quản Lý Phiếu Đăng Ký</a></li>
-        <li class="nav-item"><a class="nav-link" href="infor-customer.html">Thông Tin Khách Hàng</a></li>
-        <li class="nav-item"><a class="nav-link" href="review-management.html">Đánh Giá Khách Hàng</a></li>
-      </ul>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Quản Lý Tiện Ích</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link active" href="index.html">Trang Chủ</a></li>
+            <li class="nav-item"><a class="nav-link" href="pool-management.html">Quản Lý Hồ Bơi</a></li>
+            <li class="nav-item"><a class="nav-link" href="service-management.html">Quản Lý Dịch Vụ</a></li>
+            <li class="nav-item"><a class="nav-link" href="service-management2.html">Quản Lý Dịch Vụ Của Hồ Bơi</a></li>
+            <li class="nav-item"><a class="nav-link active" href="event-management.html">Quản Lý Sự Kiện</a></li>
+            <li class="nav-item"><a class="nav-link" href="facility-management.html">Quản Lý Tiện Ích</a></li>
+            <li class="nav-item"><a class="nav-link" href="registration-management.html">Quản Lý Phiếu Đăng Ký</a></li>
+            <li class="nav-item"><a class="nav-link" href="infor-customer.html">Thông Tin Khách Hàng</a></li>
+            <li class="nav-item"><a class="nav-link" href="review-management.html">Đánh Giá Khách Hàng</a></li>
+        </ul>
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="img/admin.jpg" alt="Admin" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 8px;">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                    <li><a class="dropdown-item" href="profile.html">Hồ Sơ</a></li>
+                    <li><a class="dropdown-item text-danger" href="logout.html">Đăng Xuất</a></li>
+                </ul>
+            </li>
+        </ul>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h2>Danh Sách Hồ Bơi</h2>
+        <button id="addPoolBtn" class="btn btn-primary mb-3">Thêm Hồ Bơi</button>
 
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="img/admin.jpg" alt="Admin" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 8px;">
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
-            <li><a class="dropdown-item" href="profile.html">Hồ Sơ</a></li>
-            <li><a class="dropdown-item text-danger" href="logout.html">Đăng Xuất</a></li>
-          </ul>
-        </li>
-      </ul>
+        <input type="text" id="searchPool" class="form-control mb-3" placeholder="Tìm kiếm hồ bơi...">
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Hình Ảnh</th>
+                    <th>Tên Hồ Bơi</th>
+                    <th>Loại</th>
+                    <th>Địa chỉ</th>
+                    <th>Kích thước (m)</th>
+                    <th>Độ sâu (m)</th>
+                    <th>Giá vé trẻ em</th>
+                    <th>Giá vé người lớn</th>
+                    <th>Giá vé học sinh</th>
+                    <th>Giờ Mở</th>
+                    <th>Giờ Đóng</th>
+                    <th>Đánh giá trung bình</th>
+                    <th>Tổng số đánh giá</th>
+                    <th>Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody id="poolList"></tbody>
+        </table>
     </div>
-  </nav>
 
-  <div class="container mt-5">
-    <h2>Danh Sách Hồ Bơi</h2>
-    <button class="btn btn-primary mb-3" id="addPoolBtn">Thêm Hồ Bơi</button>
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>STT</th>
-          <th>Tên Hồ Bơi</th>
-          <th>Số Nhà</th>
-          <th>Địa Chỉ</th>
-          <th>Tỉnh/TP</th>
-          <th>Vĩ Độ</th>
-          <th>Kinh Độ</th>
-          <th>Chiều Dài (m)</th>
-          <th>Chiều Rộng (m)</th>
-          <th>Độ Sâu (m)</th>
-          <th>Loại Hồ Bơi</th>
-          <th>Giờ Mở Cửa</th>
-          <th>Giờ Đóng Cửa</th>
-          <th>Hình</th>
-          <th>Giá Trẻ Em</th>
-          <th>Giá Sinh Viên</th>
-          <th>Giá Người Lớn</th>
-          <th>Thao Tác</th>
-        </tr>
-      </thead>
-      <tbody id="poolList"></tbody>
-    </table>
-  </div>
+    <!-- Modal Thêm/Sửa -->
+    <div class="modal fade" id="poolModal">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title">Thêm Hồ Bơi</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                  <form id="poolForm">
+                      <input type="hidden" id="poolId">
 
-  <div class="modal fade" id="addPoolModal" tabindex="-1" aria-labelledby="addPoolModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="addPoolModalLabel">Thêm Hồ Bơi Mới</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="addPoolForm">
-            <input type="text" class="form-control mb-2" id="poolName" placeholder="Tên Hồ Bơi" required>
-            <input type="text" class="form-control mb-2" id="poolHouseNumber" placeholder="Số Nhà" required>
-            <input type="text" class="form-control mb-2" id="poolAddress" placeholder="Địa Chỉ" required>
-            <input type="text" class="form-control mb-2" id="poolCity" placeholder="Tỉnh/TP" required>
-            <input type="number" class="form-control mb-2" id="poolLatitude" placeholder="Vĩ Độ" required>
-            <input type="number" class="form-control mb-2" id="poolLongitude" placeholder="Kinh Độ" required>
-            <input type="number" class="form-control mb-2" id="poolLength" placeholder="Chiều Dài (m)" required>
-            <input type="number" class="form-control mb-2" id="poolWidth" placeholder="Chiều Rộng (m)" required>
-            <input type="number" class="form-control mb-2" id="poolDepth" placeholder="Độ Sâu (m)" required>
-            <select class="form-control mb-2" id="poolType" required>
-              <option value="Trong Nhà">Trong Nhà</option>
-              <option value="Ngoài Trời">Ngoài Trời</option>
-            </select>
-            <input type="time" class="form-control mb-2" id="poolOpeningTime" required>
-            <input type="time" class="form-control mb-2" id="poolClosingTime" required>
-            <input type="file" class="form-control mb-2" id="poolImage" accept="image/*">
-            <input type="number" class="form-control mb-2" id="poolChildFee" placeholder="Giá Trẻ Em" required>
-            <input type="number" class="form-control mb-2" id="poolStudentFee" placeholder="Giá Sinh Viên" required>
-            <input type="number" class="form-control mb-2" id="poolAdultFee" placeholder="Giá Người Lớn" required>
-            <button type="submit" class="btn btn-primary">Lưu</button>
-          </form>
-        </div>
+                      <div class="mb-3">
+                          <label>Hình ảnh</label>
+                          <input type="file" class="form-control" id="poolImage">
+                      </div>
+
+                      <div class="mb-3">
+                          <label>Tên Hồ Bơi</label>
+                          <input type="text" class="form-control" id="poolName" required>
+                      </div>
+
+                      <div class="mb-3">
+                          <label>Loại Hồ Bơi</label>
+                          <select class="form-control" id="poolType">
+                              <option value="Hồ bơi công cộng">Hồ bơi công cộng</option>
+                              <option value="Hồ bơi tư nhân">Hồ bơi tư nhân</option>
+                              <option value="Hồ bơi trẻ em">Hồ bơi trẻ em</option>
+                              <option value="Hồ bơi thi đấu">Hồ bơi thi đấu</option>
+                          </select>
+                      </div>
+
+                      <div class="mb-3">
+                          <label>Địa chỉ</label>
+                          <input type="text" class="form-control" id="houseNumber" placeholder="Số nhà">
+                          <input type="text" class="form-control mt-2" id="streetName" placeholder="Tên đường">
+                          <input type="text" class="form-control mt-2" id="wardName" placeholder="Phường">
+                          <input type="text" class="form-control mt-2" id="districtName" placeholder="Quận">
+                      </div>
+
+                      <div class="mb-3">
+                          <label>Kích thước (m)</label>
+                          <input type="number" class="form-control" id="poolLength" placeholder="Dài">
+                          <input type="number" class="form-control mt-2" id="poolWidth" placeholder="Rộng">
+                      </div>
+
+                      <div class="mb-3">
+                          <label>Độ sâu (m)</label>
+                          <input type="number" class="form-control" id="poolDepth">
+                      </div>
+
+                      <div class="mb-3">
+                          <label>Giá vé (VND)</label>
+                          <input type="number" class="form-control" id="childrenPrice" placeholder="Trẻ em">
+                          <input type="number" class="form-control mt-2" id="adultPrice" placeholder="Người lớn">
+                          <input type="number" class="form-control mt-2" id="studentPrice" placeholder="Học sinh">
+                      </div>
+
+                      <div class="mb-3">
+                          <label>Giờ Mở</label>
+                          <input type="time" class="form-control" id="openingHours" required>
+                      </div>
+
+                      <div class="mb-3">
+                          <label>Giờ Đóng</label>
+                          <input type="time" class="form-control" id="closingHours" required>
+                      </div>
+
+                      <button type="submit" class="btn btn-primary">Lưu</button>
+                  </form>
+              </div>
+          </div>
       </div>
     </div>
-  </div>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/pool-management.js"></script>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+       $(document).ready(function () {
+        let authToken = localStorage.getItem("authToken") || "";
+
+        function loadPools() {
+            try {
+                $.ajax({
+                    type: "GET",
+                    url: "http://127.0.0.1:8000/api/pools",
+                    headers: { "Authorization": `Bearer ${authToken}` },
+                    success: function (response) {
+                        let pools = response.data || [];
+                        let poolList = pools.map((pool, index) => `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td><img src="${pool.img}" alt="Hình ảnh hồ bơi" width="100"></td>
+                                <td>${pool.name}</td>
+                                <td>${pool.type}</td>
+                                <td>${pool.house_number || ''}, ${pool.street?.name || ''}, ${pool.street?.ward?.name || ''}, ${pool.street?.ward?.district?.name || ''}</td>
+                                <td>${pool.length} x ${pool.width}</td>
+                                <td>${pool.depth}</td>
+                                <td>${pool.children_price} VND</td>
+                                <td>${pool.adult_price} VND</td>
+                                <td>${pool.student_price} VND</td>
+                                <td>${pool.opening_hours}</td>
+                                <td>${pool.close_hours}</td>
+                                <td>${pool.average_rating}</td>
+                                <td>${pool.total_reviews}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${pool.id_pool}" data-name="${pool.name}" data-type="${pool.type}" data-open="${pool.opening_hours}" data-close="${pool.close_hours}">Sửa</button>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${pool.id_pool}">Xóa</button>
+                                </td>
+                            </tr>
+                        `).join(''); 
+                        $("#poolList").html(poolList);
+                    },
+                    error: function () {
+                        alert("Không thể tải danh sách hồ bơi.");
+                    }
+                });
+            } catch (error) {
+                console.error("Lỗi khi tải hồ bơi: ", error);
+                alert("Đã xảy ra lỗi khi tải danh sách hồ bơi. Vui lòng thử lại.");
+            }
+        }
+
+        loadPools();
+
+        $("#addPoolBtn").click(function () {
+            $("#poolForm")[0].reset();
+            $("#poolId").val("");
+            new bootstrap.Modal($("#poolModal")).show();
+        });
+
+        $(document).on("click", ".edit-btn", function () {
+            try {
+                let pool = $(this).data();
+                $("#poolId").val(pool.id);
+                $("#poolName").val(pool.name);
+                $("#poolType").val(pool.type);
+                $("#openingHours").val(pool.open);
+                $("#closingHours").val(pool.close);
+                new bootstrap.Modal($("#poolModal")).show();
+            } catch (error) {
+                console.error("Lỗi khi chỉnh sửa hồ bơi: ", error);
+                alert("Đã xảy ra lỗi khi chỉnh sửa hồ bơi.");
+            }
+        });
+
+        $("#poolForm").submit(function (e) {
+            e.preventDefault();
+            let id = $("#poolId").val();
+            let data = {
+                name: $("#poolName").val(),
+                type: $("#poolType").val(),
+                house_number: $("#houseNumber").val(),
+                street: $("#streetName").val(),
+                ward: $("#wardName").val(),
+                district: $("#districtName").val(),
+                length: $("#poolLength").val(),
+                width: $("#poolWidth").val(),
+                depth: $("#poolDepth").val(),
+                children_price: $("#childrenPrice").val(),
+                adult_price: $("#adultPrice").val(),
+                student_price: $("#studentPrice").val(),
+                opening_hours: $("#openingHours").val(),
+                closing_hours: $("#closingHours").val()
+            };
+            let method = id ? "PUT" : "POST";
+            let url = `http://127.0.0.1:8000/api/pools${id ? `/${id}` : ""}`;
+
+            try {
+                $.ajax({
+                    type: method,
+                    url: url,
+                    headers: { "Authorization": `Bearer ${authToken}` },
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: function () {
+                        $("#poolModal").modal("hide");
+                        loadPools();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Lỗi khi lưu hồ bơi: ", error);
+                        alert("Đã xảy ra lỗi khi lưu hồ bơi. Vui lòng thử lại.");
+                    }
+                });
+            } catch (error) {
+                console.error("Lỗi khi thêm/sửa hồ bơi: ", error);
+                alert("Đã xảy ra lỗi khi thêm hoặc sửa hồ bơi.");
+            }
+        });
+
+        $(document).on("click", ".delete-btn", function () {
+            let poolId = $(this).data("id");
+            if (confirm("Bạn có chắc chắn muốn xóa hồ bơi này không?")) {
+                try {
+                    $.ajax({
+                        type: "DELETE",
+                        url: `http://127.0.0.1:8000/api/pools/${poolId}`,
+                        headers: { "Authorization": `Bearer ${authToken}` },
+                        success: function () {
+                            loadPools();
+                            alert("Xóa hồ bơi thành công.");
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Lỗi khi xóa hồ bơi: ", error);
+                            alert("Đã xảy ra lỗi khi xóa hồ bơi.");
+                        }
+                    });
+                } catch (error) {
+                    console.error("Lỗi khi xóa hồ bơi: ", error);
+                    alert("Đã xảy ra lỗi khi xóa hồ bơi.");
+                }
+            }
+        });
+    });
+
+    </script>
 </body>
 </html>
