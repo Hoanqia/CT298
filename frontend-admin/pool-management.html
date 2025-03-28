@@ -266,142 +266,214 @@
         //Gọi hàm load danh sách hồ bơi ngay khi trang tải
         loadPools();
 
-        //MỞ MODAL THÊM HỒ BƠI
-        $("#addPoolBtn").click(function () {
-            $("#addPoolForm")[0].reset();
-            new bootstrap.Modal($("#addPoolModal")).show();
+        // THÊM HỒ BƠI
+
+        $(document).ready(function () {
+            $("#addPoolBtn").click(function () {
+                $("#addPoolModal").modal("show");
+            });
         });
 
-        // THÊM HỒ BƠI
         $("#addPoolForm").submit(function (e) {
-            e.preventDefault();
-            
-            let data = {
-                name: $("#addPoolName").val(),
-                type: $("#addPoolType").val(),
-                house_number: $("#addHouseNumber").val(),
-                street: $("#addStreetName").val(),
-                ward: $("#addWardName").val(),
-                district: $("#addDistrictName").val(),
-                length: $("#addPoolLength").val(),
-                width: $("#addPoolWidth").val(),
-                depth: $("#addPoolDepth").val(),
-                children_price: $("#addChildrenPrice").val(),
-                adult_price: $("#addAdultPrice").val(),
-                student_price: $("#addStudentPrice").val(),
-                opening_hours: $("#addOpeningHours").val(),
-                close_hours: $("#addClosingHours").val()
-            };
+        e.preventDefault();
+
+        try {
+            let formData = new FormData();
+            formData.append("name", $("#addPoolName").val());
+            formData.append("type", $("#addPoolType").val());
+            formData.append("house_number", $("#addHouseNumber").val());
+            formData.append("street", $("#addStreetName").val());
+            formData.append("ward", $("#addWardName").val());
+            formData.append("district", $("#addDistrictName").val());
+            formData.append("length", $("#addPoolLength").val());
+            formData.append("width", $("#addPoolWidth").val());
+            formData.append("depth", $("#addPoolDepth").val());
+            formData.append("children_price", $("#addChildrenPrice").val());
+            formData.append("adult_price", $("#addAdultPrice").val());
+            formData.append("student_price", $("#addStudentPrice").val());
+            formData.append("opening_hours", $("#addOpeningHours").val());
+            formData.append("close_hours", $("#addClosingHours").val());
+
+            // Kiểm tra nếu có ảnh thì thêm vào formData
+            let imageFile = $("#addPoolImage")[0].files[0];
+            if (imageFile) {
+                formData.append("image", imageFile);
+            }
 
             $.ajax({
                 type: "POST",
                 url: "http://127.0.0.1:8000/api/pools/create",
                 headers: { "Authorization": `Bearer ${authToken}` },
-                contentType: "application/json",
-                data: JSON.stringify(data),
+                processData: false, // Không xử lý dữ liệu formData
+                contentType: false, // Để trình duyệt tự động thiết lập đúng content type
+                data: formData,
                 success: function () {
                     $("#addPoolModal").modal("hide");
                     alert("Thêm hồ bơi thành công!");
                     loadPools();
                 },
                 error: function (xhr, status, error) {
-                    console.error("Lỗi khi thêm hồ bơi: ", error);
-                    alert("Đã xảy ra lỗi khi thêm hồ bơi.");
+                    console.error("Lỗi khi thêm hồ bơi:", error);
+                    console.log("Phản hồi từ server:", xhr.responseText);
+
+                    let errorMessage = "Đã xảy ra lỗi khi thêm hồ bơi.";
+                    if (xhr.status === 400) {
+                        errorMessage = "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
+                    } else if (xhr.status === 401) {
+                        errorMessage = "Bạn không có quyền thực hiện thao tác này.";
+                    } else if (xhr.status === 500) {
+                        errorMessage = "Lỗi máy chủ. Vui lòng thử lại sau.";
+                    }
+
+                    alert(errorMessage);
                 }
             });
-        });
-
-        //MỞ MODAL CHỈNH SỬA HỒ BƠI
-    $(document).on("click", ".edit-btn", function () {
-        let pool = $(this).data();
-
-        // Điền dữ liệu vào form chỉnh sửa
-        $("#editPoolId").val(pool.id);
-        $("#editPoolName").val(pool.name);
-        $("#editPoolType").val(pool.type);
-        $("#editHouseNumber").val(pool.house_number);
-        $("#editStreetName").val(pool.street_name);
-        $("#editWardName").val(pool.ward_name);
-        $("#editDistrictName").val(pool.district_name);
-        $("#editPoolLength").val(pool.length);
-        $("#editPoolWidth").val(pool.width);
-        $("#editPoolDepth").val(pool.depth);
-        $("#editChildrenPrice").val(pool.children_price);
-        $("#editAdultPrice").val(pool.adult_price);
-        $("#editStudentPrice").val(pool.student_price);
-        $("#editOpeningHours").val(pool.opening_hours);
-        $("#editClosingHours").val(pool.closing_hours);
-
-        new bootstrap.Modal($("#editPoolModal")).show();
+        } catch (err) {
+            console.error("Lỗi ngoại lệ:", err);
+            alert("Đã xảy ra lỗi không mong muốn. Vui lòng thử lại!");
+        }
     });
 
-    //CẬP NHẬT HỒ BƠI
-    $("#editPoolForm").submit(function (e) {
-        e.preventDefault();
-        let id = $("#editPoolId").val();
-        if (!id) return; // Nếu không có ID thì không cập nhật
 
-        // Tạo đối tượng FormData để gửi cả file ảnh (nếu có)
-        let formData = new FormData();
-        formData.append("name", $("#editPoolName").val());
-        formData.append("type", $("#editPoolType").val());
-        formData.append("house_number", $("#editHouseNumber").val());
-        formData.append("street_name", $("#editStreetName").val());
-        formData.append("ward_name", $("#editWardName").val());
-        formData.append("district_name", $("#editDistrictName").val());
-        formData.append("length", $("#editPoolLength").val());
-        formData.append("width", $("#editPoolWidth").val());
-        formData.append("depth", $("#editPoolDepth").val());
-        formData.append("children_price", $("#editChildrenPrice").val());
-        formData.append("adult_price", $("#editAdultPrice").val());
-        formData.append("student_price", $("#editStudentPrice").val());
-        formData.append("opening_hours", $("#editOpeningHours").val());
-        formData.append("closing_hours", $("#editClosingHours").val());
 
-        // Kiểm tra nếu có ảnh mới thì thêm vào formData
-        let imageFile = $("#editPoolImage")[0].files[0];
-        if (imageFile) {
-            formData.append("image", imageFile);
-        }
+        // MỞ MODAL CHỈNH SỬA HỒ BƠI
+        $(document).on("click", ".edit-btn", function () {
+            let pool = $(this).data();
 
-        $.ajax({
-            type: "POST", // Sử dụng POST thay vì PATCH vì có file ảnh
-            url: `http://127.0.0.1:8000/api/pools/${id}`,
-            headers: { "Authorization": `Bearer ${authToken}` },
-            processData: false, // Không xử lý dữ liệu formData
-            contentType: false, // Không đặt contentType (để tự động thiết lập đúng kiểu multipart/form-data)
-            data: formData,
-            success: function () {
-                $("#editPoolModal").modal("hide");
-                alert("Cập nhật hồ bơi thành công!");
-                loadPools();
-            },
-            error: function (xhr, status, error) {
-                console.error("Lỗi khi cập nhật hồ bơi: ", error);
-                alert("Đã xảy ra lỗi khi cập nhật hồ bơi.");
+            try {
+                // Điền dữ liệu vào form chỉnh sửa
+                $("#editPoolId").val(pool.id);
+                $("#editPoolName").val(pool.name);
+                $("#editPoolType").val(pool.type);
+                $("#editHouseNumber").val(pool.house_number);
+                $("#editStreetName").val(pool.street_name);
+                $("#editWardName").val(pool.ward_name);
+                $("#editDistrictName").val(pool.district_name);
+                $("#editPoolLength").val(pool.length);
+                $("#editPoolWidth").val(pool.width);
+                $("#editPoolDepth").val(pool.depth);
+                $("#editChildrenPrice").val(pool.children_price);
+                $("#editAdultPrice").val(pool.adult_price);
+                $("#editStudentPrice").val(pool.student_price);
+                $("#editOpeningHours").val(pool.opening_hours);
+                $("#editClosingHours").val(pool.closing_hours);
+
+                new bootstrap.Modal($("#editPoolModal")).show();
+            } catch (err) {
+                console.error("Lỗi khi mở modal chỉnh sửa:", err);
+                alert("Đã xảy ra lỗi khi mở modal chỉnh sửa.");
             }
         });
-    });
 
+        // CẬP NHẬT HỒ BƠI
+        $("#editPoolForm").submit(function (e) {
+            e.preventDefault();
+            
+            let id = $("#editPoolId").val();
+            if (!id) {
+                alert("Không tìm thấy ID hồ bơi!");
+                return;
+            }
 
-        // XÓA HỒ BƠI
-        $(document).on("click", ".delete-btn", function () {
-            let poolId = $(this).data("id");
+            try {
+                // Tạo đối tượng FormData để gửi cả file ảnh (nếu có)
+                let formData = new FormData();
+                formData.append("name", $("#editPoolName").val());
+                formData.append("type", $("#editPoolType").val());
+                formData.append("house_number", $("#editHouseNumber").val());
+                formData.append("street_name", $("#editStreetName").val());
+                formData.append("ward_name", $("#editWardName").val());
+                formData.append("district_name", $("#editDistrictName").val());
+                formData.append("length", $("#editPoolLength").val());
+                formData.append("width", $("#editPoolWidth").val());
+                formData.append("depth", $("#editPoolDepth").val());
+                formData.append("children_price", $("#editChildrenPrice").val());
+                formData.append("adult_price", $("#editAdultPrice").val());
+                formData.append("student_price", $("#editStudentPrice").val());
+                formData.append("opening_hours", $("#editOpeningHours").val());
+                formData.append("closing_hours", $("#editClosingHours").val());
 
-            if (confirm("Bạn có chắc chắn muốn xóa hồ bơi này không?")) {
+                // Kiểm tra nếu có ảnh mới thì thêm vào formData
+                let imageFile = $("#editPoolImage")[0].files[0];
+                if (imageFile) {
+                    formData.append("image", imageFile);
+                }
+
                 $.ajax({
-                    type: "DELETE",
-                    url: `http://127.0.0.1:8000/api/pools/${poolId}`,
+                    type: "POST", // Sử dụng POST thay vì PATCH vì có file ảnh
+                    url: `http://127.0.0.1:8000/api/pools/${id}`,
                     headers: { "Authorization": `Bearer ${authToken}` },
+                    processData: false, // Không xử lý dữ liệu formData
+                    contentType: false, // Không đặt contentType (để tự động thiết lập kiểu multipart/form-data)
+                    data: formData,
                     success: function () {
-                        alert("Xóa hồ bơi thành công!");
+                        $("#editPoolModal").modal("hide");
+                        alert("Cập nhật hồ bơi thành công!");
                         loadPools();
                     },
                     error: function (xhr, status, error) {
-                        console.error("Lỗi khi xóa hồ bơi: ", error);
-                        alert("Đã xảy ra lỗi khi xóa hồ bơi.");
+                        console.error("Lỗi khi cập nhật hồ bơi:", error);
+                        console.log("Trạng thái:", status);
+                        console.log("Phản hồi từ server:", xhr.responseText);
+                        
+                        let errorMessage = "Đã xảy ra lỗi khi cập nhật hồ bơi.";
+                        if (xhr.status === 400) {
+                            errorMessage = "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
+                        } else if (xhr.status === 401) {
+                            errorMessage = "Bạn không có quyền thực hiện thao tác này.";
+                        } else if (xhr.status === 404) {
+                            errorMessage = "Không tìm thấy hồ bơi để cập nhật.";
+                        } else if (xhr.status === 500) {
+                            errorMessage = "Lỗi máy chủ. Vui lòng thử lại sau.";
+                        }
+
+                        alert(errorMessage);
                     }
                 });
+            } catch (err) {
+                console.error("Lỗi ngoại lệ:", err);
+                alert("Đã xảy ra lỗi không mong muốn. Vui lòng thử lại!");
+            }
+        });
+
+
+
+        // XÓA HỒ BƠI
+        $(document).on("click", ".delete-btn", async function () {
+            let poolId = $(this).data("id");
+
+            if (!poolId) {
+                alert("Không tìm thấy ID hồ bơi để xóa!");
+                return;
+            }
+
+            let isConfirmed = confirm("Bạn có chắc chắn muốn xóa hồ bơi này không?");
+            if (!isConfirmed) return;
+
+            try {
+                let response = await $.ajax({
+                    type: "DELETE",
+                    url: `http://127.0.0.1:8000/api/pools/${poolId}`,
+                    headers: { "Authorization": `Bearer ${authToken}` }
+                });
+
+                alert("Xóa hồ bơi thành công!");
+                loadPools();
+            } catch (xhr) {
+                console.error("Lỗi khi xóa hồ bơi:", xhr);
+
+                let errorMessage = "Đã xảy ra lỗi khi xóa hồ bơi.";
+                if (xhr.status === 400) {
+                    errorMessage = "Yêu cầu không hợp lệ.";
+                } else if (xhr.status === 401) {
+                    errorMessage = "Bạn không có quyền thực hiện thao tác này.";
+                } else if (xhr.status === 404) {
+                    errorMessage = "Không tìm thấy hồ bơi để xóa.";
+                } else if (xhr.status === 500) {
+                    errorMessage = "Lỗi máy chủ. Vui lòng thử lại sau.";
+                }
+
+                alert(errorMessage);
             }
         });
     });
