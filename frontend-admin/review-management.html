@@ -16,6 +16,7 @@
         <li class="nav-item"><a class="nav-link active" href="index.html">Trang Chủ</a></li>
         <li class="nav-item"><a class="nav-link" href="pool-management.html">Quản Lý Hồ Bơi</a></li>
         <li class="nav-item"><a class="nav-link" href="service-management.html">Quản Lý Dịch Vụ</a></li>
+        <li class="nav-item"><a class="nav-link" href="service-management2.html">Quản Lý Dịch Vụ Của Hồ Bơi</a></li>
         <li class="nav-item"><a class="nav-link active" href="event-management.html">Quản Lý Sự Kiện</a></li>
         <li class="nav-item"><a class="nav-link" href="facility-management.html">Quản Lý Tiện Ích</a></li>
         <li class="nav-item"><a class="nav-link" href="registration-management.html">Quản Lý Phiếu Đăng Ký</a></li>
@@ -51,6 +52,7 @@
           <th>Tên Khách Hàng</th>
           <th>Hồ Bơi</th>
           <th>Đánh Giá</th>
+          <th>Nhận Xét</th>
           <th>Ngày Đánh Giá</th>
         </tr>
       </thead>
@@ -62,6 +64,89 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/review-management.js"></script> 
+  <script>
+   $(document).ready(function() {
+    // Lưu trữ tên hồ bơi để tránh gọi lại API nhiều lần
+    let pools = {};
+
+    // Hàm để lấy tên hồ bơi dựa trên id_pool
+    const fetchPoolName = (id_pool) => {
+      // Kiểm tra xem hồ bơi đã được lấy chưa
+      if (pools[id_pool]) {
+        return pools[id_pool]; // Trả về tên hồ bơi nếu đã có trong bộ nhớ
+      }
+
+      // Nếu chưa có, gọi API để lấy thông tin hồ bơi
+      $.ajax({
+        url: `http://127.0.0.1:8000/api/pools/${id_pool}`,  // Lấy thông tin hồ bơi theo id_pool
+        method: 'GET',
+        async: false, // Đảm bảo đồng bộ để tránh gọi API nhiều lần
+        success: function(response) {
+          if (response.status === 'success') {
+            pools[id_pool] = response.data.name;  // Lưu tên hồ bơi vào bộ nhớ
+          }
+        },
+        error: function() {
+          pools[id_pool] = 'Không có tên hồ bơi';  // Nếu có lỗi, gán tên mặc định
+        }
+      });
+      return pools[id_pool];
+    };
+
+    // Hàm lấy danh sách đánh giá và hiển thị
+    const fetchReviews = () => {
+      $.ajax({
+        url: 'http://127.0.0.1:8000/api/pools/15/reviews', // Chỉnh sửa id_pool theo yêu cầu
+        method: 'GET',
+        success: function(response) {
+          if (response.status === 'success') {
+            let reviews = response.data;
+            let reviewListHtml = '';
+
+            reviews.forEach((review, index) => {
+              // Lấy tên hồ bơi theo id_pool
+              let poolName = fetchPoolName(review.id_pool);
+
+              reviewListHtml += `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td>${review.user.name}</td>
+                  <td>${poolName}</td> <!-- Hiển thị tên hồ bơi -->
+                  <td>${review.rating} / 5</td>
+                  <td>${review.comment ? review.comment : 'Không có nhận xét'}</td>
+                  <td>${new Date(review.create_at).toLocaleDateString()}</td>
+                </tr>
+              `;
+            });
+            $('#reviewList').html(reviewListHtml);
+          } else {
+            $('#reviewList').html('<tr><td colspan="6" class="text-center">Không có đánh giá nào</td></tr>'); // Cập nhật số cột thành 6
+          }
+        },
+        error: function(error) {
+          console.log(error);
+          alert('Lỗi khi tải danh sách đánh giá!');
+        }
+      });
+    };
+
+    fetchReviews();
+
+    // Tìm kiếm đánh giá
+    $('#searchReview').on('input', function() {
+      let query = $(this).val().toLowerCase();
+      $('#reviewList tr').each(function() {
+        let customerName = $(this).find('td').eq(1).text().toLowerCase();
+        let poolName = $(this).find('td').eq(2).text().toLowerCase();
+        if (customerName.includes(query) || poolName.includes(query)) {
+          $(this).show();
+        } else {
+          $(this).hide();
+        }
+      });
+    });
+  });
+
+  </script>
 </body>
 </html>
