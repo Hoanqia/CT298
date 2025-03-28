@@ -15,8 +15,9 @@
       <ul class="navbar-nav">
         <li class="nav-item"><a class="nav-link active" href="index.html">Trang Chủ</a></li>
         <li class="nav-item"><a class="nav-link" href="pool-management.html">Quản Lý Hồ Bơi</a></li>
-        <li class="nav-item"><a class="nav-link" href="service-management.html">Quản Lý Dịch Vụ</a></li>
-        <li class="nav-item"><a class="nav-link active" href="event-management.html">Quản Lý Sự Kiện</a></li>
+        <li class="nav-item"><a class="nav-link active" href="service-management.html">Quản Lý Dịch Vụ</a></li>
+        <li class="nav-item"><a class="nav-link" href="service-management2.html">Quản Lý Dịch Vụ Của Hồ Bơi</a></li>
+        <li class="nav-item"><a class="nav-link" href="event-management.html">Quản Lý Sự Kiện</a></li>
         <li class="nav-item"><a class="nav-link" href="facility-management.html">Quản Lý Tiện Ích</a></li>
         <li class="nav-item"><a class="nav-link" href="registration-management.html">Quản Lý Phiếu Đăng Ký</a></li>
         <li class="nav-item"><a class="nav-link" href="infor-customer.html">Thông Tin Khách Hàng</a></li>
@@ -42,16 +43,14 @@
     <div class="search-container mb-3">
       <input type="text" id="searchService" class="form-control" placeholder="Tìm kiếm dịch vụ...">
     </div>
-    <button class="btn btn-primary mb-3" id="addServiceBtn">Thêm Dịch Vụ</button>
+    <button class="btn btn-primary mb-3" id="addServiceBtn" data-bs-toggle="modal" data-bs-target="#addServiceModal">Thêm Dịch Vụ</button>
     
     <!-- Bảng danh sách dịch vụ -->
     <table class="table table-bordered">
       <thead>
         <tr>
           <th>STT</th>
-          <th>Tên Hồ Bơi</th>
           <th>Tên Dịch Vụ</th>
-          <th>Giá Dịch Vụ</th>
           <th>Thao Tác</th>
         </tr>
       </thead>
@@ -71,16 +70,8 @@
         <div class="modal-body">
           <form id="addServiceForm">
             <div class="mb-3">
-              <label for="poolName" class="form-label">Tên Hồ Bơi</label>
-              <input type="text" class="form-control" id="poolName" required>
-            </div>
-            <div class="mb-3">
               <label for="serviceName" class="form-label">Tên Dịch Vụ</label>
               <input type="text" class="form-control" id="serviceName" required>
-            </div>
-            <div class="mb-3">
-              <label for="servicePrice" class="form-label">Giá Dịch Vụ</label>
-              <input type="number" class="form-control" id="servicePrice" required>
             </div>
             <button type="submit" class="btn btn-primary">Lưu</button>
           </form>
@@ -91,6 +82,110 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/service-management.js"></script> 
+  <script>
+    // Hàm lấy tất cả dịch vụ và hiển thị
+    function getAllServices() {
+        $.ajax({
+            url: 'http://127.0.0.1:8000/api/services',  // Đường dẫn API để lấy danh sách dịch vụ
+            method: 'GET',
+            success: function(response) {
+                $('#serviceList').empty();
+                if (response.status === 'success') {
+                    response.data.forEach((service, index) => {
+                        $('#serviceList').append(`
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${service.name}</td>
+                                <td>
+                                    <button class="btn btn-warning" onclick="editService(${service.id_service})">Sửa</button>
+                                    <button class="btn btn-danger" onclick="deleteService(${service.id_service})">Xóa</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                } else {
+                    alert('Không có dịch vụ nào');
+                }
+            },
+            error: function() {
+                alert('Có lỗi khi lấy dữ liệu');
+            }
+        });
+    }
+
+    // Gọi hàm lấy dịch vụ khi trang được tải
+    $(document).ready(function() {
+        getAllServices();
+    });
+
+    // Thêm dịch vụ
+    $('#addServiceForm').submit(function(e) {
+        e.preventDefault();
+        var name = $('#serviceName').val();
+        var price = $('#servicePrice').val();
+        $.ajax({
+            url: 'http://127.0.0.1:8000/api/services/create',
+            method: 'POST',
+            data: { name: name, price: price },
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert('Thêm dịch vụ thành công');
+                    $('#addServiceModal').modal('hide');
+                    getAllServices();
+                } else {
+                    alert('Thêm dịch vụ thất bại');
+                }
+            },
+            error: function() {
+                alert('Có lỗi khi thêm dịch vụ');
+            }
+        });
+    });
+
+    // Sửa dịch vụ
+    function editService(id) {
+        var name = prompt('Nhập tên dịch vụ mới:');
+        var price = prompt('Nhập giá dịch vụ mới:');
+        if (name && price) {
+            $.ajax({
+                url: `http://127.0.0.1:8000/api/services/${id}`,
+                method: 'PUT',
+                data: { name: name, price: price },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert('Cập nhật dịch vụ thành công');
+                        getAllServices();
+                    } else {
+                        alert('Cập nhật dịch vụ thất bại');
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi khi cập nhật dịch vụ');
+                }
+            });
+        }
+    }
+
+    // Xóa dịch vụ
+    function deleteService(id) {
+        if (confirm('Bạn có chắc chắn muốn xóa dịch vụ này không?')) {
+            $.ajax({
+                url: `http://127.0.0.1:8000/api/services/${id}`,
+                method: 'DELETE',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert('Xóa dịch vụ thành công');
+                        getAllServices();
+                    } else {
+                        alert('Xóa dịch vụ thất bại');
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi khi xóa dịch vụ');
+                }
+            });
+        }
+    }
+  </script> 
 </body>
 </html>
