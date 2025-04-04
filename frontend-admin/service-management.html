@@ -124,11 +124,10 @@
     $('#addServiceForm').submit(function(e) {
         e.preventDefault();
         var name = $('#serviceName').val();
-        var price = $('#servicePrice').val();
         $.ajax({
             url: 'http://127.0.0.1:8000/api/services/create',
             method: 'POST',
-            data: { name: name, price: price },
+            data: { name: name },
             success: function(response) {
                 if (response.status === 'success') {
                     alert('Thêm dịch vụ thành công');
@@ -147,12 +146,11 @@
     // Sửa dịch vụ
     function editService(id) {
         var name = prompt('Nhập tên dịch vụ mới:');
-        var price = prompt('Nhập giá dịch vụ mới:');
-        if (name && price) {
+        if (name) {
             $.ajax({
                 url: `http://127.0.0.1:8000/api/services/${id}`,
                 method: 'PUT',
-                data: { name: name, price: price },
+                data: { name: name },
                 success: function(response) {
                     if (response.status === 'success') {
                         alert('Cập nhật dịch vụ thành công');
@@ -188,6 +186,7 @@
             });
         }
     }
-  </script> 
+</script>
+
 </body>
 </html>
