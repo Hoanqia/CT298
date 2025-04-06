@@ -69,6 +69,7 @@ Route::get('/utilities',[UtilityController::class,'getAll']);
     // http://127.0.0.1:8000/api/logout
     Route::get('/events',[EventController::class,'getAllofEvents']); // Lấy toàn bộ sự kiện
     Route::get('/event-registrations',[EventRegistrationController::class,'getAll']);
+    Route::get('/reviews',[ReviewController::class,'getAll']);
 });
     
 Route::get('/pools/statistics',[PoolController::class,'NumberOfPoolsByTypeInDistrict']); // tổng số lượng hồ bơi của quận - tổng số lượng hồ bơi của quận theo loại
