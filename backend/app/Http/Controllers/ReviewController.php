@@ -15,6 +15,34 @@ use Illuminate\Support\Facades\Validator;
 
 class ReviewController extends Controller
 {
+    public function getAll(){
+        $user = auth('sanctum')->user();
+        if(!$user){
+            return response()->json([
+                'message' => 'Bạn cần đăng nhập',
+                'status' => 'error',
+            ],401);
+        }
+        if($user->role !== "admin"){
+            return response()->json([
+                'message' => 'Bạn không có quyền truy cập',
+                'status' => 'error',
+            ],403);
+        }
+        $reviews = Review::all();
+        if(!$reviews->isEmpty()){
+            return response()->json([
+                'message' => 'Không có đánh giá nào trong hệ thống',
+                'status' => 'success',
+                'data' => [],
+            ],200);
+        }
+        return response()->json([
+            'message' => 'Đã lấy dữ liệu thành công',
+            'status' => 'success',
+            'data' => $reviews,
+        ],200);
+    }
     public function getReviewsOfPool($id_pool){
         $reviews = Review::with('user')->where('id_pool',$id_pool)->get();
         

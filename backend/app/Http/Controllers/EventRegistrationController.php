@@ -14,7 +14,34 @@ use App\Models\Review;
 use Illuminate\Support\Facades\Validator;
 class EventRegistrationController extends Controller
 {   
-
+    public function getAll(){
+        $user = auth('sanctum')->user();
+        if(!$user){
+            return response()->json([
+                'message' => 'Bạn cần đăng nhập',
+                'status' => 'error',
+            ],401);
+        }
+        if($user->role !== "admin"){
+            return response()->json([
+                'message' => 'Bạn không có quyền truy cập',
+                'status' => 'error',
+            ],403);
+        }
+        $pdk = EventRegistration::all();
+        if(!$pdk){
+            return response()->json([
+                'message' => 'Không có phiếu đăng ký nào trong hệ thống',
+                'status' => 'success',
+                'data' => [],
+            ],200);
+        }
+        return response()->json([
+            'message' => 'Lấy dữ liệu thành công',
+            'status' => 'success',
+            'data' => $pdk
+        ],200);
+    }
     public function getEventRegistrationsOfEvent($id_pool,$id_event){
         $user = auth('sanctum')->user();
         if(!$user){

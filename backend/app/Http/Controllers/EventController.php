@@ -242,4 +242,32 @@ class EventController extends Controller
             'status' => 'success',
         ],200);
     }
+    public function getAllofEvents(){
+        $user = auth('sanctum')->user();
+        if(!$user){
+            return response()->json([
+                'message' => 'Bạn cần đăng nhập',
+                'status' => 'error',
+            ],401);
+        }
+        if($user->role !== "admin"){
+            return response()->json([
+                'message' => 'Bạn không có quyền truy cập',
+                'status' => 'error',
+            ],403);
+        }
+        $events = Event::all();
+        if($events->isEmpty()){
+            return response()->json([
+                'message' => 'Không có sự kiện nào trong hệ thống',
+                'status' => 'success',
+                'data' => $events,
+            ],200);
+        }
+        return response()->json([
+            'message' => 'Lấy dữ liệu thành công',
+            'status' => 'success',
+            'data' => $events,
+        ],200);
+    }
 }

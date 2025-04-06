@@ -19,6 +19,19 @@ use Illuminate\Support\Facades\Log;
 class UtilityController extends Controller
 {
     public function get($id_utility){
+        $user = auth('sanctum')->user();
+    if(!$user){
+        return response()->json([
+            'message' => 'Bạn cần đăng nhập',
+            'status' => 'error',
+        ],401);
+    }
+    if($user->role !== "admin"){
+        return response()->json([
+            'message' => 'Bạn không có quyền chỉnh sửa thông tin hồ bơi',
+            'status' => 'error',
+        ],403);
+    }
         if(!is_numeric($id_utility) || $id_utility <= 0 || floor($id_utility) != $id_utility){
             return response()->json([
                 'message' => 'Dữ liệu không hợp lệ',
@@ -39,6 +52,19 @@ class UtilityController extends Controller
         ],200);
     }
     public function getAll(){
+        $user = auth('sanctum')->user();
+    if(!$user){
+        return response()->json([
+            'message' => 'Bạn cần đăng nhập',
+            'status' => 'error',
+        ],401);
+    }
+    if($user->role !== "admin"){
+        return response()->json([
+            'message' => 'Bạn không có quyền chỉnh sửa thông tin hồ bơi',
+            'status' => 'error',
+        ],403);
+    }
         $utilities = Utility::all();
         if($utilities->isEmpty()){
             return response()->json([

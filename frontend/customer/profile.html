@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin cá nhân</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+
+    <!-- Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Css -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Js -->
+    <script src="js/main.js" defer></script>
+
+    <!-- Thêm Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="index-customer.html">Quản lý hồ bơi</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index-customer.html">Trang chủ</a></li>
+                    <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-user text-white" style="font-size: 1rem;"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                        <li><a class="dropdown-item" onclick="logout()">Đăng xuất</a></li>
+                    </ul>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="row p-3">
+        <!-- Thông tin cá nhân -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form id="profileForm" onsubmit="changeInformation(event)">
+                        <h5 class="card-title">Cập nhật thông tin</h5>
+                        <div class="mb-3">
+                            <label class="form-label text-primary">Họ và tên</label>
+                            <input type="text" class="form-control" id="name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-primary">Số điện thoại</label>
+                            <input type="text" class="form-control" id="phone">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cập nhật thông
+                            tin</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Đổi mật khẩu -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Đổi mật khẩu</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label text-primary">Mật khẩu cũ</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="currentPassword">
+                            <span class="input-group-text" onclick="togglePassword('currentPassword', this)">
+                                <i class="bi bi-eye-slash"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-primary">Mật khẩu mới</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="newPassword">
+                            <span class="input-group-text" onclick="togglePassword('newPassword', this)">
+                                <i class="bi bi-eye-slash"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-primary">Xác nhận mật khẩu mới</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="confirmPassword">
+                            <span class="input-group-text" onclick="togglePassword('confirmPassword', this)">
+                                <i class="bi bi-eye-slash"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-success" onclick="changePassword()">Cập nhật mật khẩu</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sự kiện đã đăng ký & Lịch sử đánh giá -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Sự kiện đã đăng ký</h5>
+                    <ul class="list-group" id="eventList">
+                        <!-- Sự kiện sẽ được hiển thị ở đây -->
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Lịch sử đánh giá</h5>
+                    <ul class="list-group" id="reviewList">
+                        <!-- Dữ liệu đánh giá sẽ được thêm vào đây bằng JavaScript -->
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal Sửa Đánh Giá -->
+    <div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editReviewModalLabel">Sửa Đánh Giá</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editReviewForm">
+                        <!-- Lưu ID đánh giá -->
+                        <input type="hidden" id="reviewId">
+
+                        <!-- Form đánh giá -->
+                        <div class="mb-3">
+                            <label class="form-label">Đánh giá của bạn</label>
+                            <div class="star-rating">
+                                <i class="fas fa-star star" data-value="1"></i>
+                                <i class="fas fa-star star" data-value="2"></i>
+                                <i class="fas fa-star star" data-value="3"></i>
+                                <i class="fas fa-star star" data-value="4"></i>
+                                <i class="fas fa-star star" data-value="5"></i>
+                            </div>
+                            <input type="hidden" id="selectedRating" value="0">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="feedback" class="form-label">Phản hồi của bạn</label>
+                            <textarea class="form-control" id="feedback" rows="3"
+                                placeholder="Nhập đánh giá của bạn..."></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="saveReview()">Lưu thay đổi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function confirmDelete(event, button) {
+            event.preventDefault();
+            if (confirm("Bạn có chắc chắn muốn hủy đăng ký sự kiện này?")) {
+                button.closest("li").remove();
+            }
+        }
+
+        function togglePassword(fieldId, iconElement) {
+            const passwordField = document.getElementById(fieldId);
+            const icon = iconElement.querySelector("i");
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            } else {
+                passwordField.type = "password";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            }
+        }
+
+        // Rating
+        const stars = document.querySelectorAll(".star-rating .star");
+        let selectedRating = 0;
+
+        stars.forEach(star => {
+            star.addEventListener("mouseover", function () {
+                resetStars();
+                highlightStars(this.getAttribute("data-value"));
+            });
+
+            star.addEventListener("click", function () {
+                selectedRating = this.getAttribute("data-value");
+                persistSelection();
+                console.log("Đánh giá: " + selectedRating);
+            });
+
+            star.addEventListener("mouseleave", function () {
+                resetStars();
+                if (selectedRating > 0) {
+                    highlightStars(selectedRating);
+                }
+            });
+        });
+
+        function highlightStars(rating) {
+            for (let i = 0; i < rating; i++) {
+                stars[i].classList.add("hover");
+            }
+        }
+
+        function resetStars() {
+            stars.forEach(star => {
+                star.classList.remove("hover");
+            });
+        }
+
+        function persistSelection() {
+            stars.forEach(star => {
+                star.classList.remove("selected");
+            });
+            for (let i = 0; i < selectedRating; i++) {
+                stars[i].classList.add("selected");
+            }
+        }
+
+        function saveReview() {
+            const token = localStorage.getItem("authToken");
+            const reviewId = document.getElementById("reviewId").value;
+
+            const reviewText = document.getElementById("feedback").value;
+            const selectedStars = document.getElementById("selectedRating").value;
+
+            console.log("Review ID:", reviewId);
+            console.log("Review Text:", reviewText);
+            console.log("Selected Stars:", selectedStars);
+
+            if (!reviewText) {
+                alert("Vui lòng nhập nội dung đánh giá trước khi lưu!");
+                return;
+            }
+
+            if (selectedStars === "0" || selectedStars === "") {
+                alert("Vui lòng chọn số sao trước khi lưu!");
+                return;
+            }
+
+            fetch(`http://127.0.0.1:8000/api/users/reviews/${reviewId}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ comment: reviewText, rating: selectedStars })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("API Response:", data);
+                    if (data.status === "success") {
+                        alert("Cập nhật đánh giá thành công!");
+                        location.reload();
+                    } else {
+                        alert("Lỗi khi cập nhật đánh giá: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi kết nối API:", error);
+                    alert("Có lỗi xảy ra khi gửi yêu cầu.");
+                });
+        }
+
+        function logout() {
+            // Lấy thông tin người dùng từ localStorage
+            const authToken = localStorage.getItem("authToken");  // Lấy token từ "authToken"
+
+            if (!authToken) {
+                alert("Bạn chưa đăng nhập!");
+                return;  // Nếu không có token, thông báo và dừng lại
+            }
+
+            // Gửi yêu cầu POST tới API để đăng xuất
+            fetch("http://127.0.0.1:8000/api/logout", {
+                method: "POST",  // Sử dụng phương thức POST
+                headers: {
+                    "Content-Type": "application/json",  // Đảm bảo gửi dữ liệu ở dạng JSON
+                    "Authorization": `Bearer ${authToken}`  // Gửi token qua header Authorization
+                }
+            })
+                .then(response => response.json())  // Chuyển phản hồi từ server thành JSON
+                .then(data => {
+                    // Kiểm tra mã trạng thái phản hồi
+                    if (data.status === "success" || data.status === 200) {
+                        alert("Đăng xuất thành công!");
+                        // Xóa thông tin người dùng và token khỏi localStorage
+                        localStorage.removeItem("authToken");
+                        localStorage.removeItem("loggedInUser");
+                        // Chuyển hướng đến trang đăng nhập
+                        window.location.href = "login.html";
+                    } else {
+                        // Nếu có lỗi, hiển thị thông báo lỗi
+                        alert(data.message || "Có lỗi xảy ra, vui lòng thử lại!");
+                    }
+                })
+                .catch(error => {
+                    // Xử lý lỗi nếu có sự cố khi gọi API
+                    console.error("Lỗi khi gọi API logout:", error);
+                    alert("Có lỗi xảy ra, vui lòng thử lại!");
+                });
+        }
+
+        function changePassword() {
+            const currentPassword = document.getElementById("currentPassword").value.trim();
+            const newPassword = document.getElementById("newPassword").value.trim();
+            const confirmPassword = document.getElementById("confirmPassword").value.trim();
+            const token = localStorage.getItem("authToken");
+
+            console.log("🔹 Token:", token);
+            console.log("🔹 Mật khẩu cũ:", currentPassword);
+            console.log("🔹 Mật khẩu mới:", newPassword);
+            console.log("🔹 Xác nhận mật khẩu:", confirmPassword);
+
+            if (!token) {
+                alert("Bạn chưa đăng nhập! Vui lòng đăng nhập lại.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert("Mật khẩu mới phải có ít nhất 6 ký tự!");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert("Mật khẩu xác nhận không khớp!");
+                return;
+            }
+
+            $.ajax({
+                type: "PATCH",
+                url: "http://127.0.0.1:8000/api/users/update/changePassword",
+                dataType: "json",
+                contentType: "application/json",
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                data: JSON.stringify({
+                    old_password: currentPassword,
+                    new_password: newPassword,
+                    new_password_confirmation: confirmPassword
+                }),
+                success: function (response) {
+                    alert(response.message);
+                    window.location.href = "profile.html";
+                },
+                error: function (xhr) {
+                    console.error("❌ Lỗi API:", xhr.responseText);
+                    let errors = JSON.parse(xhr.responseText);
+                    alert(errors.message);
+                }
+            });
+        }
+
+        document.querySelectorAll(".star").forEach(star => {
+            star.addEventListener("click", function () {
+                let value = this.getAttribute("data-value");
+                document.getElementById("selectedRating").value = value;
+                highlightStars(value);
+            });
+        });
+
+        function changeInformation(event) {
+            event.preventDefault(); // Ngăn form reload lại trang
+
+            const name = document.getElementById("name").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const token = localStorage.getItem("authToken");
+
+            console.log("🔹 Token:", token);
+            console.log("🔹 Tên:", name);
+            console.log("🔹 SDT:", phone);
+
+            if (!token) {
+                alert("Bạn chưa đăng nhập! Vui lòng đăng nhập lại.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            if (!name || !phone) {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
+            // Kiểm tra số điện thoại (chỉ cho phép 10 chữ số)
+            const phoneRegex = /^[0-9]{10}$/;
+            if (!phoneRegex.test(phone)) {
+                alert("Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 chữ số!");
+                return;
+            }
+
+            $.ajax({
+                type: "PATCH",
+                url: "http://127.0.0.1:8000/api/users/update",
+                dataType: "json",
+                contentType: "application/json",
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                data: JSON.stringify({
+                    name: name,
+                    phone: phone
+                }),
+                success: function (response) {
+                    alert(response.message);
+                    window.location.href = "profile.html";
+                },
+                error: function (xhr) {
+                    console.error("❌ Lỗi API:", xhr.responseText);
+                    let errors = JSON.parse(xhr.responseText);
+                    alert(errors.message);
+                }
+            });
+        }
+
+        function fetchUserData() {
+            let token = localStorage.getItem("authToken"); // Lấy token từ localStorage
+
+            if (!token) {
+                console.error("Không tìm thấy token!");
+                return;
+            }
+
+            console.log(localStorage.getItem("authToken"));
+
+            fetch("http://127.0.0.1:8000/api/users/", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` // Gửi token
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Lỗi HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("name").value = data.data.name;
+                        document.getElementById("phone").value = data.data.phone;
+                    } else {
+                        console.error("Lỗi API: ", data.message);
+                    }
+                })
+                .catch(error => console.error("Lỗi kết nối API:", error));
+        }
+
+        // Gọi API khi trang tải xong
+        window.onload = function () {
+            fetchUserData();
+        };
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const eventList = document.getElementById("eventList");
+            let token = localStorage.getItem("authToken"); // Lấy token từ localStorage
+
+            fetch("http://127.0.0.1:8000/api/users/event-registrations/", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`, // Gửi token
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        eventList.innerHTML = ""; // Xóa nội dung cũ
+                        data.data.forEach(event => {
+                            const li = document.createElement("li");
+                            li.classList.add("list-group-item");
+
+                            li.innerHTML = `
+                            <strong>${event.event.name}</strong> - 
+                            ${event.event.pool.name} <br>
+                            Thời gian: ${event.event.organization_date} <br>
+                            Giá: ${event.event.price} VND
+                            <button class="btn btn-danger btn-sm float-end"
+                                onclick="confirmDelete(${event.id_ER}, this)">Hủy</button>
+                        `;
+
+                            eventList.appendChild(li);
+                        });
+                    }
+                })
+                .catch(error => console.error("Lỗi khi lấy dữ liệu:", error));
+        });
+
+        // Hàm xử lý hủy đăng ký
+        function confirmDelete(eventId, button) {
+            let token = localStorage.getItem("authToken"); // Lấy token từ localStorage
+            if (confirm("Bạn có chắc muốn hủy đăng ký sự kiện này không?")) {
+                fetch(`http://127.0.0.1:8000/api/users/event-registrations/${eventId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`, // Gửi token
+                        "Content-Type": "application/json"
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            button.parentElement.remove(); // Xóa sự kiện khỏi danh sách
+                        } else {
+                            alert("Hủy đăng ký thất bại!");
+                        }
+                    })
+                    .catch(error => console.error("Lỗi khi hủy đăng ký:", error));
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            let token = localStorage.getItem("authToken"); // Lấy token từ localStorage
+
+            fetch("http://127.0.0.1:8000/api/users/reviews", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` // Gửi token trong header
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const reviewList = document.getElementById("reviewList");
+                        reviewList.innerHTML = ""; // Xóa danh sách cũ trước khi cập nhật mới
+
+                        data.data.forEach(review => {
+                            const listItem = document.createElement("li");
+                            listItem.className = "list-group-item";
+                            listItem.innerHTML = `
+                            ${review.pool.name} - ${review.comment} - ${review.rating} sao
+                            <button class="btn btn-warning btn-sm float-end" data-bs-toggle="modal"
+                                data-bs-target="#editReviewModal" 
+                                onclick="populateModal(${review.id_review}, '${review.pool.name}', ${review.rating}, '${review.comment}')">
+                                Sửa
+                            </button>
+                        `;
+                            reviewList.appendChild(listItem);
+                        });
+                    } else {
+                        console.error("Lỗi lấy danh sách đánh giá:", data.message);
+                    }
+                })
+                .catch(error => console.error("Lỗi kết nối API:", error));
+        });
+
+        function populateModal(reviewId, poolName, rating, comment) {
+            document.getElementById("reviewId").value = reviewId; // Gán ID vào input hidden
+            document.getElementById("feedback").value = comment;  // Gán nội dung đánh giá
+
+            // Reset trạng thái sao
+            document.querySelectorAll(".star-rating .star").forEach(star => {
+                star.classList.remove("selected");
+            });
+
+            // Đánh dấu số sao đã chọn
+            for (let i = 1; i <= rating; i++) {
+                document.querySelector(`.star-rating .star[data-value="${i}"]`).classList.add("selected");
+            }
+        }
+
+
+
+    </script>
+</body>
+
+</html>
