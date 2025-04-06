@@ -638,6 +638,7 @@
                         },
                         image: pool.img,
                         distance: pool.distance_km.toFixed(2),  // Distance in km (rounded to 2 decimal places)
+                        total_cost: pool.total_cost
                     }));
 
                     // Hiển thị danh sách hồ bơi
@@ -655,6 +656,8 @@
                                         <li><strong>🧒 Trẻ em:</strong> ${pool.price.child}</li>
                                         <li><strong>🎓 Học sinh/Sinh viên:</strong> ${pool.price.student}</li>
                                     </ul>
+                                    <h6><strong>💰 Khoảng cách: ${pool.distance} km</strong></h6>
+                                    <h6><strong>💰 Tổng phí: ${pool.total_cost} VNĐ</strong></h6>
                                     <button class="btn btn-primary" onclick="displayRoute([${pool.lat}, ${pool.lng}])">📍 Hiển thị lộ trình</button>
                                 </div>
                             </div>

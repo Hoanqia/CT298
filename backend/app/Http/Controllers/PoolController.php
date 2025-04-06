@@ -273,7 +273,78 @@ public function updatePool($id_pool,Request $request){
     }
 
 }
-public function cheapPools(Request $request){
+// public function cheapPools(Request $request){
+//     $ticketType = $request->input('ticket_type');
+//     $services = $request->input('services', []);
+//     $userLat = $request->input('lat');
+//     $userLng = $request->input('lng');
+
+//     $validTicketTypes = ['children_price', 'adult_price', 'student_price'];
+//     if (!in_array($ticketType, $validTicketTypes)) {
+//         return response()->json([
+//             'status' => 'error',
+//             'message' => 'Loại vé không hợp lệ. Chỉ chấp nhận: children_price, adult_price, student_price',
+//         ], 400);
+//     }
+
+//     if (!$userLat || !$userLng) {
+//         return response()->json([
+//             'status' => 'error',
+//             'message' => 'Không tìm thấy vị trí hiện tại của người dùng',
+//         ], 400);
+//     }
+
+//     $pools = Pool::select(
+//         'pools.*',
+//         DB::raw("pools.$ticketType as ticket_price"),
+//         DB::raw("(6371 * ACOS(COS(RADIANS($userLat)) * COS(RADIANS(pools.lat)) * COS(RADIANS(pools.lng) - RADIANS($userLng))
+//          + SIN(RADIANS($userLat)) * SIN(RADIANS(pools.lat)))) AS distance_km")
+//     )
+//     ->when(!empty($services), function ($query) use ($services) {
+//         foreach ($services as $serviceId) {
+//             $query->whereHas('pool_services', function ($q) use ($serviceId) {
+//                 $q->where('id_service', $serviceId);
+//             });
+//         }
+//     })
+//     ->having('distance_km', '<', 50)
+//     ->orderBy('ticket_price', 'asc')
+//     ->orderBy('distance_km', 'asc')
+//     ->get();
+
+    
+
+//     $pools = $pools->map(function ($pool) use ($services) {
+//         // Chỉ cộng tiền của các dịch vụ yêu cầu trong JSON
+//         $totalServicePrice = 0;
+//         if (!empty($services)) {
+//             foreach ($services as $serviceId) {
+//                 $service = $pool->pool_services->firstWhere('id_service', $serviceId);
+//                 if ($service) {
+//                     $totalServicePrice += $service->price; // Cộng tiền của dịch vụ yêu cầu
+//                 }
+//             }
+//         }
+    
+//         // Cộng giá vé và giá của các dịch vụ yêu cầu
+//         $pool->total_cost = $pool->ticket_price + $totalServicePrice;
+        
+//         // Tính điểm hiệu quả (Efficiency Score)
+//         $efficiencyScore = $pool->ticket_price + ($pool->distance_km * 1); // Hệ số = 1
+//         $pool->efficiency_score = $efficiencyScore; // Lưu điểm hiệu quả vào hồ bơi
+        
+//         $pool->img = asset('storage/' . $pool->img);
+//         unset($pool->pool_services); // Xóa thông tin dịch vụ đi để trả về kết quả gọn gàng
+//         return $pool;
+//     })->sortBy('efficiency_score'); // Sắp xếp theo điểm hiệu quả
+    
+//     return response()->json([
+//         'status' => 'success',
+//         'data' => $pools->values(),
+//         'message' => 'Danh sách hồ bơi rẻ nhất đã được lấy thành công.',
+//     ], 200);
+// }
+public function cheapPools(Request $request) {
     $ticketType = $request->input('ticket_type');
     $services = $request->input('services', []);
     $userLat = $request->input('lat');
@@ -308,36 +379,8 @@ public function cheapPools(Request $request){
         }
     })
     ->having('distance_km', '<', 50)
-    ->orderBy('ticket_price', 'asc')
-    ->orderBy('distance_km', 'asc')
     ->get();
 
-    // $pools = $pools->map(function ($pool) {
-    //     $pool->total_cost = $pool->ticket_price + $pool->pool_services->sum('price');
-    //     $pool->img = asset('storage/' . $pool->img);
-    //     unset($pool->pool_services);
-    //     return $pool;
-    // })->sortBy('total_cost');
-
-    // $pools = $pools->map(function ($pool) use ($services) {
-    //     // Chỉ cộng tiền của các dịch vụ yêu cầu trong JSON
-    //     $totalServicePrice = 0;
-    //     if (!empty($services)) {
-    //         foreach ($services as $serviceId) {
-    //             $service = $pool->pool_services->firstWhere('id_service', $serviceId);
-    //             if ($service) {
-    //                 $totalServicePrice += $service->price;
-    //             }
-    //         }
-    //     }
-
-    //     // Cộng giá vé và giá của các dịch vụ yêu cầu
-    //     $pool->total_cost = $pool->ticket_price + $totalServicePrice;
-    //     $pool->img = asset('storage/' . $pool->img);
-    //     unset($pool->pool_services);
-    //     return $pool;
-    // })->sortBy('total_cost');
-    
     $pools = $pools->map(function ($pool) use ($services) {
         // Chỉ cộng tiền của các dịch vụ yêu cầu trong JSON
         $totalServicePrice = 0;
@@ -345,27 +388,34 @@ public function cheapPools(Request $request){
             foreach ($services as $serviceId) {
                 $service = $pool->pool_services->firstWhere('id_service', $serviceId);
                 if ($service) {
-                    $totalServicePrice += $service->price; // Cộng tiền của dịch vụ yêu cầu
+                    $totalServicePrice += $service->price;
                 }
             }
         }
-    
+
         // Cộng giá vé và giá của các dịch vụ yêu cầu
         $pool->total_cost = $pool->ticket_price + $totalServicePrice;
-        
-        // Tính điểm hiệu quả (Efficiency Score)
-        $efficiencyScore = $pool->ticket_price + ($pool->distance_km * 1); // Hệ số = 1
-        $pool->efficiency_score = $efficiencyScore; // Lưu điểm hiệu quả vào hồ bơi
-        
+
+        // Tính khoảng cách và điểm hiệu quả (Efficiency Score)
+        $efficiencyScore = $pool->ticket_price + ($pool->distance_km * 1);
+        $pool->efficiency_score = $efficiencyScore;
+
         $pool->img = asset('storage/' . $pool->img);
         unset($pool->pool_services); // Xóa thông tin dịch vụ đi để trả về kết quả gọn gàng
         return $pool;
-    })->sortBy('efficiency_score'); // Sắp xếp theo điểm hiệu quả
-    
+    });
+
+    // Sắp xếp theo giá vé thấp nhất và khoảng cách gần nhất
+    $pools = $pools->sortBy(function($pool) {
+        return $pool->ticket_price;  // Sắp xếp theo giá vé thấp nhất
+    })->sortBy(function($pool) {
+        return $pool->distance_km;   // Sắp xếp theo khoảng cách gần nhất
+    });
+
     return response()->json([
         'status' => 'success',
         'data' => $pools->values(),
-        'message' => 'Danh sách hồ bơi rẻ nhất đã được lấy thành công.',
+        'message' => 'Danh sách hồ bơi rẻ nhất và gần nhất đã được lấy thành công.',
     ], 200);
 }
 
