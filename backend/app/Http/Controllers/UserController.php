@@ -190,4 +190,36 @@ class UserController extends Controller
             'data' => $user
         ],200);
     }
+    public function getAllOfUsers(){
+        $user = auth('sanctum')->user();
+        if(!$user){
+            return response()->json([
+                'message' => 'Bạn chưa đăng nhập',
+                'status' => 'error',
+            ],401);
+        }
+        if($user->role !== "admin"){
+            return response()->json([
+                'message' => 'Bạn không có quyền truy cập',
+                'status' => 'error',
+            ],403);
+        }
+        $users = User::all();
+        if($users->isEmpty()){
+            return response()->json([
+                'message' => 'Chưa có người dùng nào trong hệ thống',
+                'status' => 'success',
+                'data' => [],
+            ],200);
+        }
+        $users = $users->map(function($user){
+            $user->makeHidden('password');
+            return $user;
+        });
+        return response()->json([
+            'message' => 'Lấy danh sách người dùng thành công',
+            'status' => 'success',
+            'data' => $users,
+        ],200);
+    }
 }

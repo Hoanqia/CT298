@@ -43,6 +43,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // http://127.0.0.1:8000/api/users/reviews/4
 
     Route::get('/users/reviews',[ReviewController::class,'getReviewsOfUser']); // lịch sử đánh giá của user
+    Route::get('/users/list',[UserController::class,'getAllOfUsers']);
     // http://127.0.0.1:8000/api/users/reviews
     Route::delete('/pools/{id_pool}/events/{id_event}',[EventController::class,'destroy']); // xóa sự kiện của hồ bơi
     Route::patch('/pools/{id_pool}/events/{id_event}',[EventController::class,'updateEvent']); // Cập nhật sự kiện 
