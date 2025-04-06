@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản Lý Dịch Vụ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- Thanh điều hướng -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Quản Lý Dịch Vụ</a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link active" href="index.html">Trang Chủ</a></li>
+        <li class="nav-item"><a class="nav-link" href="pool-management.html">Quản Lý Hồ Bơi</a></li>
+        <li class="nav-item"><a class="nav-link active" href="service-management.html">Quản Lý Dịch Vụ</a></li>
+        <!-- <li class="nav-item"><a class="nav-link" href="service-management2.html">Quản Lý Dịch Vụ Của Hồ Bơi</a></li> -->
+        <li class="nav-item"><a class="nav-link" href="event-management.html">Quản Lý Sự Kiện</a></li>
+        <li class="nav-item"><a class="nav-link" href="facility-management.html">Quản Lý Tiện Ích</a></li>
+        <li class="nav-item"><a class="nav-link" href="eventregistrations.html">Quản Lý Phiếu Đăng Ký</a></li>
+        <li class="nav-item"><a class="nav-link" href="infor-customer.html">Thông Tin Khách Hàng</a></li>
+        <li class="nav-item"><a class="nav-link" href="review-management.html">Đánh Giá Khách Hàng</a></li>
+        <li class="nav-item"><a class="nav-link" href="statistics.html">Thống kê</a></li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <img src="img/admin.jpg" alt="Admin" class="rounded-circle"
+              style="width: 30px; height: 30px; margin-right: 8px;">
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+            <li><a class="dropdown-item" href="profile.html">Hồ Sơ</a></li>
+            <li><a class="dropdown-item text-danger" href="logout.html">Đăng Xuất</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container mt-5">
+    <h2>Danh Sách Dịch Vụ</h2>
+    <div class="search-container mb-3">
+      <input type="text" id="searchService" class="form-control" placeholder="Tìm kiếm dịch vụ...">
+    </div>
+    <button class="btn btn-primary mb-3" id="addServiceBtn" data-bs-toggle="modal"
+      data-bs-target="#addServiceModal">Thêm Dịch Vụ</button>
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Tên Dịch Vụ</th>
+          <th>Thao Tác</th>
+        </tr>
+      </thead>
+      <tbody id="serviceList"></tbody>
+    </table>
+  </div>
+
+  <!-- Modal Thêm Dịch Vụ -->
+  <div class="modal fade" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addServiceModalLabel">Thêm Dịch Vụ Mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addServiceForm">
+            <div class="mb-3">
+              <label for="serviceName" class="form-label">Tên Dịch Vụ</label>
+              <input type="text" class="form-control" id="serviceName" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Lưu</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Sửa Dịch Vụ -->
+  <div class="modal fade" id="editServiceModal" tabindex="-1" aria-labelledby="editServiceModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editServiceModalLabel">Sửa Dịch Vụ</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editServiceForm">
+            <input type="hidden" id="editServiceId">
+            <div class="mb-3">
+              <label for="editServiceName" class="form-label">Tên Dịch Vụ</label>
+              <input type="text" class="form-control" id="editServiceName" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Cập Nhật</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let authToken = localStorage.getItem("authToken");
+
+    function getAllServices(searchQuery = "") {
+      $.ajax({
+        url: `http://127.0.0.1:8000/api/services`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        success: function (response) {
+          $('#serviceList').empty();
+          if (response.status === 'success') {
+            let filteredData = response.data;
+            if (searchQuery) {
+              filteredData = filteredData.filter(service =>
+                service.name.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+            }
+            if (filteredData.length === 0) {
+              $('#serviceList').append(`<tr><td colspan="3">Không tìm thấy dịch vụ.</td></tr>`);
+            } else {
+              filteredData.forEach((service, index) => {
+                $('#serviceList').append(`
+                  <tr>
+                    <td>${index + 1}</td>
+                    <td>${service.name}</td>
+                    <td>
+                      <button class="btn btn-warning btn-sm" onclick="editService(${service.id_service})">Sửa</button>
+                      <button class="btn btn-danger btn-sm" onclick="deleteService(${service.id_service})">Xóa</button>
+                    </td>
+                  </tr>
+                `);
+              });
+            }
+          }
+        },
+        error: function () {
+          alert("Không thể lấy dữ liệu dịch vụ.");
+        }
+      });
+    }
+
+    $(document).ready(function () {
+      getAllServices();
+
+      $('#searchService').on('input', function () {
+        const query = $(this).val();
+        getAllServices(query);
+      });
+
+      $('#addServiceForm').submit(function (e) {
+        e.preventDefault();
+        const name = $('#serviceName').val().trim();
+
+        if (!name) {
+          alert("Vui lòng nhập tên dịch vụ.");
+          return;
+        }
+
+        $.ajax({
+          url: 'http://127.0.0.1:8000/api/services/create',
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+          data: { name },
+          success: function (response) {
+            if (response.status === 'success') {
+              alert('Thêm dịch vụ thành công!');
+              $('#addServiceModal').modal('hide');
+              $('#addServiceForm')[0].reset();
+              getAllServices();
+            } else {
+              alert('Thêm thất bại: ' + (response.message || ''));
+            }
+          },
+          error: function () {
+            alert('Có lỗi khi thêm dịch vụ.');
+          }
+        });
+      });
+
+      $('#editServiceForm').submit(function (e) {
+        e.preventDefault();
+        const id = $('#editServiceId').val();
+        const newName = $('#editServiceName').val().trim();
+
+        if (!newName) {
+          alert("Vui lòng nhập tên dịch vụ.");
+          return;
+        }
+
+        $.ajax({
+          url: `http://127.0.0.1:8000/api/services/${id}`,
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+          data: { name: newName },
+          success: function (response) {
+            if (response.status === 'success') {
+              alert("Cập nhật thành công!");
+              $('#editServiceModal').modal('hide');
+              getAllServices();
+            } else {
+              alert("Cập nhật thất bại!");
+            }
+          },
+          error: function () {
+            alert("Có lỗi khi cập nhật.");
+          }
+        });
+      });
+    });
+
+    function editService(id) {
+      $.ajax({
+        url: `http://127.0.0.1:8000/api/services/${id}`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        success: function (response) {
+          if (response.status === 'success') {
+            const service = response.data;
+            $('#editServiceId').val(service.id_service);
+            $('#editServiceName').val(service.name);
+            $('#editServiceModal').modal('show');
+          } else {
+            alert("Không tìm thấy dịch vụ.");
+          }
+        },
+        error: function () {
+          alert("Lỗi khi lấy thông tin dịch vụ.");
+        }
+      });
+    }
+
+    function deleteService(id) {
+      if (confirm("Bạn có chắc muốn xóa dịch vụ này không?")) {
+        $.ajax({
+          url: `http://127.0.0.1:8000/api/services/${id}`,
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+          success: function (response) {
+            if (response.status === 'success') {
+              alert("Xóa thành công!");
+              getAllServices();
+            } else {
+              alert("Xóa thất bại!");
+            }
+          },
+          error: function () {
+            alert("Có lỗi khi xóa.");
+          }
+        });
+      }
+    }
+  </script>
+</body>
+
+</html>

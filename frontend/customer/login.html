@@ -85,7 +85,9 @@
 
                                 window.location.href = "index-customer.html"; // Chuyển hướng khách hàng
                             } else {
-                                window.location.href = "index-admin.html"; // Chuyển hướng admin
+                                // Lưu token vào localStorage
+                                localStorage.setItem("authToken", body.token);
+                                window.location.href = "../admin/index.html"; // Chuyển hướng admin
                             }
                         } else if (status === 422) {
                             // Lỗi validate dữ liệu
