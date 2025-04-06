@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 
 class ServiceController extends Controller
 {
+   
     public function store(Request $request){
         $user = auth('sanctum')->user();
         if(!$user){

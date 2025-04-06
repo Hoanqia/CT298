@@ -312,13 +312,56 @@ public function cheapPools(Request $request){
     ->orderBy('distance_km', 'asc')
     ->get();
 
-    $pools = $pools->map(function ($pool) {
-        $pool->total_cost = $pool->ticket_price + $pool->pool_services->sum('price');
-        $pool->img = asset('storage/' . $pool->img);
-        unset($pool->pool_services);
-        return $pool;
-    })->sortBy('total_cost');
+    // $pools = $pools->map(function ($pool) {
+    //     $pool->total_cost = $pool->ticket_price + $pool->pool_services->sum('price');
+    //     $pool->img = asset('storage/' . $pool->img);
+    //     unset($pool->pool_services);
+    //     return $pool;
+    // })->sortBy('total_cost');
 
+    // $pools = $pools->map(function ($pool) use ($services) {
+    //     // Chỉ cộng tiền của các dịch vụ yêu cầu trong JSON
+    //     $totalServicePrice = 0;
+    //     if (!empty($services)) {
+    //         foreach ($services as $serviceId) {
+    //             $service = $pool->pool_services->firstWhere('id_service', $serviceId);
+    //             if ($service) {
+    //                 $totalServicePrice += $service->price;
+    //             }
+    //         }
+    //     }
+
+    //     // Cộng giá vé và giá của các dịch vụ yêu cầu
+    //     $pool->total_cost = $pool->ticket_price + $totalServicePrice;
+    //     $pool->img = asset('storage/' . $pool->img);
+    //     unset($pool->pool_services);
+    //     return $pool;
+    // })->sortBy('total_cost');
+    
+    $pools = $pools->map(function ($pool) use ($services) {
+        // Chỉ cộng tiền của các dịch vụ yêu cầu trong JSON
+        $totalServicePrice = 0;
+        if (!empty($services)) {
+            foreach ($services as $serviceId) {
+                $service = $pool->pool_services->firstWhere('id_service', $serviceId);
+                if ($service) {
+                    $totalServicePrice += $service->price; // Cộng tiền của dịch vụ yêu cầu
+                }
+            }
+        }
+    
+        // Cộng giá vé và giá của các dịch vụ yêu cầu
+        $pool->total_cost = $pool->ticket_price + $totalServicePrice;
+        
+        // Tính điểm hiệu quả (Efficiency Score)
+        $efficiencyScore = $pool->ticket_price + ($pool->distance_km * 1); // Hệ số = 1
+        $pool->efficiency_score = $efficiencyScore; // Lưu điểm hiệu quả vào hồ bơi
+        
+        $pool->img = asset('storage/' . $pool->img);
+        unset($pool->pool_services); // Xóa thông tin dịch vụ đi để trả về kết quả gọn gàng
+        return $pool;
+    })->sortBy('efficiency_score'); // Sắp xếp theo điểm hiệu quả
+    
     return response()->json([
         'status' => 'success',
         'data' => $pools->values(),
