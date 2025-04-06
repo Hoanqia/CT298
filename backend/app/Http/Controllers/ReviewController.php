@@ -30,7 +30,7 @@ class ReviewController extends Controller
             ],403);
         }
         $reviews = Review::all();
-        if(!$reviews->isEmpty()){
+        if($reviews->isEmpty()){
             return response()->json([
                 'message' => 'Không có đánh giá nào trong hệ thống',
                 'status' => 'success',
