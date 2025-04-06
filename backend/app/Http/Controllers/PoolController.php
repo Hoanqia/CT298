@@ -300,30 +300,32 @@ public function cheapPools(Request $request){
         DB::raw("(6371 * ACOS(COS(RADIANS($userLat)) * COS(RADIANS(pools.lat)) * COS(RADIANS(pools.lng) - RADIANS($userLng))
          + SIN(RADIANS($userLat)) * SIN(RADIANS(pools.lat)))) AS distance_km")
     )
-    ->with(['pool_services' => function ($query) use ($services) {
-        if (!empty($services)) {
-            $query->whereIn('id_service', $services);
+    ->when(!empty($services), function ($query) use ($services) {
+        foreach ($services as $serviceId) {
+            $query->whereHas('pool_services', function ($q) use ($serviceId) {
+                $q->where('id_service', $serviceId);
+            });
         }
-    }])
+    })
     ->having('distance_km', '<', 50)
     ->orderBy('ticket_price', 'asc')
     ->orderBy('distance_km', 'asc')
     ->get();
 
-    $pools = $pools->map(function ($pool) use ($services) {
-        $filteredServiceCost = $pool->pool_services->sum('price');
-        $pool->total_cost = $pool->ticket_price + $filteredServiceCost; 
+    $pools = $pools->map(function ($pool) {
+        $pool->total_cost = $pool->ticket_price + $pool->pool_services->sum('price');
         $pool->img = asset('storage/' . $pool->img);
-        unset($pool->pool_services); 
+        unset($pool->pool_services);
         return $pool;
-    });
-    $pools = $pools->sortBy('total_cost');
+    })->sortBy('total_cost');
+
     return response()->json([
         'status' => 'success',
-        'data' => $pools,
+        'data' => $pools->values(),
         'message' => 'Danh sách hồ bơi rẻ nhất đã được lấy thành công.',
     ], 200);
 }
+
 public function destroy($id_pool){
     $user = auth('sanctum')->user();
     if(!$user){
