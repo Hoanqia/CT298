@@ -65,9 +65,10 @@ Route::patch('/utilities/{id_utility}',[UtilityController::class,'update']);
 Route::delete('/utilities/{id_utility}',[UtilityController::class,'destroy']);
 Route::post('/utilities',[UtilityController::class,'store']);
 Route::get('/utilities',[UtilityController::class,'getAll']);
-
     Route::post('/logout',[UserController::class,'logout']); // Người dùng đăng xuất 
     // http://127.0.0.1:8000/api/logout
+    Route::get('/events',[EventController::class,'getAllofEvents']); // Lấy toàn bộ sự kiện
+    Route::get('/event-registrations',[EventRegistrationController::class,'getAll']);
 });
     
 Route::get('/pools/statistics',[PoolController::class,'NumberOfPoolsByTypeInDistrict']); // tổng số lượng hồ bơi của quận - tổng số lượng hồ bơi của quận theo loại
