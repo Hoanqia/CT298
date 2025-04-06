@@ -84,8 +84,10 @@
                                 localStorage.setItem("loggedInUser", JSON.stringify(user));
 
                                 window.location.href = "index-customer.html"; // Chuyển hướng khách hàng
-                            } else {
-                                window.location.href = "index-admin.html"; // Chuyển hướng admin
+                            } else if (user.role === "admin") {
+                                localStorage.setItem("authToken", body.token);
+                                localStorage.setItem("loggedInUser", JSON.stringify(user));
+                                window.location.href = "http://127.0.0.1:5501/frontend/admin/index.html";
                             }
                         } else if (status === 422) {
                             // Lỗi validate dữ liệu

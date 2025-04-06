@@ -153,8 +153,14 @@ class PoolController extends Controller
     }
   
 public function createPool(Request $request){
-        // Kiểm tra dữ liệu đầu vào
-        $validatedData = $request->validate([
+    $user = auth('sanctum')->user();
+    if(!$user){
+        return response()->json([
+            'message' => 'Bạn cần đăng nhập',
+            'status' => 'error',
+        ],401);
+    }        
+    $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'house_number' => 'required|integer',
             'id_street' => 'required|exists:streets,id_street',
