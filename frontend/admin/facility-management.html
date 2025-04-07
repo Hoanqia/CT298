@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,164 +7,257 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
+    <!-- Thanh điều hướng -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Quản Lý Tiện Ích</a>
+        <a class="navbar-brand" href="#">Danh Sách Phiếu Đăng Ký Sự Kiện</a>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link active" href="index.html">Trang Chủ</a></li>
-                <li class="nav-item"><a class="nav-link" href="pool-management.html">Quản Lý Hồ Bơi</a></li>
-                <li class="nav-item"><a class="nav-link" href="service-management.html">Quản Lý Dịch Vụ</a></li>
-                <!-- <li class="nav-item"><a class="nav-link" href="service-management2.html">Quản Lý Dịch Vụ Của Hồ Bơi</a></li> -->
-                <li class="nav-item"><a class="nav-link active" href="event-management.html">Quản Lý Sự Kiện</a></li>
-                <li class="nav-item"><a class="nav-link" href="facility-management.html">Quản Lý Tiện Ích</a></li>
-                <li class="nav-item"><a class="nav-link" href="eventregistrations.html">Quản Lý Phiếu Đăng Ký</a></li>
-                <li class="nav-item"><a class="nav-link" href="infor-customer.html">Thông Tin Khách Hàng</a></li>
-                <li class="nav-item"><a class="nav-link" href="review-management.html">Đánh Giá Khách Hàng</a></li>
-                <li class="nav-item"><a class="nav-link" href="statistics.html">Thống kê</a></li>
-            </ul>
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="img/admin.jpg" alt="Admin" class="rounded-circle"
-                            style="width: 30px; height: 30px; margin-right: 8px;">
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
-                        <li><a class="dropdown-item" href="profile.html">Hồ Sơ</a></li>
-                        <li><a class="dropdown-item text-danger" href="logout.html">Đăng Xuất</a></li>
-                    </ul>
-                </li>
-            </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link active" href="index.html">Trang Chủ</a></li>
+            <li class="nav-item"><a class="nav-link" href="pool-management.html">Quản Lý Hồ Bơi</a></li>
+            <li class="nav-item"><a class="nav-link" href="service-management.html">Quản Lý Dịch Vụ</a></li>
+            <li class="nav-item"><a class="nav-link active" href="event-management.html">Quản Lý Sự Kiện</a></li>
+            <li class="nav-item"><a class="nav-link" href="facility-management.html">Quản Lý Tiện Ích</a></li>
+            <li class="nav-item"><a class="nav-link" href="eventregistrations.html">Quản Lý Phiếu Đăng Ký</a></li>
+            <li class="nav-item"><a class="nav-link" href="infor-customer.html">Thông Tin Khách Hàng</a></li>
+            <li class="nav-item"><a class="nav-link" href="review-management.html">Quản Lý Thông Tin Người Dùng</a></li>
+            <li class="nav-item"><a class="nav-link" href="statistics.html">Thống kê</a></li>
+          </ul>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <img src="img/admin.jpg" alt="Admin" class="rounded-circle"
+                  style="width: 30px; height: 30px; margin-right: 8px;">
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                <li><a class="dropdown-item" href="profile.html">Hồ Sơ</a></li>
+                <li><a class="dropdown-item text-danger" href="logout.html">Đăng Xuất</a></li>
+              </ul>
+            </li>
+          </ul>
         </div>
-    </nav>
+      </nav>
 
-    <div class="container mt-4">
-        <h2>Quản Lý Tiện Ích</h2>
-        <input type="text" id="searchInput" class="form-control my-3" placeholder="Nhập tên tiện ích để tìm...">
-        <button class="btn btn-primary" onclick="showAddModal()">Thêm Tiện Ích</button>
-        <table class="table mt-3">
+    <div class="container mt-5">
+        <h2>Danh Sách Tiện Ích</h2>
+        <div class="search-container mb-3">
+            <input type="text" id="searchUtility" class="form-control" placeholder="Tìm kiếm tiện ích...">
+        </div>
+        <button class="btn btn-primary mb-3" id="addUtilityBtn" data-bs-toggle="modal" data-bs-target="#addUtilityModal">Thêm Tiện Ích</button>
+        <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>STT</th>
                     <th>Tên Tiện Ích</th>
-                    <th>Hồ Bơi</th>
-                    <th>Hành Động</th>
+                    <th>Thao Tác</th>
                 </tr>
             </thead>
-            <tbody id="facilityList"></tbody>
+            <tbody id="utilityList"></tbody>
         </table>
     </div>
 
-    <div id="facilityModal" class="modal" tabindex="-1">
+    <!-- Modal Thêm Tiện Ích -->
+    <div class="modal fade" id="addUtilityModal" tabindex="-1" aria-labelledby="addUtilityModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Thêm Tiện Ích</h5>
-                    <button type="button" class="btn-close" onclick="hideModal()"></button>
+                    <h5 class="modal-title" id="addUtilityModalLabel">Thêm Tiện Ích Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="facilityId">
-                    <label>Tên Tiện Ích:</label>
-                    <input type="text" id="facilityName" class="form-control">
-                    <label>Hồ Bơi:</label>
-                    <input type="number" id="poolId" class="form-control">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="hideModal()">Hủy</button>
-                    <button type="button" class="btn btn-primary" onclick="saveFacility()">Lưu</button>
+                    <form id="addUtilityForm">
+                        <div class="mb-3">
+                            <label for="utilityName" class="form-label">Tên Tiện Ích</label>
+                            <input type="text" class="form-control" id="utilityName" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Lưu</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal Sửa Tiện Ích -->
+    <div class="modal fade" id="editUtilityModal" tabindex="-1" aria-labelledby="editUtilityModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUtilityModalLabel">Sửa Tiện Ích</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUtilityForm">
+                        <input type="hidden" id="editUtilityId">
+                        <div class="mb-3">
+                            <label for="editUtilityName" class="form-label">Tên Tiện Ích</label>
+                            <input type="text" class="form-control" id="editUtilityName" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cập Nhật</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const apiUrl = "http://127.0.0.1:8000/api/pools/15/utilities/";
-        const authToken = localStorage.getItem("authToken");
+        let authToken = localStorage.getItem("authToken");
 
-        // Hàm fetch dùng chung có token
-        function fetchWithToken(url, options = {}) {
-            options.headers = {
-                ...options.headers,
-                Authorization: `Bearer ${authToken}`
-            };
-            return fetch(url, options);
-        }
-
-        function fetchFacilities() {
-            fetchWithToken(apiUrl)
-                .then(res => res.json())
-                .then(data => {
-                    let html = "";
-                    data.data.forEach(facility => {
-                        html += `<tr>
-                            <td>${facility.id_pu}</td>
-                            <td>${facility.utility.name}</td>
-                            <td>${facility.id_pool}</td>
-                            <td>
-                                <button class='btn btn-warning' onclick='editFacility(${JSON.stringify(facility)})'>Sửa</button>
-                                <button class='btn btn-danger' onclick='deleteFacility(${facility.id_pu})'>Xóa</button>
-                            </td>
-                        </tr>`;
-                    });
-                    document.getElementById("facilityList").innerHTML = html;
-                });
-        }
-
-        function showAddModal() {
-            document.getElementById("modalTitle").innerText = "Thêm Tiện Ích";
-            document.getElementById("facilityId").value = "";
-            document.getElementById("facilityName").value = "";
-            document.getElementById("poolId").value = "";
-            document.getElementById("facilityModal").style.display = "block";
-        }
-
-        function editFacility(facility) {
-            document.getElementById("modalTitle").innerText = "Chỉnh Sửa Tiện Ích";
-            document.getElementById("facilityId").value = facility.id_pu;
-            document.getElementById("facilityName").value = facility.utility.name;
-            document.getElementById("poolId").value = facility.id_pool;
-            document.getElementById("facilityModal").style.display = "block";
-        }
-
-        function saveFacility() {
-            const facilityData = {
-                name: document.getElementById("facilityName").value,
-                id_pool: document.getElementById("poolId").value
-            };
-
-            const id = document.getElementById("facilityId").value;
-            const method = id ? "PATCH" : "POST";
-            const url = id ? `${apiUrl}${id}` : `${apiUrl}create`;
-
-            fetchWithToken(url, {
-                method: method,
+        function getAllUtilities(searchQuery = "") {
+            $.ajax({
+                url: `http://127.0.0.1:8000/api/utilities`,
+                method: 'GET',
                 headers: {
-                    "Content-Type": "application/json"
+                    Authorization: `Bearer ${authToken}`,
                 },
-                body: JSON.stringify(facilityData)
-            }).then(() => {
-                hideModal();
-                fetchFacilities();
+                success: function (response) {
+                    $('#utilityList').empty();
+                    if (response.status === 'success') {
+                        let filteredData = response.data;
+                        if (searchQuery) {
+                            filteredData = filteredData.filter(utility => utility.name.toLowerCase().includes(searchQuery.toLowerCase()));
+                        }
+                        if (filteredData.length === 0) {
+                            $('#utilityList').append(`<tr><td colspan="3">Không tìm thấy tiện ích.</td></tr>`);
+                        } else {
+                            filteredData.forEach((utility, index) => {
+                                $('#utilityList').append(`
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${utility.name}</td>
+                                        <td>
+                                            <button class="btn btn-warning btn-sm" onclick="editUtility(${utility.id_utility})">Sửa</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteUtility(${utility.id_utility})">Xóa</button>
+                                        </td>
+                                    </tr>
+                                `);
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    alert("Không thể lấy dữ liệu tiện ích.");
+                }
             });
         }
 
-        function deleteFacility(id) {
-            if (confirm("Bạn có chắc muốn xóa tiện ích này?")) {
-                fetchWithToken(`${apiUrl}${id}`, {
-                    method: "DELETE"
-                }).then(() => fetchFacilities());
+        $(document).ready(function () {
+            getAllUtilities();
+
+            $('#searchUtility').on('input', function () {
+                const query = $(this).val();
+                getAllUtilities(query);
+            });
+
+            $('#addUtilityForm').submit(function (e) {
+                e.preventDefault();
+                const name = $('#utilityName').val().trim();
+                if (!name) {
+                    alert("Vui lòng nhập tên tiện ích.");
+                    return;
+                }
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/api/utilities',
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                    data: { name },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            alert('Thêm tiện ích thành công!');
+                            $('#addUtilityModal').modal('hide');
+                            $('#addUtilityForm')[0].reset();
+                            getAllUtilities();
+                        } else {
+                            alert('Thêm thất bại: ' + (response.message || ''));
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi khi thêm tiện ích.');
+                    }
+                });
+            });
+
+            $('#editUtilityForm').submit(function (e) {
+                e.preventDefault();
+                const id = $('#editUtilityId').val();
+                const newName = $('#editUtilityName').val().trim();
+                if (!newName) {
+                    alert("Vui lòng nhập tên tiện ích.");
+                    return;
+                }
+                $.ajax({
+                    url: `http://127.0.0.1:8000/api/utilities/${id}`,
+                    method: 'PATCH',
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                    data: { name: newName },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            alert("Cập nhật thành công!");
+                            $('#editUtilityModal').modal('hide');
+                            getAllUtilities();
+                        } else {
+                            alert("Cập nhật thất bại!");
+                        }
+                    },
+                    error: function () {
+                        alert("Có lỗi khi cập nhật.");
+                    }
+                });
+            });
+        });
+
+        function editUtility(id) {
+            $.ajax({
+                url: `http://127.0.0.1:8000/api/utilities/${id}`,
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+                success: function (response) {
+                    if (response.status === 'success') {
+                        const utility = response.data;
+                        $('#editUtilityId').val(utility.id_utility);
+                        $('#editUtilityName').val(utility.name);
+                        $('#editUtilityModal').modal('show');
+                    } else {
+                        alert("Không tìm thấy tiện ích.");
+                    }
+                },
+                error: function () {
+                    alert("Lỗi khi lấy thông tin tiện ích.");
+                }
+            });
+        }
+
+        function deleteUtility(id) {
+            if (confirm("Bạn có chắc muốn xóa tiện ích này không?")) {
+                $.ajax({
+                    url: `http://127.0.0.1:8000/api/utilities/${id}`,
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            alert("Xóa thành công!");
+                            getAllUtilities();
+                        } else {
+                            alert("Xóa thất bại!");
+                        }
+                    },
+                    error: function () {
+                        alert("Có lỗi khi xóa.");
+                    }
+                });
             }
         }
-
-        function hideModal() {
-            document.getElementById("facilityModal").style.display = "none";
-        }
-
-        // Load danh sách tiện ích khi trang load
-        fetchFacilities();
     </script>
 </body>
-
 </html>
