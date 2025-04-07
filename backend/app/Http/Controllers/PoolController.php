@@ -393,7 +393,7 @@ public function cheapPools(Request $request) {
             });
         }
     })
-    ->having('distance_km', '<', 900)
+    ->having('distance_km', '<', 50)
     ->get();
 
     $pools = $pools->map(function ($pool) use ($services) {
