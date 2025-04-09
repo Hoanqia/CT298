@@ -12,139 +12,146 @@
 <body>
   <!-- Thanh điều hướng -->
   <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-    <a class="navbar-brand" href="#">Quản Lý Hồ Bơi Thành Phố</a>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link active" href="index.html">Trang Chủ</a></li>
-        <li class="nav-item"><a class="nav-link" href="pool-management.html">Quản Lý Hồ Bơi</a></li>
-        <li class="nav-item"><a class="nav-link" href="service-management.html">Quản Lý Dịch Vụ</a></li>
-        <!-- <li class="nav-item"><a class="nav-link" href="service-management2.html">Quản Lý Dịch Vụ Của Hồ Bơi</a></li> -->
-        <li class="nav-item"><a class="nav-link" href="event-management.html">Quản Lý Sự Kiện</a></li>
-        <li class="nav-item"><a class="nav-link" href="facility-management.html">Quản Lý Tiện Ích</a></li>
-        <li class="nav-item"><a class="nav-link" href="eventregistrations.html">Quản Lý Phiếu Đăng Ký</a></li>
-        <li class="nav-item"><a class="nav-link" href="infor-customer.html">Quản Lý Thông Tin Người Dùng</a></li>
-        <li class="nav-item"><a class="nav-link" href="review-management.html">Đánh Giá</a></li>
-        <li class="nav-item"><a class="nav-link" href="statistics.html">Thống kê</a></li>
-      </ul>
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Quản Lý Hồ Bơi Thành Phố</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown"
-            aria-expanded="false">
-            <img src="img/admin.jpg" alt="Admin" class="rounded-circle"
-              style="width: 30px; height: 30px; margin-right: 8px;">
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
-            <!-- <li><a class="dropdown-item" href="profile.html">Hồ Sơ</a></li> -->
-            <li><a class="dropdown-item text-danger" onclick="logout()">Đăng Xuất</a></li>
-          </ul>
-        </li>
-      </ul>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link active" href="index.html">Trang Chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="pool-management.html">Hồ Bơi</a></li>
+          <li class="nav-item"><a class="nav-link" href="service-management.html">Dịch Vụ</a></li>
+          <li class="nav-item"><a class="nav-link" href="service-pools.html">Dịch Vụ Của Hồ Bơi</a></li>
+          <li class="nav-item"><a class="nav-link" href="event-management.html">Sự Kiện</a></li>
+          <li class="nav-item"><a class="nav-link" href="facility-management.html">Tiện Ích</a></li>
+          <li class="nav-item"><a class="nav-link" href="facility-pools.html">Tiện Ích Của Hồ Bơi</a></li>
+          <li class="nav-item"><a class="nav-link" href="eventregistrations.html">Phiếu Đăng Ký</a></li>
+          <li class="nav-item"><a class="nav-link" href="infor-customer.html">Thông Tin Người Dùng</a></li>
+          <li class="nav-item"><a class="nav-link" href="review-management.html">Đánh Giá</a></li>
+          <li class="nav-item"><a class="nav-link" href="statistics.html">Thống kê</a></li>
+        </ul>
+
+        <!-- Dropdown Admin -->
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <img src="img/admin.jpg" alt="Admin" class="rounded-circle"
+                style="width: 30px; height: 30px; margin-right: 8px;">
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+              <li><a class="dropdown-item text-danger" onclick="logout()">Đăng Xuất</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
     </div>
   </nav>
 
+  <!-- Nội dung chính -->
   <div class="container mt-5 pt-5">
     <h1 class="text-center mt-3 mb-5">Chào Mừng Đến Với Hệ Thống Quản Lý Hồ Bơi</h1>
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
-      <!-- Quản Lý Hồ Bơi -->
+      <!-- Card Item -->
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <h5 class="card-title">Quản Lý Hồ Bơi</h5>
+            <h5 class="card-title">Hồ Bơi</h5>
             <p class="card-text">Quản lý các hồ bơi trong thành phố, cập nhật và kiểm tra các hồ bơi hiện có.</p>
             <a href="pool-management.html" class="btn btn-primary">Xem Chi Tiết</a>
           </div>
         </div>
       </div>
 
-      <!-- Quản Lý Dịch Vụ -->
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <h5 class="card-title">Quản Lý Dịch Vụ</h5>
+            <h5 class="card-title">Dịch Vụ</h5>
             <p class="card-text">Quản lý các dịch vụ hồ bơi, các dịch vụ hỗ trợ người tham gia.</p>
             <a href="service-management.html" class="btn btn-primary">Xem Chi Tiết</a>
           </div>
         </div>
       </div>
 
-      <!-- Quản Lý Dịch Vụ Của Hồ Bơi -->
-      <!-- <div class="col">
-        <div class="card">
+      <div class="col">
+        <div class="card h-100">
           <div class="card-body">
-            <h5 class="card-title">Quản Lý Dịch Vụ Của Hồ Bơi</h5>
-            <p class="card-text">Quản lý các dịch vụ hồ bơi về giá cả, về hồ bơi đó.</p>
-            <a href="service-management2.html" class="btn btn-primary">Xem Chi Tiết</a>
+            <h5 class="card-title">Dịch Vụ Của Hồ Bơi</h5>
+            <p class="card-text">Quản lý các dịch vụ cụ thể tại từng hồ bơi về giá cả, mô tả chi tiết.</p>
+            <a href="service-pools.html" class="btn btn-primary">Xem Chi Tiết</a>
           </div>
         </div>
-      </div> -->
-      <!-- Quản Lý Sự Kiện -->
+      </div>
+
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <h5 class="card-title">Quản Lý Sự Kiện</h5>
-            <p class="card-text">Quản lý các sự kiện tại các hồ bơi, thời gian tổ chức và các chi tiết khác.</p>
+            <h5 class="card-title">Sự Kiện</h5>
+            <p class="card-text">Quản lý các sự kiện tổ chức tại các hồ bơi như thi đấu, hội thao...</p>
             <a href="event-management.html" class="btn btn-primary">Xem Chi Tiết</a>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="row row-cols-1 row-cols-md-3 g-4 mt-4">
-      <!-- Quản Lý Tiện Ích -->
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <h5 class="card-title">Quản Lý Tiện Ích</h5>
-            <p class="card-text">Quản lý các tiện ích tại các hồ bơi, các tiện ích hỗ trợ người tham gia.</p>
+            <h5 class="card-title">Tiện Ích</h5>
+            <p class="card-text">Quản lý danh sách tiện ích sẵn có trong hệ thống như ghế, tủ đồ, phòng tắm...</p>
             <a href="facility-management.html" class="btn btn-primary">Xem Chi Tiết</a>
           </div>
         </div>
       </div>
 
-      <!-- Quản Lý Phiếu Đăng Ký -->
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <h5 class="card-title">Quản Lý Phiếu Đăng Ký</h5>
-            <p class="card-text">Quản lý các phiếu đăng ký tham gia các sự kiện hoặc dịch vụ tại các hồ bơi.</p>
+            <h5 class="card-title">Tiện Ích Hồ Bơi</h5>
+            <p class="card-text">Gán và quản lý tiện ích cho từng hồ bơi.</p>
+            <a href="facility-pools.html" class="btn btn-primary">Xem Chi Tiết</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Phiếu Đăng Ký</h5>
+            <p class="card-text">Xử lý các phiếu đăng ký tham gia sự kiện của khách hàng.</p>
             <a href="eventregistrations.html" class="btn btn-primary">Xem Chi Tiết</a>
           </div>
         </div>
       </div>
 
-      <!-- Quản Lý Thông Tin Khách Hàng -->
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <h5 class="card-title">Quản Lý Thông Tin Người Dùng</h5>
-            <p class="card-text">Xem thông tin chi tiết về người dùng đã có tài khoản.</p>
+            <h5 class="card-title">Thông Tin Người Dùng</h5>
+            <p class="card-text">Xem và quản lý người dùng trong hệ thống.</p>
             <a href="infor-customer.html" class="btn btn-primary">Xem Chi Tiết</a>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="row row-cols-1 row-cols-md-3 g-4 mt-4">
-
-      <!-- Đánh Giá -->
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
             <h5 class="card-title">Đánh Giá</h5>
-            <p class="card-text">Xem đánh giá của khách hàng về các dịch vụ, hồ bơi đã tham gia.</p>
+            <p class="card-text">Xem nhận xét và điểm đánh giá từ người dùng về dịch vụ.</p>
             <a href="review-management.html" class="btn btn-primary">Xem Chi Tiết</a>
           </div>
         </div>
       </div>
 
-      <!-- Thống kê -->
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <h5 class="card-title">Thống kê</h5>
-            <p class="card-text">Thống kê về các dịch vụ, hồ bơi, sự kiện...</p>
+            <h5 class="card-title">Thống Kê</h5>
+            <p class="card-text">Thống kê doanh thu, lượt tham gia, dịch vụ bán chạy,...</p>
             <a href="statistics.html" class="btn btn-primary">Xem Chi Tiết</a>
           </div>
         </div>
@@ -152,49 +159,42 @@
     </div>
   </div>
 
+  <!-- Script -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     function logout() {
-      // Lấy thông tin người dùng từ localStorage
-      const authToken = localStorage.getItem("authToken");  // Lấy token từ "authToken"
+      const authToken = localStorage.getItem("authToken");
 
       if (!authToken) {
         alert("Bạn chưa đăng nhập!");
-        return;  // Nếu không có token, thông báo và dừng lại
+        return;
       }
 
-      // Gửi yêu cầu POST tới API để đăng xuất
       fetch("http://127.0.0.1:8000/api/logout", {
-        method: "POST",  // Sử dụng phương thức POST
+        method: "POST",
         headers: {
-          "Content-Type": "application/json",  // Đảm bảo gửi dữ liệu ở dạng JSON
-          "Authorization": `Bearer ${authToken}`  // Gửi token qua header Authorization
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`
         }
       })
-        .then(response => response.json())  // Chuyển phản hồi từ server thành JSON
+        .then(response => response.json())
         .then(data => {
-          // Kiểm tra mã trạng thái phản hồi
           if (data.status === "success" || data.status === 200) {
             alert("Đăng xuất thành công!");
-            // Xóa thông tin người dùng và token khỏi localStorage
             localStorage.removeItem("authToken");
             localStorage.removeItem("loggedInUser");
-            // Chuyển hướng đến trang đăng nhập
             window.location.href = "../customer/login.html";
           } else {
-            // Nếu có lỗi, hiển thị thông báo lỗi
             alert(data.message || "Có lỗi xảy ra, vui lòng thử lại!");
           }
         })
         .catch(error => {
-          // Xử lý lỗi nếu có sự cố khi gọi API
           console.error("Lỗi khi gọi API logout:", error);
           alert("Có lỗi xảy ra, vui lòng thử lại!");
         });
     }
   </script>
-
 </body>
 
 </html>
