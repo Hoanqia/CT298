@@ -110,6 +110,10 @@
                             <label class="form-label">Phí</label>
                             <input type="number" class="form-control" id="eventFee" required>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">ID Hồ Bơi</label>
+                            <input type="text" class="form-control" id="eventPool" required>
+                        </div>
                         <button type="submit" class="btn btn-primary">Thêm Sự Kiện</button>
                     </form>
                 </div>
@@ -155,6 +159,10 @@
                         <div class="mb-3">
                             <label class="form-label">Phí</label>
                             <input type="number" class="form-control" id="editEventFee" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ID Hồ Bơi</label>
+                            <input type="text" class="form-control" id="editEventPool" required>
                         </div>
                         <button type="submit" class="btn btn-warning">Cập Nhật Sự Kiện</button>
                     </form>
@@ -214,16 +222,52 @@
                             data-type="${event.type}"
                             data-time="${event.organization_date}"
                             data-capacity="${event.max_participants}"
-                            data-price="${event.price}"
-                            data-id_pool="${event.id_pool}">
-                            Sửa
-                        </button>
+                            data-fee="${event.price}"
+                            data-pool="${event.id_pool}">Sửa</button>
                         <button class="btn btn-danger btn-sm delete-btn" data-id="${event.id_event}">Xóa</button>
                     </td>
                 </tr>
             `).join("");
             $("#eventList").html(rows);
         }
+
+        // Tìm kiếm sự kiện
+        function searchEvent() {
+            const searchTerm = $("#searchEvent").val().toLowerCase();
+            const filteredEvents = allEvents.filter(event => {
+                return event.name.toLowerCase().includes(searchTerm) || event.description.toLowerCase().includes(searchTerm);
+            });
+            renderEventList(filteredEvents);
+        }
+
+        // Thêm sự kiện
+        $("#addEventForm").submit(function (event) {
+            event.preventDefault();
+
+            const newEvent = {
+                name: $("#eventName").val(),
+                description: $("#eventDescription").val(),
+                type: $("#eventType").val(),
+                organization_date: $("#eventTime").val(),
+                max_participants: $("#eventCapacity").val(),
+                price: $("#eventFee").val(),
+                id_pool: $("#eventPool").val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "http://127.0.0.1:8000/api/pools/{id_pool}/events/create",
+                headers: { "Authorization": `Bearer ${authToken}` },
+                data: newEvent,
+                success: function () {
+                    loadEvents();
+                    $("#addEventModal").modal('hide');
+                },
+                error: function () {
+                    alert("Không thể thêm sự kiện.");
+                }
+            });
+        });
 
         // Sửa sự kiện
         $(document).on("click", ".edit-btn", function () {
@@ -235,19 +279,48 @@
             $("#editEventTime").val(event.time);
             $("#editEventCapacity").val(event.capacity);
             $("#editEventFee").val(event.fee);
-            $("#editEventModal").modal("show");
+            $("#editEventPool").val(event.pool);
+            $("#editEventModal").modal('show');
+        });
+
+        // Cập nhật sự kiện
+        $("#editEventForm").submit(function (event) {
+            event.preventDefault();
+            const updatedEvent = {
+                name: $("#editEventName").val(),
+                description: $("#editEventDescription").val(),
+                type: $("#editEventType").val(),
+                organization_date: $("#editEventTime").val(),
+                max_participants: $("#editEventCapacity").val(),
+                price: $("#editEventFee").val(),
+                id_pool: $("#editEventPool").val()
+            };
+
+            $.ajax({
+                type: "PUT",
+                url: `http://127.0.0.1:8000/api/events/${$("#editEventId").val()}`,
+                headers: { "Authorization": `Bearer ${authToken}` },
+                data: updatedEvent,
+                success: function () {
+                    loadEvents();
+                    $("#editEventModal").modal('hide');
+                },
+                error: function () {
+                    alert("Không thể cập nhật sự kiện.");
+                }
+            });
         });
 
         // Xóa sự kiện
         $(document).on("click", ".delete-btn", function () {
             const eventId = $(this).data("id");
-            if (confirm("Bạn có chắc chắn muốn xóa sự kiện này?")) {
+
+            if (confirm("Bạn có chắc chắn muốn xóa sự kiện này không?")) {
                 $.ajax({
                     type: "DELETE",
                     url: `http://127.0.0.1:8000/api/events/${eventId}`,
                     headers: { "Authorization": `Bearer ${authToken}` },
                     success: function () {
-                        alert("Sự kiện đã được xóa thành công.");
                         loadEvents();
                     },
                     error: function () {
@@ -257,74 +330,7 @@
             }
         });
 
-        // Thêm sự kiện
-        $("#addEventForm").submit(function (e) {
-            e.preventDefault();
-            const data = {
-                name: $("#eventName").val(),
-                description: $("#eventDescription").val(),
-                type: $("#eventType").val(),
-                organization_date: $("#eventTime").val(),
-                max_participants: $("#eventCapacity").val(),
-                price: $("#eventFee").val(),
-                id_pool: $("#eventPool").val(),
-            };
-            $.ajax({
-                type: "POST",
-                url: "http://127.0.0.1:8000/api/events",
-                headers: { "Authorization": `Bearer ${authToken}` },
-                data: data,
-                success: function () {
-                    alert("Sự kiện đã được thêm.");
-                    loadEvents();
-                    $("#addEventModal").modal("hide");
-                },
-                error: function () {
-                    alert("Không thể thêm sự kiện.");
-                }
-            });
-        });
-
-        // Cập nhật sự kiện
-        $("#editEventForm").submit(function (e) {
-            e.preventDefault();
-            const eventId = $("#editEventId").val();
-            const data = {
-                name: $("#editEventName").val(),
-                description: $("#editEventDescription").val(),
-                type: $("#editEventType").val(),
-                organization_date: $("#editEventTime").val(),
-                max_participants: $("#editEventCapacity").val(),
-                price: $("#editEventFee").val(),
-                id_pool: $("#editEventPool").val(),
-            };
-            $.ajax({
-                type: "PUT",
-                url: `http://127.0.0.1:8000/api/events/${eventId}`,
-                headers: { "Authorization": `Bearer ${authToken}` },
-                data: data,
-                success: function () {
-                    alert("Sự kiện đã được cập nhật.");
-                    loadEvents();
-                    $("#editEventModal").modal("hide");
-                },
-                error: function () {
-                    alert("Không thể cập nhật sự kiện.");
-                }
-            });
-        });
-
-        // Tìm kiếm sự kiện
-        function searchEvent() {
-            const query = $("#searchEvent").val().toLowerCase();
-            const filteredEvents = allEvents.filter(event => {
-                return event.name.toLowerCase().includes(query) ||
-                    event.description.toLowerCase().includes(query) ||
-                    event.type.toLowerCase().includes(query);
-            });
-            renderEventList(filteredEvents);
-        }
-
+        // Khi tải trang, gọi loadEvents để hiển thị sự kiện
         $(document).ready(function () {
             loadEvents();
         });
