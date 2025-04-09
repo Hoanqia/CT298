@@ -1,1 +1,276 @@
+<!-- File: pool-utility-management.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tiện Ích Hồ Bơi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
 
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Quản Lý Tiện Ích Hồ Bơi</a>
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link active" href="index.html">Trang Chủ</a></li>
+        <li class="nav-item"><a class="nav-link" href="pool-management.html">Hồ Bơi</a></li>
+        <li class="nav-item"><a class="nav-link" href="service-management.html">Dịch Vụ</a></li>
+        <li class="nav-item"><a class="nav-link" href="service-pools.html">Dịch Vụ Của Hồ Bơi</a></li>
+        <li class="nav-item"><a class="nav-link" href="event-management.html">Sự Kiện</a></li>
+        <li class="nav-item"><a class="nav-link" href="facility-management.html">Tiện Ích</a></li>
+        <li class="nav-item"><a class="nav-link" href="facility-pools.html">Tiện Ích Của Hồ Bơi</a></li>
+        <li class="nav-item"><a class="nav-link active" href="eventregistrations.html">Phiếu Đăng Ký</a></li>
+        <li class="nav-item"><a class="nav-link" href="infor-customer.html">Thông Tin Người Dùng</a></li>
+        <li class="nav-item"><a class="nav-link" href="review-management.html">Đánh Giá </a></li>
+        <li class="nav-item"><a class="nav-link" href="statistics.html">Thống kê</a></li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <img src="img/admin.jpg" alt="Admin" class="rounded-circle"
+              style="width: 30px; height: 30px; margin-right: 8px;">
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+            <li><a class="dropdown-item" href="profile.html">Hồ Sơ</a></li>
+            <li><a class="dropdown-item text-danger" href="logout.html">Đăng Xuất</a></li>
+          </ul>
+        </li>
+      </ul>
+  </div>
+</nav>
+
+<div class="container mt-5">
+  <h2 class="mb-4">Quản Lý Tiện Ích Của Hồ Bơi</h2>
+
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <select id="poolId" class="form-control">
+        <option value="">-- Chọn Hồ Bơi --</option>
+      </select>
+    </div>
+    <div class="col-md-4 d-flex align-items-center">
+      <h5 id="poolNameDisplay" class="mb-0 ms-2 text-primary"></h5>
+    </div>
+    <div class="col-md-4 text-end">
+      <button class="btn btn-primary mb-3" id="addUtilityBtn" data-bs-toggle="modal" data-bs-target="#addUtilityModal">Thêm Tiện Ích</button>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <input type="text" id="searchUtility" class="form-control" placeholder="Tìm tiện ích..." oninput="searchUtility()"/>
+    </div>
+  </div>
+
+  <table class="table table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th>STT</th>
+        <th>Tiện Ích</th>
+        <th>Hành Động</th>
+      </tr>
+    </thead>
+    <tbody id="utilityList"></tbody>
+  </table>
+
+  <h4 class="mt-5 mb-3">Tất Cả Tiện Ích Hồ Bơi</h4>
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Tên Hồ Bơi</th>
+        <th>Tiện Ích</th>
+      </tr>
+    </thead>
+    <tbody id="allAssignedUtilities"></tbody>
+  </table>
+</div>
+
+<!-- Modal Thêm -->
+<div class="modal fade" id="addUtilityModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="addUtilityForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Thêm Tiện Ích Cho Hồ Bơi</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <select class="form-control mb-2" id="addUtilityId" required></select>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Thêm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  let authToken = localStorage.getItem("authToken") || "";
+  let poolId = "";
+  let allUtilities = [];
+  let utilityMap = {};
+  let poolMap = {};
+
+  function loadUtilityOptions() {
+    $.ajax({
+      type: "GET",
+      url: "http://127.0.0.1:8000/api/utilities",
+      headers: { Authorization: `Bearer ${authToken}` },
+      success: function (res) {
+        utilityMap = {};
+        const options = res.data.map(u => {
+          utilityMap[u.id_utility] = u.name;
+          return `<option value="${u.id_utility}">${u.id_utility} - ${u.name}</option>`;
+        }).join("");
+        $("#addUtilityId").html(options);
+      },
+      error: () => alert("Không thể tải danh sách tiện ích.")
+    });
+  }
+
+  function loadPoolMap(callback) {
+    $.ajax({
+      type: "GET",
+      url: "http://127.0.0.1:8000/api/pools",
+      headers: { Authorization: `Bearer ${authToken}` },
+      success: function (res) {
+        poolMap = {};
+        const options = res.data.map(p => {
+          poolMap[p.id_pool] = p.name;
+          return `<option value="${p.id_pool}">${p.id_pool} - ${p.name}</option>`;
+        }).join("");
+        $("#poolId").append(options);
+        if (callback) callback();
+      },
+      error: () => alert("Không thể tải danh sách hồ bơi.")
+    });
+  }
+
+  function loadPoolName() {
+    if (!poolId) return $("#poolNameDisplay").text("");
+    $.ajax({
+      type: "GET",
+      url: `http://127.0.0.1:8000/api/pools/${poolId}`,
+      headers: { Authorization: `Bearer ${authToken}` },
+      success: function (res) {
+        $("#poolNameDisplay").text(`Tên Hồ Bơi: ${res.data?.name || "Không rõ"}`);
+      },
+      error: function () {
+        $("#poolNameDisplay").text("Không tìm thấy hồ bơi.");
+      }
+    });
+  }
+
+  function loadUtilities() {
+    poolId = $("#poolId").val();
+    if (!poolId) return $("#utilityList").html(`<tr><td colspan="3" class="text-center">Vui lòng chọn hồ bơi.</td></tr>`);
+    
+    loadPoolName();
+
+    $.ajax({
+      type: "GET",
+      url: `http://127.0.0.1:8000/api/pools/${poolId}/utilities`,
+      headers: { Authorization: `Bearer ${authToken}` },
+      success: function (res) {
+        allUtilities = res.data || [];
+        renderUtilities(allUtilities);
+      },
+      error: () => alert("Lỗi khi tải tiện ích của hồ bơi.")
+    });
+  }
+
+  function renderUtilities(utilities) {
+    const rows = utilities.map((u, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${u.id_utility} - ${utilityMap[u.id_utility] || 'Không rõ tên'}</td>
+        <td>
+          <button class="btn btn-sm btn-danger delete-btn" data-id="${u.id_pu}">Xoá</button>
+        </td>
+      </tr>
+    `).join("");
+    $("#utilityList").html(rows || `<tr><td colspan="3" class="text-center">Không có tiện ích</td></tr>`);
+  }
+
+  function searchUtility() {
+    const keyword = $("#searchUtility").val().toLowerCase();
+    const filtered = allUtilities.filter(u => {
+      const name = (utilityMap[u.id_utility] || "").toLowerCase();
+      return u.id_utility.toString().includes(keyword) || name.includes(keyword);
+    });
+    renderUtilities(filtered);
+  }
+
+  $("#addUtilityForm").submit(function (e) {
+    e.preventDefault();
+    const data = { id_utility: $("#addUtilityId").val() };
+
+    $.ajax({
+      type: "POST",
+      url: `http://127.0.0.1:8000/api/pools/${poolId}/utilities/create`,
+      headers: { Authorization: `Bearer ${authToken}` },
+      data: data,
+      success: function () {
+        $("#addUtilityModal").modal("hide");
+        $("#addUtilityForm")[0].reset();
+        loadUtilities();
+        loadAllAssignedUtilities();
+        alert("Thêm thành công.");
+      },
+      error: () => alert("Thêm tiện ích thất bại.")
+    });
+  });
+
+  $(document).on("click", ".delete-btn", function () {
+    const id_pu = $(this).data("id");
+    if (confirm("Bạn chắc chắn muốn xoá?")) {
+      $.ajax({
+        type: "DELETE",
+        url: `http://127.0.0.1:8000/api/pools/${poolId}/utilities/${id_pu}`,
+        headers: { Authorization: `Bearer ${authToken}` },
+        success: function () {
+          loadUtilities();
+          loadAllAssignedUtilities();
+          alert("Xoá thành công.");
+        },
+        error: () => alert("Xoá thất bại.")
+      });
+    }
+  });
+
+  function loadAllAssignedUtilities() {
+    $.ajax({
+      type: "GET",
+      url: "http://127.0.0.1:8000/api/pool-utilities",
+      headers: { Authorization: `Bearer ${authToken}` },
+      success: function (res) {
+        const rows = res.data.map((u, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${poolMap[u.id_pool] || 'Không rõ tên hồ bơi'}</td>
+            <td>${u.id_utility} - ${utilityMap[u.id_utility] || 'Không rõ tiện ích'}</td>
+          </tr>
+        `).join("");
+        $("#allAssignedUtilities").html(rows || `<tr><td colspan="3" class="text-center">Không có dữ liệu</td></tr>`);
+      },
+      error: () => alert("Không thể tải toàn bộ tiện ích.")
+    });
+  }
+
+  $(document).ready(() => {
+    loadUtilityOptions();
+    loadPoolMap(loadAllAssignedUtilities);
+    $("#poolId").on("change", loadUtilities);
+  });
+</script>
+
+</body>
+</html>
