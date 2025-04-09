@@ -134,7 +134,7 @@
     }
 
     function updateStatus(id_ER, status) {
-      fetch(`http://127.0.0.1:8000/api/pools/${id_pool}/events/${id_event}/event-registrations/${id_ER}`, {
+      fetch(`http://127.0.0.1:8000/api/event-registrations/${id_ER}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

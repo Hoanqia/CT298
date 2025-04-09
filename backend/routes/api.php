@@ -68,6 +68,7 @@ Route::get('/utilities',[UtilityController::class,'getAll']);
     Route::post('/logout',[UserController::class,'logout']); // Người dùng đăng xuất 
     // http://127.0.0.1:8000/api/logout
     Route::get('/events',[EventController::class,'getAllofEvents']); // Lấy toàn bộ sự kiện
+    Route::patch('/event-registrations/{id_ER}',[EventRegistrationController::class,'updateStatusEr2']);
     Route::get('/event-registrations',[EventRegistrationController::class,'getAll']);
     Route::get('/reviews',[ReviewController::class,'getAll']);
 });
@@ -88,7 +89,6 @@ Route::get('/pools/{id_pool}/events/{id_event}',[EventController::class,'getEven
 
 Route::get('/pools/{id_pool}/events',[EventController::class,'getEventsOfPool']); // lấy danh sách sự kiện của 1 hồ bơi
 // http://127.0.0.1:8000/api/pools/15/events/
-
 Route::get('/pools/{id_pool}/reviews',[ReviewController::class,'getReviewsOfPool']); // Lấy danh sách đánh giá của 1 hồ bơi
 // http://127.0.0.1:8000/api/pools/15/reviews
 Route::get('/pools/{id_pool}/services/{id_ps}',[PoolServiceController::class,'getPoolServiceOfPool']); // Lấy thông tin 1 dịch vụ của 1 hồ bơi 

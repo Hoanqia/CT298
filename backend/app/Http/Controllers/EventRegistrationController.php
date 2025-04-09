@@ -387,5 +387,57 @@ class EventRegistrationController extends Controller
             ],200);
 
         }
-       
+        public function updateStatusEr2($id_ER,Request $request){
+            $user = auth('sanctum')->user();
+            if(!$user){
+                return response()->json([
+                    'message' => 'Bạn cần đăng nhập',
+                    'status' => 'error',
+                ],401);
+            }
+            if($user->role !== "admin"){
+                return response()->json([
+                    'message' => 'Bạn không có quyền truy cập',
+                    'status' => 'error',
+                ],403);
+            }
+            if ((floor($id_ER) != $id_ER) || $id_ER <= 0 ) {
+                return response()->json([
+                    'message' => 'Dữ liệu không hợp lệ',
+                    'status' => 'error',
+                ],422);
+            }
+           
+           
+            $er = EventRegistration::find($id_ER);
+            if(!$er){
+                return response()->json([
+                    'message' => 'Phiếu đăng ký không tồn tại',
+                    'status' => 'error',
+                ],404);
+            }
+            $validator = Validator::make($request->all(),[
+                'status' => 'required|in:pending,confirmed,rejected',
+            ]);
+            if($validator->fails()){
+                return response()->json([
+                    'message' => 'Dữ liệu không hợp lệ',
+                    'status' => 'error',
+                    'errors' => $validator->errors(),
+                ],422);
+            }
+            $validatedData = $validator->validated();
+            if(!($er->update($validatedData))){
+                return response()->json([
+                    'message' => 'Cập nhật trạng thái phiếu đăng ký thất bại',
+                    'status' => 'error',
+                ],500);
+            }
+            return  response()->json([
+                'message' => 'Cập nhật trạng thái phiếu đăng ký thành công',
+                'status' => 'success',
+                'data' => $er,
+            ],200);
+
+        }
 }

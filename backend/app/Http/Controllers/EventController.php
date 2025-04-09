@@ -32,7 +32,6 @@ class EventController extends Controller
             'message' => 'Lấy danh sách sự kiện của hồ bơi thành công',
         ],200);
     }
-    
     public function getEvent($id_pool,$id_event){
         $event = Event::where('id_pool',$id_pool)->where('id_event',$id_event)->first();
         if(!$event){
