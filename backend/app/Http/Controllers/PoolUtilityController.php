@@ -19,6 +19,35 @@ use App\Models\PoolUtility;
 use Illuminate\Support\Facades\Log;
 class PoolUtilityController extends Controller
 {
+    public function getAll(){
+        $user = auth('sanctum')->user();
+        if(!$user){
+            return response()->json([
+                'message' => 'Bạn cần đăng nhập',
+                'status' => 'error',
+            ],401);
+        }
+        if($user->role !== "admin"){
+            return response()->json([
+                'message' => 'Bạn không có quyền truy cập',
+                'status' => 'error',
+            ],403);
+        }
+        $poolUtilities = PoolUtility::all();
+       if($poolUtilities->isEmpty()){
+        return response()->json([
+            'message' => 'Không có dữ liệu',
+            'status' => 'success',
+            'data' => [],
+        ],200);
+       }
+       return response()->json([
+            'message' => 'Lấy dữ liệu thành công',
+            'status' => 'success',
+            'data' => $poolUtilities,
+       ],200);
+        
+    }
     public function getUtilitiesOfPool($id_pool){
         if($id_pool <= 0 || !filter_var($id_pool,FILTER_VALIDATE_INT)){
             return response()->json([
