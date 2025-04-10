@@ -72,6 +72,8 @@
                     <th>Giá Trẻ Em</th>
                     <th>Giá Người Lớn</th>
                     <th>Giá Học Sinh</th>
+                    <th>Số sao</th>
+                    <th>Số người đánh giá</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
@@ -89,10 +91,6 @@
                 </div>
                 <div class="modal-body">
                     <form id="addPoolForm">
-                        <div class="mb-3">
-                            <label>ID</label>
-                            <input type="text" class="form-control" id="addPoolID" required>
-                        </div>
 
                         <div class="mb-3">
                             <label>Hình ảnh</label>
@@ -116,10 +114,21 @@
 
                         <div class="mb-3">
                             <label>Địa chỉ</label>
-                            <input type="text" class="form-control" id="addHouseNumber" placeholder="Số nhà" required>
-                            <input type="text" class="form-control mt-2" id="addStreetID" placeholder="ID Đường"
-                                required>
+                            <input type="text" class="form-control mb-2" id="addHouseNumber" placeholder="Số nhà" required>
+                        
+                            <select class="form-control mb-2" id="districtSelect" required>
+                                <option value="">-- Chọn huyện --</option>
+                            </select>
+                        
+                            <select class="form-control mb-2" id="wardSelect" required>
+                                <option value="">-- Chọn phường --</option>
+                            </select>
+                        
+                            <select class="form-control" id="streetSelect" required>
+                                <option value="">-- Chọn đường --</option>
+                            </select>
                         </div>
+                        
 
                         <div class="mb-3">
                             <label>Toạ độ</label>
@@ -265,6 +274,62 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        function loadDistricts() {
+        $.ajax({
+            url: "http://127.0.0.1:8000/api/districts",
+            method: "GET",
+            success: function (response) {
+                let options = '<option value="">-- Chọn huyện --</option>';
+                response.data.forEach(d => {
+                    options += `<option value="${d.id_district}">${d.name}</option>`;
+                });
+                $('#districtSelect').html(options);
+                $('#wardSelect').html('<option value="">-- Chọn phường --</option>');
+                $('#streetSelect').html('<option value="">-- Chọn đường --</option>');
+            }
+        });
+    }
+
+    // Khi chọn huyện → load phường
+    $('#districtSelect').on('change', function () {
+        const districtID = $(this).val();
+        if (!districtID) return;
+
+        $.ajax({
+            url: `http://127.0.0.1:8000/api/districts/${districtID}/wards`,
+            method: "GET",
+            success: function (response) {
+                let options = '<option value="">-- Chọn phường --</option>';
+                response.data.forEach(w => {
+                    options += `<option value="${w.id_ward}">${w.name}</option>`;
+                });
+                $('#wardSelect').html(options);
+                $('#streetSelect').html('<option value="">-- Chọn đường --</option>');
+            }
+        });
+    });
+
+    // Khi chọn phường → load đường
+    $('#wardSelect').on('change', function () {
+        const districtID = $('#districtSelect').val();
+        const wardID = $(this).val();
+        if (!districtID || !wardID) return;
+
+        $.ajax({
+            url: `http://127.0.0.1:8000/api/districts/${districtID}/wards/${wardID}/streets`,
+            method: "GET",
+            success: function (response) {
+                console.log("Response trả về:", response); // In ra để kiểm tra
+                let options = '<option value="">-- Chọn đường --</option>';
+                response.data.forEach(s => {
+                    options += `<option value="${s.id_street}">${s.name}</option>`;
+                });
+                $('#streetSelect').html(options);
+            }
+        });
+    });
+
+
         $(document).ready(function () {
             let authToken = localStorage.getItem("authToken") || "";
 
@@ -294,6 +359,8 @@
                                 <td>${pool.children_price} VND</td>
                                 <td>${pool.adult_price} VND</td>
                                 <td>${pool.student_price} VND</td>
+                                <td>${pool.average_rating}</td>
+                                <td>${pool.total_reviews}</td>
                                 <td>
                                     <button class="btn btn-warning btn-sm edit-btn" data-id="${pool.id_pool}">Sửa</button>
                                     <button class="btn btn-danger btn-sm delete-btn" data-id="${pool.id_pool}">Xóa</button>
@@ -460,6 +527,8 @@
 
             // Tải danh sách hồ bơi khi trang được tải
             loadPools();
+            loadDistricts();
+            
         });
     </script>
 </body>
