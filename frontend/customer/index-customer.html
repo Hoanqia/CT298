@@ -20,6 +20,8 @@
 
     <!-- Icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body>
@@ -455,45 +457,61 @@
             let routeControl = null; // Lưu tuyến đường hiện tại
             let userMarker = null;   // Lưu marker của người dùng
 
-            function displayRoute(poolLocation) {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function (position) {
-                        var userLocation = [position.coords.latitude, position.coords.longitude];
+                function displayRoute(poolLocation) {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function (position) {
+                            var userLocation = [position.coords.latitude, position.coords.longitude];
 
-                        // Xóa marker user cũ trước khi thêm mới
-                        if (userMarker) {
-                            console.log("🗑 Xóa marker cũ của user");
-                            map.removeLayer(userMarker);
-                        }
+                            // Xóa marker user cũ trước khi thêm mới
+                            if (userMarker) {
+                                console.log("🗑 Xóa marker cũ của user");
+                                map.removeLayer(userMarker);
+                            }
 
-                        // Thêm marker mới của user
-                        userMarker = L.marker(userLocation, { icon: userIcon }).addTo(map);
-                        console.log("✅ Thêm marker mới của user:", userMarker);
+                            // Thêm marker mới của user
+                            userMarker = L.marker(userLocation, { icon: userIcon }).addTo(map);
+                            console.log("✅ Thêm marker mới của user:", userMarker);
 
-                        // Xóa tuyến đường cũ nếu có
-                        if (routeControl) {
-                            console.log("🗑 Xóa tuyến đường cũ");
-                            map.removeControl(routeControl);
-                        }
+                            // Xóa tuyến đường cũ nếu có
+                            if (routeControl) {
+                                console.log("🗑 Xóa tuyến đường cũ");
+                                map.removeControl(routeControl);
+                            }
 
-                        // Tạo tuyến đường mới (chỉ vẽ đường, không tạo thêm marker)
-                        routeControl = L.Routing.control({
-                            waypoints: [
-                                L.latLng(userLocation),
-                                L.latLng(poolLocation)
-                            ],
-                            routeWhileDragging: true,
-                            createMarker: function () { return null; } // Ngăn chặn tạo thêm marker
-                        }).addTo(map);
+                            // Tạo tuyến đường mới (chỉ vẽ đường, không tạo thêm marker)
+                            routeControl = L.Routing.control({
+                                waypoints: [
+                                    L.latLng(userLocation),
+                                    L.latLng(poolLocation)
+                                ],
+                                routeWhileDragging: true,
+                                createMarker: function () { return null; } // Ngăn chặn tạo thêm marker
+                            }).addTo(map);
+                            
+                            routeControl.on('routesfound', function (e) {
+                            const routes = e.routes;
+                            const summary = routes[0].summary;
+                            const timeInMinutes = Math.round(summary.totalTime / 60); // thời gian dự kiến (giây → phút)
 
-                    }, function (error) {
-                        console.error("❌ Lỗi khi lấy vị trí người dùng:", error);
-                        alert("⚠️ Không thể lấy vị trí của bạn! Vui lòng kiểm tra cài đặt trình duyệt.");
-                    });
-                } else {
-                    alert("❌ Trình duyệt của bạn không hỗ trợ định vị!");
+                            console.log("⏱️ Thời gian dự kiến:", timeInMinutes + " phút");
+
+                            Swal.fire({
+                                icon: 'info',
+                                title: '⏱️ Thời gian di chuyển dự kiến',
+                                text: timeInMinutes + ' phút',
+                                timer: 4000,
+                                timerProgressBar: true,
+                                showConfirmButton: false
+                            });
+                            });
+                        }, function (error) {
+                            console.error("❌ Lỗi khi lấy vị trí người dùng:", error);
+                            alert("⚠️ Không thể lấy vị trí của bạn! Vui lòng kiểm tra cài đặt trình duyệt.");
+                        });
+                    } else {
+                        alert("❌ Trình duyệt của bạn không hỗ trợ định vị!");
+                    }
                 }
-            }
 
 
             function renderPools(pools) {
