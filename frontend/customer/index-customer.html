@@ -20,6 +20,8 @@
 
     <!-- Icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body>
@@ -485,7 +487,20 @@
                             routeWhileDragging: true,
                             createMarker: function () { return null; } // Ngăn chặn tạo thêm marker
                         }).addTo(map);
+                         // 🔽 Thêm đoạn tính và hiển thị thời gian dự kiến
+                        routeControl.on('routesfound', function (e) {
+                            const summary = e.routes[0].summary;
+                            const timeInMinutes = Math.round(summary.totalTime / 60);
 
+                            Swal.fire({
+                                icon: 'info',
+                                title: '⏱️ Thời gian di chuyển dự kiến',
+                                html: `<div style="font-size: 22px; font-weight: bold; color: #2c3e50;">${timeInMinutes} phút</div>`,
+                                timer: 5000,
+                                timerProgressBar: true,
+                                showConfirmButton: false
+                            });
+                        });
                     }, function (error) {
                         console.error("❌ Lỗi khi lấy vị trí người dùng:", error);
                         alert("⚠️ Không thể lấy vị trí của bạn! Vui lòng kiểm tra cài đặt trình duyệt.");
